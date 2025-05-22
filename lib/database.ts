@@ -457,7 +457,7 @@ export async function dbGetMangaReadChapters(db: SQLite.SQLiteDatabase, manga_id
     const rows = await db.getAllAsync(
     `
       SELECT
-        chapter_num
+        chapter_id
       FROM 
         reading_history
       WHERE 
@@ -471,7 +471,7 @@ export async function dbGetMangaReadChapters(db: SQLite.SQLiteDatabase, manga_id
     return new Set<number>()
   }
   
-  return new Set<number>(rows.map((item: any) => item.chapter_num))
+  return new Set<number>(rows.map((item: any) => item.chapter_id))
 }
 
 
@@ -822,6 +822,7 @@ export async function dbUpsertReadingHistory(
   chapter_id: number,
   chapter_num: number
 ) {
+  console.log(manga_id, chapter_id)
   await db.runAsync(
     `
       INSERT INTO reading_history (

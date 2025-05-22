@@ -46,7 +46,10 @@ const ChapterLink = ({
         setChapterNum(chapter.chapter_num)
         setLoading(false)
         isActive.current = false
-        router.navigate({pathname: "/(pages)/Chapter", params: {manga_title: manga.title}})
+        router.navigate({
+            pathname: "/(pages)/Chapter", 
+            params: {manga_title: manga.title}
+        })
     }
 
     return (

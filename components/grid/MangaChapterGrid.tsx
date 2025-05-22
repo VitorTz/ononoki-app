@@ -8,18 +8,19 @@ import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
 import { useEffect, useRef, useState } from "react"
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native"
+import CButton from "../buttons/CButton"
 
 
 interface ChapterItemProps {
   isReaded: boolean
-  manhwa_title: string
+  manga_title: string
   chapter: Chapter  
 }
 
 
 const ChapterItem = ({
   isReaded, 
-  manhwa_title, 
+  manga_title, 
   chapter  
 }: ChapterItemProps) => {
 
@@ -27,7 +28,7 @@ const ChapterItem = ({
 
   const onPress = () => {
     setChapterNum(chapter.chapter_num)
-    router.navigate({pathname: "/(pages)/Chapter", params: {manhwa_title}})
+    router.navigate({pathname: "/(pages)/Chapter", params: {manga_title: manga_title}})
   }
 
   const bColor = isReaded ? Colors.white : Colors.gray
@@ -43,11 +44,59 @@ const ChapterItem = ({
 }
 
 
+interface ChapterPageSelectorProps {
+  textColor: string
+  mangaColor: string
+  currentPage: number
+  numChapters: number
+  moveToPreviousChapterPage: () => any
+  moveToNextChapterPage: () => any
+}
+
+const ChapterPageSelector = ({
+  textColor,
+  mangaColor,  
+  currentPage,
+  moveToPreviousChapterPage,
+  moveToNextChapterPage,
+  numChapters
+}: ChapterPageSelectorProps) => {
+
+
+  return (
+    <View style={{width: '100%', gap: 10, flexDirection: 'row'}} >
+      <View style={{flex: 1, alignItems: "center", justifyContent: "center", height: 52, borderRadius: 4, backgroundColor: mangaColor}} >
+          <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]} >Chapters: {numChapters}</Text>
+      </View>
+      <View style={{flex: 1, gap: 10, flexDirection: 'row'}} >
+        <CButton 
+          style={{flex: 1, height: 52, borderRadius: 4, backgroundColor: mangaColor}} 
+          iconColor={textColor}
+          iconName="chevron-back-outline"
+          onPress={moveToPreviousChapterPage}
+          />
+        <View style={{flex: 1, alignItems: "center", justifyContent: "center", height: 52, borderRadius: 4, borderWidth: 1, borderColor: mangaColor}}>
+          <Text style={AppStyle.textRegular}>{currentPage + 1}</Text>
+        </View>
+        <CButton 
+          style={{flex: 1, height: 52, borderRadius: 4, backgroundColor: mangaColor}} 
+          iconColor={textColor}
+          iconName="chevron-forward-outline"
+          onPress={moveToNextChapterPage}
+          />
+      </View>
+    </View>
+  )
+}
+
+
 interface MangaChapterListProps {
   manga: Manga
   textColor?: string
 }
 
+
+const PAGE_LIMIT = 96
 
 const MangaChapterGrid = ({
   manga, 
@@ -57,43 +106,51 @@ const MangaChapterGrid = ({
   const db = useSQLiteContext()
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [loading, setLoading] = useState(false)
-  const { setChapterNum, setChapterMap } = useReadingState()
+  const [currentPage, setCurrentPage] = useState(0)
+  const { setChapterNum, setChapterMap } = useReadingState()  
   
   const chapterAlreadyReaded = useRef<Set<number>>(new Set())
+  const page_max = Math.floor(chapters.length / PAGE_LIMIT)
   
   useEffect(
     () => {
       async function init() {
+        if (!manga.manga_id) { return }
         setLoading(true)
-        dbGetMangaReadChapters(db, manga.manga_id).then(s => chapterAlreadyReaded.current = s)
-            .then(
-            v => {
-            spFetchChapterList(manga.manga_id)
-                .then(values => {
-                setChapterMap(new Map(values.map(i => [i.chapter_num, i])))
-                setChapters(values)
-                setLoading(false)
-                }).catch(error => console.log("error spFetchChapterList", error))
-            }
-        ) 
+          await dbGetMangaReadChapters(db, manga.manga_id).then(s => chapterAlreadyReaded.current = s)        
+          setCurrentPage(0)
+          spFetchChapterList(manga.manga_id)
+            .then(values => {
+              setChapterMap(new Map(values.map(i => [i.chapter_num, i])))
+              setChapters(values)
+              setLoading(false)
+          }).catch(error => setLoading(false))
       }
       init()
     },
     [db, manga.manga_id, setChapterMap]
   )
-
+  
   const readFirst = () => {
     if (chapters.length > 0) {
       setChapterNum(chapters[0].chapter_num)
-      router.navigate({pathname: "/(pages)/Chapter", params: {manhwa_title: manga.title}})
+      router.navigate({pathname: "/(pages)/Chapter", params: {manga_title: manga.title}})
     }
   }
 
   const readLast = () => {
     if (chapters.length > 0) {
       setChapterNum(chapters[chapters.length - 1].chapter_num)
-      router.navigate({pathname: "/(pages)/Chapter", params: {manhwa_title: manga.title}})
+      router.navigate({pathname: "/(pages)/Chapter", params: {manga_title: manga.title}})
     }
+  }
+
+  const moveToNextChapterPage = () => {
+    setCurrentPage(prev => prev > page_max - 1 ? 0 : prev + 1)
+  }
+
+  const moveToPreviousChapterPage = () => {
+    setCurrentPage(prev => prev === 0 ? prev = page_max : prev - 1)
   }
   
   return (
@@ -104,7 +161,7 @@ const MangaChapterGrid = ({
             <ActivityIndicator size={'large'} color={Colors.white} />
           </View>
             :
-          <View style={{width: '100%', gap: 20}} >
+          <View style={{width: '100%', gap: 10}} >
             <View style={{width: '100%', flexDirection: 'row', gap: 10, alignItems: "center"}} >
               <Pressable onPress={readFirst} style={{flex: 1, backgroundColor: manga.color, height: 52, borderRadius: 4, alignItems: "center", justifyContent: "center"}}  >
                 <Text style={[AppStyle.textRegular, {color: textColor}]}>Read First</Text>
@@ -113,17 +170,29 @@ const MangaChapterGrid = ({
                 <Text style={[AppStyle.textRegular, {color: textColor}]}>Read Last</Text>
               </Pressable>
             </View>
-            <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: "center", justifyContent: "center"}} >
+
+            <ChapterPageSelector
+              currentPage={currentPage}
+              numChapters={chapters.length}
+              mangaColor={manga.color}
+              textColor={textColor}              
+              moveToNextChapterPage={moveToNextChapterPage}
+              moveToPreviousChapterPage={moveToPreviousChapterPage}
+            />
+
+            <View style={{flex: 1, alignItems: "center", justifyContent: "center", gap: 10, flexDirection: 'row', flexWrap: 'wrap'}}>
               {
-                chapters.map((item, index) => 
-                  <ChapterItem                    
-                    isReaded={chapterAlreadyReaded.current.has(item.chapter_num)}
-                    manhwa_title={manga.title} 
-                    key={item.chapter_id} 
-                    chapter={item}/>
+                chapters.slice(currentPage * PAGE_LIMIT, (currentPage + 1) * PAGE_LIMIT).map((item, index) => 
+                  <ChapterItem
+                    key={item.chapter_id}
+                    chapter={item}
+                    isReaded={chapterAlreadyReaded.current.has(item.chapter_id)}
+                    manga_title={manga.title}
+                  />
                 )
               }
             </View>
+              
           </View>
       }
     </View>

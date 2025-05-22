@@ -10,19 +10,21 @@ interface ReturnButtonProps {
   size?: number
   color?: string
   onPress?: () => any
+  backgroundColor?: string
 }
 
 
 const ReturnButton = ({
   size = 28, 
   color = Colors.white, 
-  onPress = () => router.back()
+  onPress = () => router.back(),
+  backgroundColor = Colors.almostBlack
 }: ReturnButtonProps) => {
   return (
     <Pressable 
-      style={styles.container}
+      style={[styles.container, {backgroundColor}]}
       onPress={onPress} 
-      hitSlop={AppConstants.hitSlopLarge} >
+      hitSlop={AppConstants.hitSlop} >
         <Ionicons name='return-down-back-outline' size={size} color={color} />
     </Pressable>
   )
@@ -33,7 +35,6 @@ export default ReturnButton
 const styles = StyleSheet.create({
   container: {
     padding: 6,
-    backgroundColor: Colors.almostBlack,
     borderRadius: 4
   }
 })

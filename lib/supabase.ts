@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, Session } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 import Config from 'react-native-config';
-import { Chapter, Manga } from "../helpers/types";
+import { Chapter, ChapterImage, Manga } from "../helpers/types";
 
 
 const supabaseUrl = Config.SUPABASE_URL as any
@@ -118,4 +118,20 @@ export async function spReportBug(title: string, descr: string | null, bug_type:
         return false
     }
     return true
+}
+
+
+export async function spFetchChapterImages(chapter_id: number): Promise<ChapterImage[]> {
+    const { data, error } = await supabase
+        .from("chapter_images")
+        .select("image_url, width, height")
+        .eq("chapter_id", chapter_id)
+        .order('index', {ascending: true})
+
+    if (error) {
+        console.log("error spFetchChapterImages", error)
+        return []
+    }
+
+    return data
 }

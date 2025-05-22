@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import React from 'react';
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 
 
@@ -39,7 +40,7 @@ const TOAST_CONFIG = {
 
 const _layout = () => {
   return (
-      <View style={{flex: 1, backgroundColor: Colors.backgroundColor}} >
+      <GestureHandlerRootView style={{flex: 1, backgroundColor: Colors.backgroundColor}} >
         <SQLiteProvider databaseName='ononoki.db' onInit={dbMigrate}>
           <StatusBar hidden={true} backgroundColor={Colors.backgroundColor} />
           <Stack>
@@ -61,7 +62,7 @@ const _layout = () => {
             avoidKeyboard={true} 
             swipeable={true}/>
         </SQLiteProvider>
-      </View>
+      </GestureHandlerRootView>
   )
 }
 

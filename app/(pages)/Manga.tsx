@@ -48,6 +48,7 @@ const Item = ({text, backgroundColor, textColor = Colors.backgroundColor}: ItemP
 }
 
 
+
 const MangaPage = () => {
 
   const db = useSQLiteContext()
@@ -56,7 +57,6 @@ const MangaPage = () => {
   const manga_id: number = parseInt(params.manga_id as any)  
   const iconColor = useRef(Colors.white)
   const textColor = useRef(Colors.backgroundColor)
-  
 
   useEffect(
     () => {
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     width: wp(100),
     left: 0,    
     top: 0,
-    height: hp(80)
+    height: hp(90)
   },
   item: {
     height: 52,
@@ -174,13 +174,13 @@ const styles = StyleSheet.create({
     width: '100%', 
     gap: 10, 
     alignItems: "center", 
-    paddingHorizontal: wp(5), 
+    paddingHorizontal: wp(4), 
     paddingBottom: hp(8)
   },
   image: {
-    width: '100%', 
-    maxWidth: 380, 
-    height: 480, 
+    width: '100%',
+    maxWidth: wp(92),
+    height: 520, 
     borderRadius: 4
   }
 })

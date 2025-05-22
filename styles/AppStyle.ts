@@ -28,7 +28,7 @@ export const AppStyle = StyleSheet.create({
     safeArea: {
         width: '100%', 
         flex: 1, 
-        padding: wp(5),
+        padding: wp(4),
         backgroundColor: Colors.backgroundColor        
     },
     formButtonText: {
