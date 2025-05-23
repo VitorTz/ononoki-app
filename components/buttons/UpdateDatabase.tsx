@@ -12,12 +12,14 @@ import Toast from 'react-native-toast-message'
 
 interface UpdateDatabaseProps {
     iconSize?: number
-    iconColor?: string
+    iconColor?: string,
+    type: "server" | "client"
 }
 
 const UpdateDatabase = ({
     iconSize = 28, 
-    iconColor = Colors.white
+    iconColor = Colors.white,
+    type
 }: UpdateDatabaseProps) => {
 
     const db = useSQLiteContext()
@@ -27,12 +29,12 @@ const UpdateDatabase = ({
         setLoading(true)
         const hasInternet = await hasInternetAvailable()
         if (!hasInternet) { 
-            Toast.show({text1: "Hey", text2: "You dont have internet now", type: 'info'})
+            Toast.show({text1: "Hey", text2: "You don’t have internet access", type: 'info'})
             setLoading(false)
             return 
         }
 
-        const shouldUpdate = await dbShouldUpdate(db, 'database')
+        const shouldUpdate = await dbShouldUpdate(db, type)
         let hasMangas = true
 
         if (!shouldUpdate) {

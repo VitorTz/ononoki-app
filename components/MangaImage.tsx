@@ -17,7 +17,7 @@ const MangaImageComponent = ({originalWidth, originalHeight, imageUrl}: MangaIma
     
     const width = originalWidth < MAX_WIDTH ? originalWidth : MAX_WIDTH
     const height = width * (originalHeight / originalWidth)
-    console.log(imageUrl)
+    
     return (
         <Image
             style={{ width, height}}

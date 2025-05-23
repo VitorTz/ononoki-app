@@ -58,7 +58,7 @@ const ChapterLink = ({
                 loading ? 
                 <ActivityIndicator size={20} color={Colors.white} /> :
                 <>
-                    <Text style={AppStyle.textRegular}>{prefix}{chapter.chapter_num}</Text>
+                    <Text style={AppStyle.textRegular}>{prefix}{chapter.chapter_name}</Text>
                     {
                         shouldShowChapterDate && 
                         <Text style={[

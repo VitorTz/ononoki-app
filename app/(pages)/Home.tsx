@@ -36,10 +36,10 @@ const Home = () => {
                 justifyContent: "space-between"}} >
                 <Text style={[AppStyle.textHeader, {fontSize: 30, color: Colors.ononokiBlue}]}>Ononoki</Text>                
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 16}} >
-                    <UpdateDatabase iconColor={Colors.ononokiGreen} />
-                    <Button iconName='search-outline' onPress={searchPress} iconColor={Colors.ononokiGreen} />
-                    <RandomMangaButton color={Colors.ononokiGreen} size={28} />
-                    <Button iconName='options-outline' onPress={toggleMenu} iconColor={Colors.ononokiGreen} />
+                    <UpdateDatabase iconColor={Colors.white} type='client' />
+                    <Button iconName='search-outline' onPress={searchPress} iconColor={Colors.white} />
+                    <RandomMangaButton color={Colors.white} size={28} />
+                    <Button iconName='options-outline' onPress={toggleMenu} iconColor={Colors.white} />
                 </View>
             </View>
 

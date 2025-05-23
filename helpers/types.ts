@@ -87,6 +87,7 @@ export type AppRelease = {
 export type Chapter = {
     chapter_id: number
     manga_id: number
+    chapter_name: string
     chapter_num: number
     created_at: string
 }

@@ -32,8 +32,6 @@ import {
 import BugIcon from '../../components/BugIcon';
 
 
-const SWIPE_THRESHOLD = 40;
-
 interface ChangeChapterComponentProps {
   loading: boolean
   currentChapter: Chapter
@@ -204,10 +202,12 @@ interface ChapterProps {
 
 interface ChapterListModeProps {  
   manga_title: string
+  setReadMode: React.Dispatch<React.SetStateAction<"List" | "Page">>
 }
 
 const ChapterListMode = ({  
-  manga_title
+  manga_title,
+  setReadMode
 }: ChapterListModeProps) => {
 
   const db = useSQLiteContext()
@@ -421,7 +421,7 @@ const ChapterPage = ({viewMode = "List"} : ChapterProps) => {
     <SafeAreaView style={[AppStyle.safeArea, {padding: 0, backgroundColor: Colors.black}]} >
       {
         readMode === 'List' ? 
-        <ChapterListMode manga_title={manga_title} /> :
+        <ChapterListMode manga_title={manga_title} setReadMode={setReadMode} /> :
         <ChapterPageMode manga_title={manga_title} setReadMode={setReadMode} />
       }
     </SafeAreaView>

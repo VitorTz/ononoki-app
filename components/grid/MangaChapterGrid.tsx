@@ -38,7 +38,7 @@ const ChapterItem = ({
     <Pressable       
       onPress={onPress}
       style={[styles.chapterItem, {backgroundColor: bColor}]} >
-        <Text style={[AppStyle.textRegular, {color: tColor, fontSize: 14}]}>{chapter.chapter_num}</Text>
+        <Text style={[AppStyle.textRegular, {color: tColor, fontSize: 14}]}>{chapter.chapter_name}</Text>
     </Pressable>
   )
 }

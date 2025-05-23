@@ -67,6 +67,7 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
         chapter_id INTEGER PRIMARY KEY,
         manga_id INTEGER,
         chapter_num INTEGER NOT NULL,
+        chapter_name TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (manga_id) REFERENCES mangas(manga_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
@@ -97,18 +98,18 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
     CREATE INDEX IF NOT EXISTS idx_reading_status_manga_id_status ON reading_status (manga_id, status);
     CREATE INDEX IF NOT EXISTS idx_reading_history_updated ON reading_history(manga_id, chapter_num, readed_at DESC);
 
-    INSERT OR REPLACE INTO 
-        app_info (name, value)
-    VALUES ('version', 'v1.0');
+    INSERT OR REPLACE INTO app_info (
+      name, 
+      value
+    )
+    VALUES 
+      ('version', 'v1.0');
 
-    INSERT INTO 
-        update_history (name, refresh_cycle) 
-    VALUES ('database', 60 * 3)
-    ON CONFLICT 
-        (name) 
-    DO UPDATE SET 
-        refresh_cycle = EXCLUDED.refresh_cycle;
-
+    INSERT OR REPLACE INTO
+        update_history (name, refresh_cycle)
+    VALUES
+      ('server', 60 * 60 * 3),
+      ('client', 60 * 3);    
     `
     ).catch(error => console.log("DATABASE MIGRATION ERROR", error));
     console.log("[DATABASE MIGRATION END]")
@@ -273,12 +274,13 @@ async function dbUpsertMangas(db: SQLite.SQLiteDatabase, mangas: Manga[]) {
 
 
 async function dbUpsertChapter(db: SQLite.SQLiteDatabase, chapters: Chapter[]) {
-    const placeholders = chapters.map(() => '(?,?,?,?)').join(',');  
+    const placeholders = chapters.map(() => '(?,?,?,?,?)').join(',');  
     const params = chapters.flatMap(i => [
         i.chapter_id, 
         i.manga_id, 
         i.chapter_num,
-        i.created_at
+        i.created_at,
+        i.chapter_name
     ]);
     await db.runAsync(
     `
@@ -286,8 +288,9 @@ async function dbUpsertChapter(db: SQLite.SQLiteDatabase, chapters: Chapter[]) {
             chapter_id, 
             manga_id, 
             chapter_num,
-            created_at
-        ) 
+            created_at,
+            chapter_name
+        )
         VALUES ${placeholders}
         ON CONFLICT 
             (chapter_id)

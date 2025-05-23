@@ -80,7 +80,7 @@ export async function spFetchChapterList(manga_id: number): Promise<Chapter[]> {
     
     const { data, error } = await supabase
         .from("chapters")
-        .select("chapter_id, manga_id, chapter_num, created_at")
+        .select("chapter_id, manga_id, chapter_name, chapter_num, created_at")
         .eq("manga_id", manga_id)
         .order("chapter_num", {ascending: true})
 
