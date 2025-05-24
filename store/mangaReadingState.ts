@@ -10,7 +10,8 @@ export type ReadingState = {
     setChapterMap: (chapterMap: Map<number, Chapter>) => void
     setChapterNum: (chapterNum: number) => void
     moveToNextChapter: () => void
-    moveToPreviousChapter: () => void    
+    moveToPreviousChapter: () => void
+    setReadingState: (chapterMap: Map<number, Chapter>, mangaTitle: string, chapterNum: number) => void
 }
 
 
@@ -19,6 +20,9 @@ export const useReadingState = create<ReadingState>(
         mangaTitle: null,
         chapterMap: new Map(),
         currentChapter: null,
+        setReadingState: (chapterMap: Map<number, Chapter>, mangaTitle: string, chapterNum: number) => {set((state) => {
+            return {...state, mangaTitle, chapterMap, currentChapter: chapterMap.get(chapterNum)}
+        })},
         setMangaTitle: (mangaTitle: string) => {set((state) => {
             return {...state, mangaTitle}
         })},
@@ -50,5 +54,5 @@ export const useReadingState = create<ReadingState>(
                 ...state, 
                 currentChapter: newChapter
             }
-        })},  
+        })},
 }))

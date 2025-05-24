@@ -60,10 +60,11 @@ const MangaCard = ({
     useEffect(
         () => {
             async function init() {
-                if (showChaptersPreview) {
-                    await dbReadLast3Chapters(db, manga.manga_id)
-                        .then(values => setChapters(values))
+                if (!showChaptersPreview) {
+                    return
                 }
+                await dbReadLast3Chapters(db, manga.manga_id)
+                    .then(values => setChapters(values))
             }
             init()
         },

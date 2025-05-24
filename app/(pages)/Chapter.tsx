@@ -10,13 +10,13 @@ import { Chapter, ChapterImage } from '@/helpers/types';
 import { hp, wp } from '@/helpers/util';
 import { dbUpsertReadingHistory } from '@/lib/database';
 import { spFetchChapterImages } from '@/lib/supabase';
-import { useReadingState } from '@/store/mangaReadingState';
+import { useChapterState } from '@/store/chapterState';
 import { useReadModeState } from '@/store/readModeState';
 import { AppStyle } from '@/styles/AppStyle';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, {
   useEffect,
@@ -37,17 +37,19 @@ import BugIcon from '../../components/BugIcon';
 
 interface ChangeChapterComponentProps {
   loading: boolean
-  currentChapter: Chapter
   goToPreviousChapter: () => any,
   goToNextChapter: () => any
 }
 
 const ChangeChapterComponent = ({
   loading,
-  currentChapter,
   goToPreviousChapter,
   goToNextChapter
 }: ChangeChapterComponentProps) => {
+
+  const { currentChapterIndex, chapters } = useChapterState()
+  
+  const currentChapter = chapters[currentChapterIndex]
 
   return (
     <View style={{flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "flex-start"}} >
@@ -59,7 +61,7 @@ const ChangeChapterComponent = ({
         {
           loading ?
           <ActivityIndicator size={20} color={Colors.white} /> :
-          <Text style={[AppStyle.textRegular, {fontSize: 18}]}>{currentChapter!.chapter_num}</Text>
+          <Text style={[AppStyle.textRegular, {fontSize: 18}]}>{currentChapter.chapter_name}</Text>
         }
       </View>
       <Pressable onPress={goToNextChapter} style={{alignItems: "center", justifyContent: "center", marginTop: 2}}  hitSlop={AppConstants.hitSlop}>
@@ -100,6 +102,8 @@ const ChangeChapterPageComponent = ({
 }
 
 interface ChapterHeaderProps {
+  mangaTitle: string
+  currentChapter: Chapter,
   loading: boolean
   goToPreviousChapter: () => void
   goToNextChapter: () => void
@@ -107,37 +111,36 @@ interface ChapterHeaderProps {
 
 
 const ChapterHeader = ({ 
+  mangaTitle,
+  currentChapter,
   loading, 
   goToPreviousChapter, 
   goToNextChapter
 }: ChapterHeaderProps) => {
 
-  const { currentChapter, mangaTitle } = useReadingState()  
-
-  const reportTitle = `${mangaTitle}/${currentChapter ? currentChapter.chapter_num: '?'}`
+  const reportTitle = `${mangaTitle}/${currentChapter.chapter_name}`
 
   const exitChapter = async () => {
     Image.clearMemoryCache()
     router.back()
-  }
-  
+  }  
+
   return (
     <View style={{width: '100%', paddingHorizontal: wp(5)}} >
-      <TopBar title={mangaTitle!} >
+      <TopBar title={mangaTitle} >
         <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
       </TopBar>
 
       <View style={{width: '100%', flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "space-between", marginBottom: 20}} >
         
         {/* Chapter Controller Button */}
+        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} padding={0} />
         <ChangeChapterComponent
-            currentChapter={currentChapter!}
             goToNextChapter={goToNextChapter}
             goToPreviousChapter={goToPreviousChapter}
             loading={loading}            
-        />
+            />
         <ChangeChapterReadModeButton/>
-        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} />
 
       </View>
     </View>
@@ -146,20 +149,26 @@ const ChapterHeader = ({
 
 
 interface ChapterFooterProps {
+  mangaTitle: string
+  currentChapter: Chapter,
   loading: boolean
   goToPreviousChapter: () => void
   goToNextChapter: () => void
 }
 
 
-const ChapterFooter = ({loading, goToPreviousChapter, goToNextChapter }: ChapterFooterProps) => {
-  
-  const {  currentChapter, mangaTitle } = useReadingState()
+const ChapterFooter = ({
+  mangaTitle, 
+  currentChapter,
+  loading, 
+  goToPreviousChapter, 
+  goToNextChapter 
+}: ChapterFooterProps) => {  
 
   const openBugReport = () => {    
     router.navigate({
       pathname: "/(pages)/BugReport",
-      params: {title: `${mangaTitle!}/${currentChapter ? currentChapter.chapter_num: '?'}`}
+      params: {title: `${mangaTitle!}/${currentChapter}`}
     })
   }
 
@@ -177,7 +186,7 @@ const ChapterFooter = ({loading, goToPreviousChapter, goToNextChapter }: Chapter
               {
                 loading ?
                 <ActivityIndicator size={20} color={Colors.white} /> :
-                <Text style={AppStyle.textHeader}>{currentChapter!.chapter_num}</Text>
+                <Text style={AppStyle.textHeader}>{currentChapter.chapter_name}</Text>
               }
             </View>
             <Pressable onPress={goToNextChapter} hitSlop={AppConstants.hitSlop}>
@@ -203,37 +212,42 @@ const ChapterFooter = ({loading, goToPreviousChapter, goToNextChapter }: Chapter
 
 
 
-const ChapterListMode = () => {
+const ChapterListMode = ({mangaTitle}: {mangaTitle: string}) => {
 
   const db = useSQLiteContext()
-  const { mangaTitle, currentChapter, moveToNextChapter, moveToPreviousChapter  } = useReadingState()
+  const { chapters, currentChapterIndex, setCurrentChapterIndex } = useChapterState()
   const [images, setImages] = useState<ChapterImage[]>([])
-
   const [loading, setLoading] = useState(false)
   const flashListRef = useRef<FlashList<ChapterImage>>(null)
+
+  const currentChapter: Chapter = chapters[currentChapterIndex]  
 
   const scrollUp = () => {
     flashListRef.current?.scrollToOffset({animated: false, offset: 0})
   }  
 
   const goToNextChapter = async () => {
+    if (currentChapterIndex + 1 < chapters.length) {
+      setCurrentChapterIndex(currentChapterIndex + 1)
+    }
     scrollUp()
-    moveToNextChapter()
   }
 
   const goToPreviousChapter = async () => {
+    if (currentChapterIndex - 1 >= 0) {
+      setCurrentChapterIndex(currentChapterIndex - 1)
+    }
     scrollUp()
-    moveToPreviousChapter()
   }
 
   useEffect(
     () => {
       async function init() {
-          if (currentChapter) {
+          if (currentChapterIndex >= 0 && currentChapterIndex < chapters.length) {
             setLoading(true)
               await Image.clearMemoryCache()
               await spFetchChapterImages(currentChapter.chapter_id)
-              .then(values => setImages([...values]))
+                .then(values => setImages([...values]))
             setLoading(false)
             dbUpsertReadingHistory(
               db, 
@@ -245,15 +259,31 @@ const ChapterListMode = () => {
       }
       init()
     },
-    [db, currentChapter]
+    [db, currentChapterIndex]
   )
 
   return (
     <View style={{flex: 1}} >
         <FlashList
           data={images}
-          ListHeaderComponent={<ChapterHeader loading={loading} goToNextChapter={goToNextChapter} goToPreviousChapter={goToPreviousChapter}/>}
-          ListFooterComponent={<ChapterFooter loading={loading} goToNextChapter={goToNextChapter} goToPreviousChapter={goToPreviousChapter}/>}
+          ListHeaderComponent={
+            <ChapterHeader 
+              mangaTitle={mangaTitle} 
+              currentChapter={currentChapter} 
+              loading={loading} 
+              goToNextChapter={goToNextChapter} 
+              goToPreviousChapter={goToPreviousChapter}
+              />
+          }
+          ListFooterComponent={
+            <ChapterFooter 
+              mangaTitle={mangaTitle} 
+              currentChapter={currentChapter} 
+              loading={loading} 
+              goToNextChapter={goToNextChapter} 
+              goToPreviousChapter={goToPreviousChapter}
+              />
+          }
           keyExtractor={(item, index) => item.image_url}          
           onEndReachedThreshold={3}
           estimatedItemSize={hp(50)}
@@ -267,53 +297,52 @@ const ChapterListMode = () => {
           }
           ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
         />
+
         <Pressable onPress={scrollUp} hitSlop={AppConstants.hitSlopLarge} style={styles.arrowUp} >
             <Ionicons name='arrow-up-outline' size={20} color={'rgba(0, 0, 0, 0.3)'} />
         </Pressable>
+
       </View>
   )
 }
 
 
-const ChapterPageMode = () => {
+const ChapterPageMode = ({mangaTitle}: {mangaTitle: string}) => {
 
-  const db = useSQLiteContext()
-  const { mangaTitle, currentChapter, moveToNextChapter, moveToPreviousChapter  } = useReadingState()
+  const db = useSQLiteContext()  
+  const { chapters, currentChapterIndex, setCurrentChapterIndex } = useChapterState()
   const [images, setImages] = useState<ChapterImage[]>([])
   const [currentImage, setCurrentImage] = useState<ChapterImage | null>(null)  
   const [loading, setLoading] = useState(false)
 
-  const flashListRef = useRef<FlashList<ChapterImage>>(null)
+  const currentChapter: Chapter = chapters[currentChapterIndex]  
+
   const imageIndex = useRef(0)
   const prefetchState = useRef<{url: string, fetched: boolean}[]>([])
 
-  const scrollUp = () => {
-    flashListRef.current?.scrollToOffset({animated: false, offset: 0})
-  }  
-
   const goToNextChapter = async () => {
-    scrollUp()
-    moveToNextChapter()
+    if (currentChapterIndex + 1 < chapters.length) {
+      setCurrentChapterIndex(currentChapterIndex + 1)
+    }
   }
 
   const goToPreviousChapter = async () => {
-    scrollUp()
-    moveToPreviousChapter()
+    if (currentChapterIndex - 1 >= 0) {
+      setCurrentChapterIndex(currentChapterIndex - 1)
+    }
   }
 
   useEffect(
     () => {
       async function init() {
-          if (currentChapter) {
+          if (currentChapterIndex >= 0 && currentChapterIndex < chapters.length) {
             setLoading(true)
               await Image.clearMemoryCache()
               const imgs: ChapterImage[] = await spFetchChapterImages(currentChapter.chapter_id)
-
               setCurrentImage(imgs.length > 0 ? imgs[0] : null)
               imageIndex.current = 0
               prefetchState.current = imgs.map(i => {return {fetched: false, url: i.image_url}})
               setImages(imgs)
-
               dbUpsertReadingHistory(
                 db, 
                 currentChapter.manga_id, 
@@ -325,7 +354,7 @@ const ChapterPageMode = () => {
       }
       init()
     },
-    [db, currentChapter]
+    [db, currentChapterIndex]
   )
 
   const prefetch = () => {
@@ -367,7 +396,6 @@ const ChapterPageMode = () => {
         <View style={{width: '100%', flexDirection: 'row', alignItems: "center", justifyContent: "space-between", marginBottom: 20}} >
           <ChangeChapterComponent 
             loading={loading} 
-            currentChapter={currentChapter!} 
             goToNextChapter={goToNextChapter} 
             goToPreviousChapter={goToPreviousChapter} />
 
@@ -375,7 +403,9 @@ const ChapterPageMode = () => {
             currentPage={imageIndex.current}
             goToNextPage={moveToNextImage}
             goToPreviousPage={moveToPreviousImage}
-          />  
+          /> 
+
+          <ChangeChapterReadModeButton/>
         </View>
 
       </View>
@@ -400,13 +430,15 @@ const ChapterPageMode = () => {
 const ChapterPage = () => {
     
   const { readMode } = useReadModeState()
-  
+  const params = useLocalSearchParams()  
+  const mangaTitle: string = params.mangaTitle as any  
+
   return (
     <SafeAreaView style={[AppStyle.safeArea, {padding: 0, backgroundColor: Colors.black}]} >
       {
         readMode === 'List' ? 
-        <ChapterListMode/> :
-        <ChapterPageMode/>
+        <ChapterListMode mangaTitle={mangaTitle} /> :
+        <ChapterPageMode mangaTitle={mangaTitle} />
       }
     </SafeAreaView>
   )

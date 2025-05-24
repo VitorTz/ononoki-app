@@ -1,6 +1,7 @@
 import { Colors } from "@/constants/Colors"
 import { MangaAuthor } from "@/helpers/types"
 import { dbReadMangaAuthors } from "@/lib/database"
+import { useMangaState } from "@/store/mangaState"
 import { AppStyle } from "@/styles/AppStyle"
 import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
@@ -8,26 +9,22 @@ import { useEffect, useRef, useState } from "react"
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
 
 
-interface ManhwaAuthorsInfoProps {
-  manga_id: number
-}
-
-
-const MangaAuthorInfo = ({manga_id}: ManhwaAuthorsInfoProps) => {
+const MangaAuthorInfo = () => {
 
   const db = useSQLiteContext()
+  const { manga } = useMangaState()
   const [authors, setAuthors] = useState<MangaAuthor[]>([])
   const flatListRef = useRef<FlatList>(null)  
 
   useEffect(
     () => {
       async function init() {
-        await dbReadMangaAuthors(db, manga_id).then(values => setAuthors(values))
+        await dbReadMangaAuthors(db, manga!.manga_id).then(values => setAuthors(values))
         flatListRef.current?.scrollToIndex({animated: false, index: 0})
       }
       init()
     }, 
-    [db, manga_id]
+    [db, manga]
   )
   
   const openAuthorPage = (author: MangaAuthor) => {

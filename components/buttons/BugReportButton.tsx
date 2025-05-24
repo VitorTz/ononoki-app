@@ -11,6 +11,7 @@ interface OpenBugReportButtonProps {
     color?: string
     backgroundColor?: string
     title?: string
+    padding?: number
 }
 
 
@@ -18,7 +19,8 @@ const BugReportButton = ({
     title, 
     size = 28, 
     color = Colors.BugReportColor, 
-    backgroundColor = Colors.backgroundColor
+    backgroundColor = Colors.backgroundColor,
+    padding = 6
 }: OpenBugReportButtonProps) => {
 
     const onPress = () => {
@@ -29,7 +31,7 @@ const BugReportButton = ({
     }
 
     return (
-        <Pressable onPress={onPress} style={[AppStyle.buttonBackground, {backgroundColor}]} >
+        <Pressable onPress={onPress} style={[AppStyle.buttonBackground, {backgroundColor, padding}]} >
             <BugIcon size={size} color={color} />
         </Pressable>
     )

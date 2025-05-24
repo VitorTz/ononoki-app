@@ -490,6 +490,14 @@ export async function dbReadRandomManga(
   return rows ? rows as Manga[]  : []
 }
 
+export async function dbGetRandomMangaId(db: SQLite.SQLiteDatabase): Promise<number | null> {
+  const row = await db.getFirstAsync<{manga_id: number}>(
+    'SELECT manga_id FROM mangas ORDER BY RANDOM() LIMIT 1'
+  ).catch(error => console.log("error dbGetRandomMangaId", error));
+  
+  return row ? row.manga_id : null
+}
+
 
 export async function dbReadMangasByGenreName(
   db: SQLite.SQLiteDatabase,

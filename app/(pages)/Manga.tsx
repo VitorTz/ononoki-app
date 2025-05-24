@@ -8,7 +8,7 @@ import MangaAuthorInfo from '@/components/MangaAuthorInfo';
 import MangaGenreInfo from '@/components/MangaGenreInfo';
 import { Colors } from '@/constants/Colors';
 import { Manga } from '@/helpers/types';
-import { hp, isColorDark, wp } from '@/helpers/util';
+import { hp, wp } from '@/helpers/util';
 import { dbReadMangaById, dbUpdateMangaViews } from '@/lib/database';
 import { spUpdateMangaViews } from '@/lib/supabase';
 import { AppStyle } from '@/styles/AppStyle';
@@ -18,7 +18,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, {
   useEffect,
-  useRef,
   useState
 } from 'react';
 import {
@@ -53,36 +52,22 @@ const MangaPage = () => {
 
   const db = useSQLiteContext()
   const params = useLocalSearchParams()
-  const [manga, setManga] = useState<Manga | null>()
-  const manga_id: number = parseInt(params.manga_id as any)  
-  const iconColor = useRef(Colors.white)
-  const textColor = useRef(Colors.backgroundColor)
+  const manga_id: number = params.manga_id as any
+  const [manga, setManga] = useState<Manga | null>(null)  
 
   useEffect(
     () => {
       async function init() {
-        await dbReadMangaById(db, manga_id)
-          .then(value => {
-            if (value) {
-              if (isColorDark(value.color)) {
-                textColor.current = Colors.white
-                iconColor.current = Colors.white
-              } else {
-                textColor.current = Colors.backgroundColor
-                iconColor.current = value.color
-              }
-              setManga(value)
-            } else {
-              Toast.show({text1: "Error", text2: "invalid manga", type: "error"})
-              router.replace("/(pages)/Home")
-              return
-            }
-        })  
+        if (!manga_id) { 
+          Toast.show({text1: "Error", text2: "invalid manga", type: "error"})
+          router.replace("/(pages)/Home")
+          return
+        }
+        await dbReadMangaById(db, manga_id).then(m => setManga(m))
         spUpdateMangaViews(manga_id)
-        dbUpdateMangaViews(db, manga_id)      
+        dbUpdateMangaViews(db, manga_id)
       }
       init()
-
     },
     [db, manga_id]
   )  
@@ -98,11 +83,11 @@ const MangaPage = () => {
                 colors={[manga.color, Colors.backgroundColor]}
                 style={styles.linearBackground} />
             <View style={styles.topBar} >
-                <HomeButton color={iconColor.current} />
+                <HomeButton color={manga.color} />
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >
-                    <BugReportButton color={iconColor.current} title={manga.title} />                    
-                    <RandomMangaButton color={iconColor.current} />
-                    <ReturnButton color={iconColor.current} />
+                    <BugReportButton color={manga.color} title={manga.title} />                    
+                    <RandomMangaButton color={manga.color} />
+                    <ReturnButton color={manga.color} />
                 </View>
             </View>
 
@@ -119,16 +104,16 @@ const MangaPage = () => {
                   <Text style={AppStyle.textRegular}>{manga.descr}</Text>
                 </View>
                 
-                <MangaAuthorInfo manga_id={manga_id} />
-                <MangaGenreInfo manga_id={manga_id} />
-                <AddToLibray manhwa_id={manga_id} textColor={textColor.current} backgroundColor={manga.color} />
+                <MangaAuthorInfo/>
+                <MangaGenreInfo/>
+                <AddToLibray textColor={Colors.backgroundColor} backgroundColor={manga.color} />
 
                 <View style={{flexDirection: 'row', width: '100%', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
-                  <Item text={manga.status} textColor={textColor.current} backgroundColor={manga.color} />
-                  <Item text={`Views: ${manga.views}`} textColor={textColor.current} backgroundColor={manga.color} />
+                  <Item text={manga.status} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
+                  <Item text={`Views: ${manga.views}`} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
                 </View>
 
-                <MangaChapterGrid textColor={textColor.current} manga={manga} />
+                <MangaChapterGrid manga={manga} />
                 {/* <ManhwaCommentSection manhwa={manhwa} /> */}
             </View>
           </>

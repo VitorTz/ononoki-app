@@ -1,6 +1,7 @@
 import { Colors } from "@/constants/Colors"
 import { Genre } from "@/helpers/types"
 import { dbReadManhwaGenres } from "@/lib/database"
+import { useMangaState } from "@/store/mangaState"
 import { AppStyle } from "@/styles/AppStyle"
 import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
@@ -8,9 +9,10 @@ import { useEffect, useRef, useState } from "react"
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
 
 
-const MangaGenreInfo = ({manga_id}: {manga_id: number}) => {
+const MangaGenreInfo = () => {
 
   const db = useSQLiteContext()
+  const { manga } = useMangaState()
   const [genres, setGenres] = useState<Genre[]>([])
 
   const flatListRef = useRef<FlatList>(null)  
@@ -18,12 +20,12 @@ const MangaGenreInfo = ({manga_id}: {manga_id: number}) => {
   useEffect(
     () => {
       async function init() {
-        await dbReadManhwaGenres(db, manga_id).then(values => setGenres(values))
+        await dbReadManhwaGenres(db, manga!.manga_id).then(values => setGenres(values))
         flatListRef.current?.scrollToIndex({animated: false, index: 0})
       }
       init()
     }, 
-    [db, manga_id]
+    [db, manga]
   )
 
   const openGenrePage = (genre: Genre) => {

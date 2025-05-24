@@ -2,10 +2,10 @@ import { Colors } from '@/constants/Colors'
 import { Chapter, Manga } from '@/helpers/types'
 import { formatTimestamp } from '@/helpers/util'
 import { spFetchChapterList, spUpdateMangaViews } from '@/lib/supabase'
-import { useReadingState } from '@/store/mangaReadingState'
+import { useChapterState } from '@/store/chapterState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import {
     ActivityIndicator,
     Pressable,
@@ -32,23 +32,20 @@ const ChapterLink = ({
     style
 }: ChapterLinkProps) => {
 
-    const { setChapterMap, setChapterNum } = useReadingState()
+    const { setChapterState } = useChapterState()
+
     const [loading, setLoading] = useState(false)
-    const isActive = useRef(false)
 
     const onPress = async () => {
-        if (isActive.current) { return }
-        isActive.current = true
         setLoading(true)
-        spUpdateMangaViews(manga.manga_id)
-        await spFetchChapterList(manga.manga_id)
-            .then(values => setChapterMap(new Map(values.map(i => [i.chapter_num, i]))))
-        setChapterNum(chapter.chapter_num)
+            const chapters: Chapter[] = await spFetchChapterList(manga.manga_id)
+            setChapterState(chapters, chapter.chapter_num - 1)
+            spUpdateMangaViews(manga.manga_id)
         setLoading(false)
-        isActive.current = false
+        
         router.navigate({
-            pathname: "/(pages)/Chapter", 
-            params: {manga_title: manga.title}
+            pathname: "/(pages)/Chapter",
+            params: {mangaTitle: manga.title}
         })
     }
 
