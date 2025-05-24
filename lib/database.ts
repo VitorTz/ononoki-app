@@ -825,7 +825,6 @@ export async function dbUpsertReadingHistory(
   chapter_id: number,
   chapter_num: number
 ) {
-  console.log(manga_id, chapter_id)
   await db.runAsync(
     `
       INSERT INTO reading_history (

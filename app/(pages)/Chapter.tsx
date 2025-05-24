@@ -1,4 +1,5 @@
 import BugReportButton from '@/components/buttons/BugReportButton';
+import ChangeChapterReadModeButton from '@/components/buttons/ChangeChapterReadModeButton';
 import ReturnButton from '@/components/buttons/ReturnButton';
 import InteractiveImage from '@/components/InteractiveImage';
 import MangaImage from '@/components/MangaImage';
@@ -10,11 +11,12 @@ import { hp, wp } from '@/helpers/util';
 import { dbUpsertReadingHistory } from '@/lib/database';
 import { spFetchChapterImages } from '@/lib/supabase';
 import { useReadingState } from '@/store/mangaReadingState';
+import { useReadModeState } from '@/store/readModeState';
 import { AppStyle } from '@/styles/AppStyle';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, {
   useEffect,
@@ -30,6 +32,7 @@ import {
   View
 } from 'react-native';
 import BugIcon from '../../components/BugIcon';
+
 
 
 interface ChangeChapterComponentProps {
@@ -97,18 +100,21 @@ const ChangeChapterPageComponent = ({
 }
 
 interface ChapterHeaderProps {
-  manhwaTitle: string
   loading: boolean
   goToPreviousChapter: () => void
   goToNextChapter: () => void
 }
 
 
-const ChapterHeader = ({ manhwaTitle, loading, goToPreviousChapter, goToNextChapter}: ChapterHeaderProps) => {
+const ChapterHeader = ({ 
+  loading, 
+  goToPreviousChapter, 
+  goToNextChapter
+}: ChapterHeaderProps) => {
 
-  const { currentChapter } = useReadingState()
+  const { currentChapter, mangaTitle } = useReadingState()  
 
-  const reportTitle = `${manhwaTitle}/${currentChapter ? currentChapter.chapter_num: '?'}`
+  const reportTitle = `${mangaTitle}/${currentChapter ? currentChapter.chapter_num: '?'}`
 
   const exitChapter = async () => {
     Image.clearMemoryCache()
@@ -117,7 +123,7 @@ const ChapterHeader = ({ manhwaTitle, loading, goToPreviousChapter, goToNextChap
   
   return (
     <View style={{width: '100%', paddingHorizontal: wp(5)}} >
-      <TopBar title={manhwaTitle} >
+      <TopBar title={mangaTitle!} >
         <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
       </TopBar>
 
@@ -130,6 +136,7 @@ const ChapterHeader = ({ manhwaTitle, loading, goToPreviousChapter, goToNextChap
             goToPreviousChapter={goToPreviousChapter}
             loading={loading}            
         />
+        <ChangeChapterReadModeButton/>
         <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} />
 
       </View>
@@ -139,21 +146,20 @@ const ChapterHeader = ({ manhwaTitle, loading, goToPreviousChapter, goToNextChap
 
 
 interface ChapterFooterProps {
-  manwhaTitle: string
   loading: boolean
   goToPreviousChapter: () => void
   goToNextChapter: () => void
 }
 
 
-const ChapterFooter = ({manwhaTitle: manhwa_title, loading, goToPreviousChapter, goToNextChapter }: ChapterFooterProps) => {
+const ChapterFooter = ({loading, goToPreviousChapter, goToNextChapter }: ChapterFooterProps) => {
   
-  const {  currentChapter } = useReadingState()
+  const {  currentChapter, mangaTitle } = useReadingState()
 
   const openBugReport = () => {    
     router.navigate({
       pathname: "/(pages)/BugReport",
-      params: {title: `${manhwa_title}/${currentChapter ? currentChapter.chapter_num: '?'}`}
+      params: {title: `${mangaTitle!}/${currentChapter ? currentChapter.chapter_num: '?'}`}
     })
   }
 
@@ -195,23 +201,12 @@ const ChapterFooter = ({manwhaTitle: manhwa_title, loading, goToPreviousChapter,
   )
 }
 
-interface ChapterProps {
-  viewMode?: "List" | "Page"
-}
 
 
-interface ChapterListModeProps {  
-  manga_title: string
-  setReadMode: React.Dispatch<React.SetStateAction<"List" | "Page">>
-}
-
-const ChapterListMode = ({  
-  manga_title,
-  setReadMode
-}: ChapterListModeProps) => {
+const ChapterListMode = () => {
 
   const db = useSQLiteContext()
-  const { currentChapter, moveToNextChapter, moveToPreviousChapter  } = useReadingState()
+  const { mangaTitle, currentChapter, moveToNextChapter, moveToPreviousChapter  } = useReadingState()
   const [images, setImages] = useState<ChapterImage[]>([])
 
   const [loading, setLoading] = useState(false)
@@ -235,18 +230,17 @@ const ChapterListMode = ({
     () => {
       async function init() {
           if (currentChapter) {
-            console.log("change chapter", currentChapter)
             setLoading(true)
               await Image.clearMemoryCache()
               await spFetchChapterImages(currentChapter.chapter_id)
-                .then(values => setImages([...values]))
-              dbUpsertReadingHistory(
-                db, 
-                currentChapter.manga_id, 
-                currentChapter.chapter_id,
-                currentChapter.chapter_num
-              )
+              .then(values => setImages([...values]))
             setLoading(false)
+            dbUpsertReadingHistory(
+              db, 
+              currentChapter.manga_id, 
+              currentChapter.chapter_id,
+              currentChapter.chapter_num
+            )
         }
       }
       init()
@@ -258,8 +252,8 @@ const ChapterListMode = ({
     <View style={{flex: 1}} >
         <FlashList
           data={images}
-          ListHeaderComponent={<ChapterHeader manhwaTitle={manga_title} loading={loading} goToNextChapter={goToNextChapter} goToPreviousChapter={goToPreviousChapter}/>}
-          ListFooterComponent={<ChapterFooter manwhaTitle={manga_title} loading={loading} goToNextChapter={goToNextChapter} goToPreviousChapter={goToPreviousChapter}/>}
+          ListHeaderComponent={<ChapterHeader loading={loading} goToNextChapter={goToNextChapter} goToPreviousChapter={goToPreviousChapter}/>}
+          ListFooterComponent={<ChapterFooter loading={loading} goToNextChapter={goToNextChapter} goToPreviousChapter={goToPreviousChapter}/>}
           keyExtractor={(item, index) => item.image_url}          
           onEndReachedThreshold={3}
           estimatedItemSize={hp(50)}
@@ -280,18 +274,11 @@ const ChapterListMode = ({
   )
 }
 
-interface ChapterPageModeProps {  
-  manga_title: string
-  setReadMode: React.Dispatch<React.SetStateAction<"List" | "Page">>
-}
 
-const ChapterPageMode = ({  
-  manga_title,
-  setReadMode
-}: ChapterPageModeProps) => {
+const ChapterPageMode = () => {
 
   const db = useSQLiteContext()
-  const { currentChapter, moveToNextChapter, moveToPreviousChapter  } = useReadingState()
+  const { mangaTitle, currentChapter, moveToNextChapter, moveToPreviousChapter  } = useReadingState()
   const [images, setImages] = useState<ChapterImage[]>([])
   const [currentImage, setCurrentImage] = useState<ChapterImage | null>(null)  
   const [loading, setLoading] = useState(false)
@@ -373,7 +360,7 @@ const ChapterPageMode = ({
   return (
     <View style={{flex: 1}} >
       <View style={{paddingHorizontal: wp(5)}} >
-        <TopBar title={manga_title} >
+        <TopBar title={mangaTitle!} >
           <ReturnButton backgroundColor={Colors.black} />
         </TopBar>
 
@@ -410,19 +397,16 @@ const ChapterPageMode = ({
 }
 
 
-const ChapterPage = ({viewMode = "List"} : ChapterProps) => {
-  
-  const params: {manga_title: string} = useLocalSearchParams()
-  const manga_title: string = params.manga_title as any
-  
-  const [readMode, setReadMode] = useState(viewMode)
+const ChapterPage = () => {
+    
+  const { readMode } = useReadModeState()
   
   return (
     <SafeAreaView style={[AppStyle.safeArea, {padding: 0, backgroundColor: Colors.black}]} >
       {
         readMode === 'List' ? 
-        <ChapterListMode manga_title={manga_title} setReadMode={setReadMode} /> :
-        <ChapterPageMode manga_title={manga_title} setReadMode={setReadMode} />
+        <ChapterListMode/> :
+        <ChapterPageMode/>
       }
     </SafeAreaView>
   )

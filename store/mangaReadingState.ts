@@ -3,8 +3,10 @@ import { create } from "zustand";
 
 
 export type ReadingState = {
+    mangaTitle: string | null
+    setMangaTitle: (mangaTitle: string) => void
     chapterMap: Map<number, Chapter>
-    currentChapter: Chapter | null,
+    currentChapter: Chapter | null
     setChapterMap: (chapterMap: Map<number, Chapter>) => void
     setChapterNum: (chapterNum: number) => void
     moveToNextChapter: () => void
@@ -14,8 +16,12 @@ export type ReadingState = {
 
 export const useReadingState = create<ReadingState>(
     (set) => ({
+        mangaTitle: null,
         chapterMap: new Map(),
         currentChapter: null,
+        setMangaTitle: (mangaTitle: string) => {set((state) => {
+            return {...state, mangaTitle}
+        })},
         setChapterMap: (chapterMap: Map<number, Chapter>) => {set((state) => {
             return {...state, chapterMap}
         })},
