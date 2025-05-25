@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
-import { spFetchUser, spGetReleases, spGetSession, supabase } from '@/lib/supabase';
+import { spFetchUser, spGetSession, supabase } from '@/lib/supabase';
 import { useAppVersionState } from '@/store/appReleaseState';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
@@ -20,7 +20,7 @@ import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, AppState, SafeAreaView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -40,7 +40,8 @@ const App = () => {
 
     const db = useSQLiteContext()
     const { login, logout } = useAuthState()
-    const { setLocalVersion, setAllReleases } = useAppVersionState()
+    const { setLocalVersion } = useAppVersionState()
+    const alreadyInited = useRef(false)
 
     let [fontsLoaded] = useFonts({
         LeagueSpartan_100Thin,
@@ -76,7 +77,9 @@ const App = () => {
 
     useEffect(
         () => {
-            async function init() {                
+            async function init() {    
+                if (alreadyInited.current) { return }
+                alreadyInited.current = true
                 Image.clearMemoryCache()
 
                 const state: NetInfoState = await NetInfo.fetch()
@@ -85,8 +88,7 @@ const App = () => {
                     router.replace("/(pages)/Home")
                     return
                 }
-
-                spGetReleases().then(values => setAllReleases(values))
+                
                 await dbGetAppVersion(db).then(value => setLocalVersion(value))
                 await initSession()
                 

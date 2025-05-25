@@ -184,7 +184,7 @@ export async function spFetchChapterImages(chapter_id: number): Promise<ChapterI
 export async function spGetReleases(): Promise<AppRelease[]> {
     const { data, error } = await supabase
         .from("releases")
-        .select("version, url, descr")
+        .select("release_id, version, url, descr, created_at")
         .order("created_at", {ascending: false})
         
     if (error) { 
@@ -192,7 +192,7 @@ export async function spGetReleases(): Promise<AppRelease[]> {
         return [] 
     }    
 
-    return data as any
+    return data as AppRelease[]
 }
 
 
@@ -270,44 +270,23 @@ export async function spCreateComment(
 
 
 export async function spGetComments(
-    manga_id: number, 
-    p_offset: number = 0, 
+    p_manga_id: number, 
+    p_requesting_user_id: string | null = null,
+    p_offset: number = 0,
     p_limit: number = 30
 ): Promise<Comment[]> {
     const { data, error } = await supabase
-        .from("comments")
-        .select(
-            `
-                comment_id,
-                user_id,
-                parent_comment_id,
-                comment,
-                users!comments_user_id_fkey (
-                    username,
-                    avatars ( image_url )
-                ),
-                comment_metrics ( likes )
-            `
+        .rpc(
+            "get_manga_comments_with_user_votes", 
+            { p_manga_id, p_requesting_user_id, p_offset,p_limit }
         )
-        .eq('manga_id', manga_id)
-        .range(p_limit * p_offset, (p_limit + 1) * p_offset)
     
     if (error) {
         console.log("error spGetComments", error)
         return []
     }
 
-    return data.map(item => {return {
-        user_id: item.user_id,
-        manga_id,
-        comment: item.comment,
-        comment_id: item.comment_id,
-        image_url: (item.users as any).avatars.image_url,
-        likes: (item.comment_metrics as any).likes,
-        parent_comment_id: item.parent_comment_id,
-        username: (item.users as any).username,
-        thread: []
-    }})
+    return data as Comment[]    
 
 }
 
@@ -340,7 +319,7 @@ export async function spVoteComment(
     p_vote: boolean
 ): Promise<{success: boolean, newVoteCount: number | null}> {
     const { data, error } = await supabase
-        .rpc("vote_comment", { p_user_id, p_comment_id, p_vote })
+        .rpc("handle_comment_vote", { p_user_id, p_comment_id, p_vote })
 
     if (error) {
         console.log("error dbVoteComment", error)
@@ -348,4 +327,22 @@ export async function spVoteComment(
     }    
 
     return {success: true, newVoteCount: data}
+}
+
+
+export async function spSearchManga(
+    p_search_text: string,
+    p_min_score: number = 0.30,
+    p_offset: number = 0,
+    p_limit: number=  30
+): Promise<Manga[]> {
+    const { data, error } = await supabase
+        .rpc("search_mangas", {p_search_text, p_min_score, p_offset, p_limit})
+
+    if (error) {
+        console.log("error spSearchManga", error)
+        return []
+    }
+
+    return data as Manga[]
 }

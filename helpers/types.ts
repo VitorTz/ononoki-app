@@ -79,9 +79,11 @@ export type DonateMethod = {
 
 
 export type AppRelease = {
+    release_id: number
     version: string
     url: string
     descr: string | null
+    created_at: string
 }
 
 
@@ -96,12 +98,13 @@ export type Chapter = {
 
 export type Comment = {
     comment_id: number
-    user_id: string
-    comment: string
-    parent_comment_id: number | null
     manga_id: number
-    likes: number
-    thread: Comment[]
-    image_url: string
-    username: string
+    parent_comment_id: number | null
+    comment_text: string
+    created_at: string
+    author_user_id: string
+    author_username: string
+    author_avatar_url: string
+    comment_total_likes: number
+    user_vote_state: boolean | null
 }

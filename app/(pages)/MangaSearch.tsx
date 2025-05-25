@@ -3,7 +3,7 @@ import MangaGrid from '@/components/grid/MangaGrid'
 import SearchBar from '@/components/SearchBar'
 import TopBar from '@/components/TopBar'
 import { Manga } from '@/helpers/types'
-import { dbSearchMangas } from '@/lib/database'
+import { spSearchManga } from '@/lib/supabase'
 import { AppStyle } from '@/styles/AppStyle'
 import { useSQLiteContext } from 'expo-sqlite'
 import { debounce } from 'lodash'
@@ -28,7 +28,7 @@ const SearchManhwa = () => {
   const init = useCallback(async () => {
     if (manhwas.length == 0) {
       setLoading(true)
-      await dbSearchMangas(db, searchTerm.current, 0, PAGE_LIMIT)
+      await spSearchManga(searchTerm.current, 0.30, 0, PAGE_LIMIT)
         .then(values => setManhwas(values))
       setLoading(false)
     }
@@ -46,7 +46,7 @@ const SearchManhwa = () => {
     searchTerm.current = value.trim()
     page.current = 0
     setLoading(true)
-      await dbSearchMangas(db, searchTerm.current, page.current * PAGE_LIMIT, PAGE_LIMIT)
+      await spSearchManga(searchTerm.current, 0.30, page.current * PAGE_LIMIT, PAGE_LIMIT)      
         .then(values => {
           hasResults.current = values.length > 0
           setManhwas([...values])
@@ -60,7 +60,7 @@ const SearchManhwa = () => {
     if (!hasResults.current || !isInitialized.current) { return }
     page.current += 1
     setLoading(true)
-      await dbSearchMangas(db, searchTerm.current, page.current * PAGE_LIMIT, PAGE_LIMIT)
+      await spSearchManga(searchTerm.current, 0.30, page.current * PAGE_LIMIT, PAGE_LIMIT)
         .then(values => {
           hasResults.current = values.length > 0
           setManhwas(prev => [...prev, ...values])

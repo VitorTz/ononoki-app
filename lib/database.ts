@@ -1,7 +1,7 @@
 import { convertStringListToSet, secondsSince } from '@/helpers/util';
 import * as SQLite from 'expo-sqlite';
-import { Author, Chapter, ChapterReadLog, Genre, Manga, MangaAuthor, MangaGenre } from '../helpers/types';
-import { spFetchUserReadingStatus, spGetMangas } from "./supabase";
+import { AppRelease, Author, Chapter, ChapterReadLog, Genre, Manga, MangaAuthor, MangaGenre } from '../helpers/types';
+import { spFetchUserReadingStatus, spGetMangas, spGetReleases } from "./supabase";
 
 
 export async function dbMigrate(db: SQLite.SQLiteDatabase) {
@@ -49,7 +49,7 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
           author_id INTEGER NOT NULL,
           manga_id INTEGER NOT NULL,
           role TEXT NOT NULL,
-          CONSTRAINT manga_authors_unique unique (manga_id, author_id, role),
+          CONSTRAINT manga_authors_pkey PRIMARY KEY (manga_id, author_id, role),          
           CONSTRAINT manga_authors_author_id_fkey FOREIGN KEY (author_id) REFERENCES authors (author_id) ON UPDATE CASCADE ON DELETE CASCADE,
           CONSTRAINT manga_authors_manga_id_fkey FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
       );
@@ -86,6 +86,14 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
           PRIMARY KEY  (manga_id, chapter_id),              
           FOREIGN KEY  (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE,
           FOREIGN KEY  (chapter_id) REFERENCES chapters (chapter_id) ON UPDATE CASCADE ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS app_releases (
+        release_id INTEGER PRIMARY KEY,
+        version TEXT NOT NULL,
+        url TEXT NOT NULL,
+        descr TEXT,
+        created_at TIMESTAMP NOT NULL
       );
 
       CREATE INDEX IF NOT EXISTS idx_chapters_manga_id ON chapters(manga_id);
@@ -129,9 +137,7 @@ export async function dbClearDatabase(db: SQLite.SQLiteDatabase) {
     await db.runAsync('DELETE FROM mangas;').catch(error => console.log("error dbClearDatabase mangas", error))
     await db.runAsync('DELETE FROM chapters;').catch(error => console.log("error dbClearDatabase chapters", error))
     await db.runAsync('DELETE FROM genres;').catch(error => console.log("error dbClearDatabase genres", error))
-    await db.runAsync('DELETE FROM manga_genres;').catch(error => console.log("error dbClearDatabase manga_genres", error))
-    await db.runAsync('DELETE FROM authors;').catch(error => console.log("error dbClearDatabase authors", error))
-    await db.runAsync('DELETE FROM manga_authors;').catch(error => console.log("error dbClearDatabase manga_authors", error))
+    await db.runAsync('DELETE FROM app_releases;').catch(error => console.log("error dbClearDatabase app_releases", error))
     console.log("[DATABASE CLEARED]")
 }
 
@@ -284,10 +290,34 @@ async function dbUpsertMangas(db: SQLite.SQLiteDatabase, mangas: Manga[]) {
         rating,
         updated_at
     )
-    VALUES ${placeholders};`, params
-    ).catch(error => console.log("error dbUpsertMangas", error));
+    VALUES ${placeholders};`, 
+    params
+  ).catch(error => console.log("error dbUpsertMangas", error));
 }
 
+async function dbUpsertReleases(db: SQLite.SQLiteDatabase, releases: AppRelease[]) {
+  if (releases.length == 0) { return }
+  const placeholders = releases.map(() => '(?,?,?,?,?)').join(',');
+  const params = releases.flatMap(i => [
+      i.release_id, 
+      i.version, 
+      i.url,
+      i.descr,
+      i.created_at
+  ]);
+  await db.runAsync(
+    `
+        INSERT OR REPLACE INTO app_releases (
+            release_id, 
+            version, 
+            url,
+            descr,
+            created_at
+        )
+        VALUES ${placeholders};
+    `, params
+    ).catch(error => console.log("error dbUpsertReleases", error));
+}
 
 async function dbUpsertChapter(db: SQLite.SQLiteDatabase, chapters: Chapter[]) {
     const placeholders = chapters.map(() => '(?,?,?,?,?)').join(',');  
@@ -307,10 +337,7 @@ async function dbUpsertChapter(db: SQLite.SQLiteDatabase, chapters: Chapter[]) {
             created_at,
             chapter_name
         )
-        VALUES ${placeholders}
-        ON CONFLICT 
-            (chapter_id)
-        DO NOTHING;
+        VALUES ${placeholders};        
     `, params
     ).catch(error => console.log("error dbUpsertChapter", error));
 }
@@ -324,14 +351,11 @@ async function dbUpsertGenres(db: SQLite.SQLiteDatabase, genres: Genre[]) {
   ]);
   await db.runAsync(
     `
-      INSERT INTO genres (
+      INSERT OR REPLACE INTO genres (
         genre_id, 
         genre
       ) 
-      VALUES ${placeholders}
-      ON CONFLICT 
-        (genre_id)
-      DO NOTHING;
+      VALUES ${placeholders};
     `, 
     params
   ).catch(error => console.log("error dbUpsertGenres", error));
@@ -346,14 +370,11 @@ async function dbUpsertMangaGenres(db: SQLite.SQLiteDatabase, mangaGenres: Manga
     ]);
     await db.runAsync(
     `
-        INSERT INTO manga_genres (
+        INSERT OR REPLACE INTO manga_genres (
             genre_id,
             manga_id
         ) 
-        VALUES ${placeholders}
-        ON CONFLICT 
-          (manga_id, genre_id)
-        DO NOTHING;
+        VALUES ${placeholders};        
     `, params
     ).catch(error => console.log("error dbUpsertMangaGenres", error));
 }
@@ -367,18 +388,15 @@ async function dbUpsertAuthors(db: SQLite.SQLiteDatabase, authors: Author[]) {
         i.role
     ]);
     await db.runAsync(
-        `
-        INSERT INTO authors (
-            author_id, 
-            name,
-            role
-        ) 
-        VALUES ${placeholders}
-        ON CONFLICT 
-          (author_id)
-        DO NOTHING;
-        `, 
-        params
+      `
+      INSERT OR REPLACE INTO authors (
+          author_id, 
+          name,
+          role
+      ) 
+      VALUES ${placeholders};      
+      `, 
+      params
     ).catch(error => console.log("error dbUpsertAuthors", error));
 }
 
@@ -391,17 +409,15 @@ async function dbUpsertMangaAuthors(db: SQLite.SQLiteDatabase, mangaAuthor: Mang
         i.role
     ]);
     await db.runAsync(
-    `
-      INSERT INTO manga_authors (
-          author_id, 
-          manga_id,
-          role
-      ) 
-      VALUES ${placeholders}
-      ON CONFLICT 
-        (author_id, manga_id, role)
-      DO NOTHING;
-    `, params
+      `
+        INSERT OR REPLACE INTO manga_authors (
+            author_id, 
+            manga_id,
+            role
+        ) 
+        VALUES ${placeholders};
+      `, 
+      params
     ).catch(error => console.log("error dbUpsertMangaAuthors", error));
 }
 
@@ -411,9 +427,10 @@ export async function dbUpdateDatabase(db: SQLite.SQLiteDatabase) {
     const start = Date.now()
 
     const mangas: Manga[] = await spGetMangas()
+    const releases: AppRelease[] = await spGetReleases()
 
     await dbClearDatabase(db)
-    await dbUpsertMangas(db, mangas)
+    await dbUpsertMangas(db, mangas)    
 
     const chapters: Chapter[] = []
     const authors: Author[] = []
@@ -426,7 +443,8 @@ export async function dbUpdateDatabase(db: SQLite.SQLiteDatabase) {
         i.genres.forEach(g => {genres.push(g); mangaGenres.push({...g, manga_id: i.manga_id})});
         i.authors.forEach(a => {authors.push(a); mangaAuthors.push({...a, manga_id: i.manga_id})});    
     })
-
+  
+    await dbUpsertReleases(db, releases)
     await dbUpsertChapter(db, chapters)
     await dbUpsertGenres(db, genres)
     await dbUpsertMangaGenres(db, mangaGenres)
@@ -923,4 +941,19 @@ export async function dbGetAppVersion(db: SQLite.SQLiteDatabase): Promise<string
   ).catch(error => console.log('dbGetAppVersion', error)); 
 
   return row!.value
+}
+
+
+export async function dbGetAllReleases(db: SQLite.SQLiteDatabase): Promise<AppRelease[]> {
+ const rows = await db.getAllAsync(
+    `
+      SELECT 
+        *
+      FROM 
+        app_releases
+      ORDER BY created_at DESC;
+    `    
+  ).catch(error => console.log("error dbGetAllReleases", error))
+
+  return rows ? rows as AppRelease[] : [] 
 }

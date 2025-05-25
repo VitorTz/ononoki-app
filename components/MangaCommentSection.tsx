@@ -2,7 +2,7 @@ import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { Comment, Manga } from '@/helpers/types'
 import { hp } from '@/helpers/util'
-import { spCheckUserVote, spCreateComment, spGetComments, spVoteComment } from '@/lib/supabase'
+import { spCreateComment, spGetComments, spVoteComment } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -15,7 +15,6 @@ import Toast from 'react-native-toast-message'
 const PAGE_LIMIT = 30
 
 
-
 interface CommentListProps {
     loading: boolean
     comments: Comment[]
@@ -26,24 +25,9 @@ const CommentComponent = ({comment}: {comment: Comment}) => {
 
     const { session } = useAuthState()
 
-    const [numLikes, setNumLikes] = useState(comment.likes)
+    const [numLikes, setNumLikes] = useState(comment.comment_total_likes)
     const [loading, setLoading] = useState(false)
-
-    const voteState = useRef({
-        hasVoted: false,
-        alredyChecked: false,
-        votedUp: false
-    })
-
-    const checkVoteState = async () => {
-        if (voteState.current.alredyChecked || !session) { return }
-        await spCheckUserVote(session.user.id, comment.comment_id)
-            .then(v => {
-                voteState.current.hasVoted = v.voted; 
-                voteState.current.alredyChecked = true
-                voteState.current.votedUp = v.voteUp
-            })
-    }
+    const [userVote, setUserVote] = useState<boolean | null>(comment.user_vote_state)
     
     const vote = async (type: 'Up' | "Down") => {
         if (!session) {
@@ -52,29 +36,18 @@ const CommentComponent = ({comment}: {comment: Comment}) => {
         }
 
         setLoading(true)
-        await checkVoteState()
-
-        if (
-            voteState.current.hasVoted && 
-            (type == 'Up' && voteState.current.votedUp) ||
-            (type == 'Down' && !voteState.current.votedUp)
-        ) {
-            setLoading(false)
-            return
-        }
 
         const isUpVote = 'Up' === type
-        
+
         const { success, newVoteCount } = await spVoteComment(
             session.user.id, 
             comment.comment_id, 
             isUpVote
         )
-
-        if (success && newVoteCount) {
+        
+        if (success && newVoteCount !== null) {
             setNumLikes(newVoteCount)
-            voteState.current.hasVoted = true
-            voteState.current.votedUp = isUpVote
+            setUserVote(prev => prev === isUpVote ? null : isUpVote)
         } else {
             Toast.show({text1: "Sorry, could not computate your vote", type: "error"})
         }
@@ -82,15 +55,18 @@ const CommentComponent = ({comment}: {comment: Comment}) => {
         setLoading(false)
     }
 
+    const upColor = userVote == true ? Colors.orange : Colors.white
+    const downColor = userVote == false ? Colors.orange : Colors.white
+
     return (
         <View style={{width: '100%', gap: 20, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
             <Image 
-                source={comment.image_url} 
+                source={comment.author_avatar_url} 
                 style={{width: 64, height: 64, alignSelf: "flex-start"}} 
                 contentFit='cover' />
             <View style={{flex: 1, gap: 10}} >
-                <Text style={AppStyle.textRegular} >{comment.username}</Text>
-                <Text style={AppStyle.textRegular}>{comment.comment}</Text>
+                <Text style={AppStyle.textRegular} >{comment.author_username}</Text>
+                <Text style={AppStyle.textRegular}>{comment.comment_text}</Text>
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "flex-start", gap: 20}} >
                     {
                         loading ?
@@ -98,11 +74,11 @@ const CommentComponent = ({comment}: {comment: Comment}) => {
                         <>
                             <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 10}} >
                                 <Pressable onPress={() => vote("Up")} hitSlop={AppConstants.hitSlop} >
-                                    <Ionicons name='arrow-up' size={18} color={Colors.green} />
+                                    <Ionicons name='arrow-up' size={18} color={upColor} />
                                 </Pressable>
                                 <Text style={AppStyle.textRegular}>{numLikes}</Text>
                                 <Pressable onPress={() => vote("Down")} hitSlop={AppConstants.hitSlop} >
-                                    <Ionicons name='arrow-down' size={18} color={Colors.neonRed} />
+                                    <Ionicons name='arrow-down' size={18} color={downColor} />
                                 </Pressable>
                             </View>
                         </>
@@ -143,7 +119,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
 
     const sendComment = async () => {
         if (!user || !session) {
-            Toast.show({text1: "Your must be logged!", type: "error"})
+            Toast.show({text1: "Your must be logged!", type: "error", position: 'top'})
             return
         }
 
@@ -151,7 +127,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
             const t = text.trim()
 
             if (t.length > 1024 || t.length < 3) {
-                Toast.show({text1: "Max 1024 characters and min 3 characters", type: "info"})
+                Toast.show({text1: "Max 1024 characters and min 3 characters", type: "info", position: 'top'})
                 setLoading(false)
                 return
             }            
@@ -159,27 +135,27 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
             const comment_id: number | null = await spCreateComment(session.user.id, t, manga_id)
 
             if (!comment_id) {
-                Toast.show({text1: "Could not upload comment!", type: "error"})
+                Toast.show({text1: "Could not upload comment!", type: "error", position: 'top'})
                 setLoading(false)
                 return
             }
 
             setText('')
+            Keyboard.dismiss()
             Toast.show({text1: "Your comment has created!", type: "success"})
             const c: Comment = {
-                username: user.username,
-                image_url: user.image_url,
+                user_vote_state: null,
+                author_username : user.username,
+                author_avatar_url: user.image_url,
+                author_user_id: user.user_id,
                 comment_id,
-                user_id: user.user_id,
-                comment: t,
-                likes: 1,
+                comment_text: t,
+                comment_total_likes: 0,
                 manga_id,
                 parent_comment_id: null,
-                thread: []
+                created_at: Date().toString()
             }
-            setComments(prev => [...[c], ...prev])
-
-            Keyboard.dismiss()
+            setComments(prev => [...[c], ...prev])            
         setLoading(false)
     }
 
@@ -246,6 +222,7 @@ const LoadMoreCommentsComponent = ({
     setComments
 }: LoadMoreCommentsComponentProps) => {
     
+    const { session } = useAuthState()
     const [loading, setLoading] = useState(false)
     const [hasResults, setHasResults] = useState(true)
     const page = useRef(0)
@@ -254,7 +231,12 @@ const LoadMoreCommentsComponent = ({
         if (!hasResults) { return }
         setLoading(true)
         page.current += 1
-        const c = await spGetComments(manga_id, page.current * PAGE_LIMIT, PAGE_LIMIT)
+        const c = await spGetComments(
+            manga_id, 
+            session ? session.user.id : null, 
+            page.current * PAGE_LIMIT, 
+            PAGE_LIMIT
+        )
         if (c.length > 0) {
             setHasResults(true)
             setComments(prev => [...prev, ...c])
@@ -292,12 +274,13 @@ interface MangaCommentSectionProps {
 
 const MangaCommenctSection = ({manga}: MangaCommentSectionProps) => {
     
+    const { session } = useAuthState()
     const [comments, setComments] = useState<Comment[]>([])
     const [laodingComments, setLoadComments] = useState(false)   
 
     const init = async () => {
         setLoadComments(true)
-        spGetComments(manga.manga_id)
+        spGetComments(manga.manga_id, session ? session.user.id : null)
             .then(v => setComments([...v]))
             .then(v => setLoadComments(false))
     }

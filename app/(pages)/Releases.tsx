@@ -1,13 +1,15 @@
-import { Linking, Pressable, SafeAreaView, Text, View } from 'react-native'
+import { ActivityIndicator, Linking, Pressable, SafeAreaView, Text, View } from 'react-native'
 
 import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
 import { Colors } from '@/constants/Colors'
 import { AppRelease } from '@/helpers/types'
+import { dbGetAllReleases } from '@/lib/database'
 import { useAppVersionState } from '@/store/appReleaseState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import React from 'react'
+import { useSQLiteContext } from 'expo-sqlite'
+import React, { useEffect, useState } from 'react'
 import Toast from 'react-native-toast-message'
 
 
@@ -34,7 +36,22 @@ const ReleaseItem = ({release}: {release: AppRelease}) => {
 
 const Releases = () => {
 
-    const { localVersion, allReleases } = useAppVersionState()
+    const db = useSQLiteContext()
+    const { localVersion, allReleases, setAllReleases } = useAppVersionState()
+    const [loading, setLoading] = useState(false)
+
+    useEffect(
+        () => {
+            async function init() {
+                if (allReleases.length > 0) { return }
+                setLoading(true)
+                await dbGetAllReleases(db).then(values => setAllReleases(values))
+                setLoading(false)
+            }
+            init()
+        },
+        [db, allReleases]
+    )
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
@@ -45,13 +62,18 @@ const Releases = () => {
                 localVersion && <Text style={[AppStyle.textRegular, {marginBottom: 10}]} >Your app version: {localVersion}</Text>
             }
             {
-                allReleases.length != 0 &&
+                loading ?
+
+                <ActivityIndicator size={32} color={Colors.releasesColor} />
+
+                :
+
                 <View style={{width: '100%', gap: 20, alignItems: "center", justifyContent: 'center'}} >
                     {
                         allReleases.map((item, index) => <ReleaseItem release={item} key={index} />)
                     }
                 </View>
-            }
+            }            
         </SafeAreaView>
     )
 }
