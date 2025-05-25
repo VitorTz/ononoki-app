@@ -42,7 +42,7 @@ const UpdateDatabase = ({
         }
         
         if (!shouldUpdate && hasMangas) {
-            const secondsUntilRefresh = await dbCheckSecondsSinceLastRefresh(db, 'database')
+            const secondsUntilRefresh = await dbCheckSecondsSinceLastRefresh(db, type)
             Toast.show({
                 text1: "Wait ⌛", 
                 text2: `You can try again in ${secondsUntilRefresh} seconds`, 

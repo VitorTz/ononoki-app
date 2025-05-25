@@ -53,6 +53,15 @@ const _layout = () => {
               <Stack.Screen name='(pages)/LatestUpdates' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/MostView' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/BugReport' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/Releases' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/Account' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/MangaRequest' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/ReadHistory' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/Library' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/MangaSearch' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/Donate' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/Disclaimer' options={{headerShown: false}} />
+              <Stack.Screen name='(auth)/SignIn' options={{headerShown: false}} />
           </Stack>
           <Toast 
             position='bottom' 

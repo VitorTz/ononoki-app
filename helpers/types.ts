@@ -84,6 +84,7 @@ export type AppRelease = {
     descr: string | null
 }
 
+
 export type Chapter = {
     chapter_id: number
     manga_id: number

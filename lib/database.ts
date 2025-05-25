@@ -105,11 +105,14 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
     VALUES 
       ('version', 'v1.0');
 
-    INSERT OR REPLACE INTO
+    INSERT INTO
         update_history (name, refresh_cycle)
     VALUES
       ('server', 60 * 60 * 3),
-      ('client', 60 * 3);    
+      ('client', 60 * 3)
+    ON CONFLICT (name)
+    DO UPDATE SET 
+      refresh_cycle = EXCLUDED.refresh_cycle;
     `
     ).catch(error => console.log("DATABASE MIGRATION ERROR", error));
     console.log("[DATABASE MIGRATION END]")
@@ -220,8 +223,9 @@ export async function dbShouldUpdate(db: SQLite.SQLiteDatabase, name: string): P
         return false 
     }
 
+    console.log(row)
     const seconds = row.last_refreshed_at ? secondsSince(row.last_refreshed_at) : -1
-
+    console.log(seconds)
     const shouldUpdate = seconds < 0 || seconds >= row.refresh_cycle
 
     if (shouldUpdate) {
@@ -231,7 +235,7 @@ export async function dbShouldUpdate(db: SQLite.SQLiteDatabase, name: string): P
             UPDATE 
                 update_history 
             SET 
-                last_refreshed_at = ? 
+                last_refreshed_at = ?
             WHERE name = ?;
             `,
             [current_time, name]

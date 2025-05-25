@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, Session } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 import Config from 'react-native-config';
-import { Chapter, ChapterImage, Manga } from "../helpers/types";
+import { AppRelease, Chapter, ChapterImage, Manga, OnonokiUser } from "../helpers/types";
 
 
 const supabaseUrl = Config.SUPABASE_URL as any
@@ -33,6 +33,50 @@ AppState.addEventListener(
 export async function spGetSession(): Promise<Session | null> {
     const { data: {session} } = await supabase.auth.getSession()
     return session
+}
+
+export async function spUpdateUserLastLogin(user_id: string) {
+    const { error } = await supabase
+        .from("users")
+        .update({'last_login_at': 'now()'})
+        .eq("user_id", user_id)
+    
+    if (error) {
+        console.log("error spUpdateUserLastLogin", error)
+    }
+}
+
+
+export async function spFetchUser(
+    user_id: string, 
+    update_login_time: boolean = true
+): Promise<OnonokiUser | null> {
+
+    const { data, error } = await supabase
+        .from("users")
+        .select("username, avatars (image_url)")
+        .eq("user_id", user_id)
+        .single()
+
+    if (error) {
+        console.log("error spFetchUser", error)
+        return null
+    }
+
+    if (!data) {
+        console.log("no user found", user_id)
+        return null
+    }
+
+    if (update_login_time) {
+        spUpdateUserLastLogin(user_id)
+    }
+
+    return {
+        username: data.username,
+        user_id,
+        image_url: data.avatars ? (data.avatars as any).image_url : null
+    }
 }
 
 
@@ -134,4 +178,19 @@ export async function spFetchChapterImages(chapter_id: number): Promise<ChapterI
     }
 
     return data
+}
+
+
+export async function spGetReleases(): Promise<AppRelease[]> {
+    const { data, error } = await supabase
+        .from("releases")
+        .select("version, url, descr")
+        .order("created_at", {ascending: false})
+        
+    if (error) { 
+        console.log("error spGetAllAppVersions", error)
+        return [] 
+    }    
+
+    return data as any
 }
