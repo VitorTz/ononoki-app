@@ -62,6 +62,7 @@ const _layout = () => {
               <Stack.Screen name='(pages)/Donate' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/Disclaimer' options={{headerShown: false}} />
               <Stack.Screen name='(auth)/SignIn' options={{headerShown: false}} />
+              <Stack.Screen name='(auth)/SignUp' options={{headerShown: false}} />
           </Stack>
           <Toast 
             position='bottom' 

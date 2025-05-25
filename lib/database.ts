@@ -7,112 +7,110 @@ import { spFetchUserReadingStatus, spGetMangas } from "./supabase";
 export async function dbMigrate(db: SQLite.SQLiteDatabase) {
     console.log("[DATABASE MIGRATION START]")
     await db.execAsync(`
+      PRAGMA journal_mode = WAL;
+      PRAGMA synchronous = NORMAL;
 
-    PRAGMA journal_mode = WAL;
-    PRAGMA synchronous = NORMAL;
+      CREATE TABLE IF NOT EXISTS app_info (
+          name TEXT NOT NULL PRIMARY KEY,
+          value TEXT NOT NULL
+      );
 
-    CREATE TABLE IF NOT EXISTS app_info (
-        name TEXT NOT NULL PRIMARY KEY,
-        value TEXT NOT NULL
-    );
+      CREATE TABLE IF NOT EXISTS update_history (
+          name TEXT NOT NULL PRIMARY KEY,
+          refresh_cycle INTEGER,
+          last_refreshed_at TIMESTAMP DEFAULT NULL
+      );
 
-    CREATE TABLE IF NOT EXISTS update_history (
-        name TEXT NOT NULL PRIMARY KEY,
-        refresh_cycle INTEGER,
-        last_refreshed_at TIMESTAMP DEFAULT NULL
-    );
+      CREATE TABLE IF NOT EXISTS genres (
+          genre_id INTEGER PRIMARY KEY,
+          genre TEXT NOT NULL
+      );
 
-    CREATE TABLE IF NOT EXISTS genres (
-        genre_id INTEGER PRIMARY KEY,
-        genre TEXT NOT NULL
-    );
+      CREATE TABLE IF NOT EXISTS authors (
+          author_id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          role TEXT NOT NULL
+      );
 
-    CREATE TABLE IF NOT EXISTS authors (
-        author_id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        role TEXT NOT NULL
-    );
+      CREATE TABLE IF NOT EXISTS mangas (
+          manga_id INTEGER PRIMARY KEY,
+          title TEXT NOT NULL UNIQUE,
+          descr TEXT NOT NULL,
+          cover_image_url TEXT NOT NULL,
+          status TEXT NOT NULL,
+          color TEXT NOT NULL,
+          rating DECIMAL(2, 1) DEFAULT NULL,
+          views INTEGER NOT NULL DEFAULT 0,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
 
-    CREATE TABLE IF NOT EXISTS mangas (
-        manga_id INTEGER PRIMARY KEY,
-        title TEXT NOT NULL UNIQUE,
-        descr TEXT NOT NULL,
-        cover_image_url TEXT NOT NULL,
-        status TEXT NOT NULL,
-        color TEXT NOT NULL,
-        rating DECIMAL(2, 1) DEFAULT NULL,
-        views INTEGER NOT NULL DEFAULT 0,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+      CREATE TABLE IF NOT EXISTS manga_authors (
+          manga_author_id INTEGER AUTO_INCREMENT,
+          author_id INTEGER NOT NULL,
+          manga_id INTEGER NOT NULL,
+          role TEXT NOT NULL,
+          CONSTRAINT manga_authors_unique unique (manga_id, author_id, role),
+          CONSTRAINT manga_authors_author_id_fkey FOREIGN KEY (author_id) REFERENCES authors (author_id) ON UPDATE CASCADE ON DELETE CASCADE,
+          CONSTRAINT manga_authors_manga_id_fkey FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
+      );
 
-    CREATE TABLE IF NOT EXISTS manga_authors (
-        manga_author_id INTEGER AUTO_INCREMENT,
-        author_id INTEGER NOT NULL,
-        manga_id INTEGER NOT NULL,
-        role TEXT NOT NULL,
-        CONSTRAINT manga_authors_unique unique (manga_id, author_id, role),
-        CONSTRAINT manga_authors_author_id_fkey FOREIGN KEY (author_id) REFERENCES authors (author_id) ON UPDATE CASCADE ON DELETE CASCADE,
-        CONSTRAINT manga_authors_manga_id_fkey FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
-    );
+      CREATE TABLE IF NOT EXISTS manga_genres (
+          genre_id INTEGER NOT NULL,
+          manga_id INTEGER NOT NULL,
+          CONSTRAINT manga_genres_pkey PRIMARY KEY (manga_id, genre_id),
+          CONSTRAINT manga_genres_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES genres (genre_id) ON UPDATE CASCADE ON DELETE CASCADE,        
+          CONSTRAINT manga_genres_manga_id_fkey FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
+      );
 
-    CREATE TABLE IF NOT EXISTS manga_genres (
-        genre_id INTEGER NOT NULL,
-        manga_id INTEGER NOT NULL,
-        CONSTRAINT manga_genres_pkey PRIMARY KEY (manga_id, genre_id),
-        CONSTRAINT manga_genres_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES genres (genre_id) ON UPDATE CASCADE ON DELETE CASCADE,        
-        CONSTRAINT manga_genres_manga_id_fkey FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
-    );
+      CREATE TABLE IF NOT EXISTS chapters (
+          chapter_id INTEGER PRIMARY KEY,
+          manga_id INTEGER,
+          chapter_num INTEGER NOT NULL,
+          chapter_name TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (manga_id) REFERENCES mangas(manga_id) ON DELETE CASCADE ON UPDATE CASCADE
+      );
 
-    CREATE TABLE IF NOT EXISTS chapters (
-        chapter_id INTEGER PRIMARY KEY,
-        manga_id INTEGER,
-        chapter_num INTEGER NOT NULL,
-        chapter_name TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (manga_id) REFERENCES mangas(manga_id) ON DELETE CASCADE ON UPDATE CASCADE
-    );
+      CREATE TABLE IF NOT EXISTS reading_status (        
+          manga_id INTEGER NOT NULL PRIMARY KEY,
+          status TEXT NOT NULL,
+          updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT fk_reading_status_manga FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
+      );    
 
-    CREATE TABLE IF NOT EXISTS reading_status (        
-        manga_id INTEGER NOT NULL PRIMARY KEY,
-        status TEXT NOT NULL,
-        updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT fk_reading_status_manga FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
-    );    
+      CREATE TABLE IF NOT EXISTS reading_history (
+          manga_id    INTEGER NOT NULL,      
+          chapter_id   INTEGER NOT NULL,
+          chapter_num  INTEGER NOT NULL,
+          readed_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY  (manga_id, chapter_id),              
+          FOREIGN KEY  (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE,
+          FOREIGN KEY  (chapter_id) REFERENCES chapters (chapter_id) ON UPDATE CASCADE ON DELETE CASCADE
+      );
 
-    CREATE TABLE IF NOT EXISTS reading_history (
-        manga_id    INTEGER NOT NULL,      
-        chapter_id   INTEGER NOT NULL,
-        chapter_num  INTEGER NOT NULL,
-        readed_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY  (manga_id, chapter_id),              
-        FOREIGN KEY  (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE,
-        FOREIGN KEY  (chapter_id) REFERENCES chapters (chapter_id) ON UPDATE CASCADE ON DELETE CASCADE
-    );
+      CREATE INDEX IF NOT EXISTS idx_chapters_manga_id ON chapters(manga_id);
+      CREATE INDEX IF NOT EXISTS idx_ma_manga_id ON manga_authors(manga_id);
+      CREATE INDEX IF NOT EXISTS idx_mangas_status ON mangas(status);
+      CREATE INDEX IF NOT EXISTS idx_mangas_rating ON mangas(rating);
+      CREATE INDEX IF NOT EXISTS idx_authors_name ON authors(name);
+      CREATE INDEX IF NOT EXISTS idx_chapters_manga_num ON chapters(manga_id, chapter_num DESC);
+      CREATE INDEX IF NOT EXISTS idx_reading_status_manga_id_status ON reading_status (manga_id, status);
+      CREATE INDEX IF NOT EXISTS idx_reading_history_updated ON reading_history(manga_id, chapter_num, readed_at DESC);
 
-    CREATE INDEX IF NOT EXISTS idx_chapters_manga_id ON chapters(manga_id);
-    CREATE INDEX IF NOT EXISTS idx_ma_manga_id ON manga_authors(manga_id);
-    CREATE INDEX IF NOT EXISTS idx_mangas_status ON mangas(status);
-    CREATE INDEX IF NOT EXISTS idx_mangas_rating ON mangas(rating);
-    CREATE INDEX IF NOT EXISTS idx_authors_name ON authors(name);
-    CREATE INDEX IF NOT EXISTS idx_chapters_manga_num ON chapters(manga_id, chapter_num DESC);
-    CREATE INDEX IF NOT EXISTS idx_reading_status_manga_id_status ON reading_status (manga_id, status);
-    CREATE INDEX IF NOT EXISTS idx_reading_history_updated ON reading_history(manga_id, chapter_num, readed_at DESC);
+      INSERT OR REPLACE INTO 
+        app_info (name, value)
+      VALUES 
+        ('version', 'v1.0');
 
-    INSERT OR REPLACE INTO app_info (
-      name, 
-      value
-    )
-    VALUES 
-      ('version', 'v1.0');
-
-    INSERT INTO
-        update_history (name, refresh_cycle)
-    VALUES
-      ('server', 60 * 60 * 3),
-      ('client', 60 * 3)
-    ON CONFLICT (name)
-    DO UPDATE SET 
-      refresh_cycle = EXCLUDED.refresh_cycle;
+      INSERT INTO
+          update_history (name, refresh_cycle)
+      VALUES
+        ('server', 60 * 60 * 3),
+        ('client', 60 * 3)
+      ON CONFLICT 
+        (name)
+      DO UPDATE SET 
+        refresh_cycle = EXCLUDED.refresh_cycle;
     `
     ).catch(error => console.log("DATABASE MIGRATION ERROR", error));
     console.log("[DATABASE MIGRATION END]")
@@ -120,7 +118,10 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
 
 
 export async function dbClearTable(db: SQLite.SQLiteDatabase, name: string) {
-    await db.runAsync(`DELETE FROM ${name};`, [name]).catch(error => console.log("error dbClearTablError", name, error))
+    await db.runAsync(
+      `DELETE FROM ${name};`,
+      [name]
+    ).catch(error => console.log("error dbClearTablError", name, error))
 }
 
 
@@ -200,6 +201,19 @@ export async function dbCheckSecondsSinceLastRefresh(
 }
 
 
+export async function dbSetLastRefresh(db: SQLite.SQLiteDatabase, name: string) {    
+    await db.runAsync(
+      `
+        UPDATE 
+            update_history 
+        SET 
+            last_refreshed_at = ?
+        WHERE name = ?;
+      `,
+      [new Date().toString(), name]
+    ).catch(error => console.log("error dbSetLastRefresh", name, error));
+}
+
 export async function dbShouldUpdate(db: SQLite.SQLiteDatabase, name: string): Promise<boolean> {
     const row = await db.getFirstAsync<{
         name: string,
@@ -222,23 +236,21 @@ export async function dbShouldUpdate(db: SQLite.SQLiteDatabase, name: string): P
         console.log(`could not read updated_history of ${name}`)
         return false 
     }
-
-    console.log(row)
+    
     const seconds = row.last_refreshed_at ? secondsSince(row.last_refreshed_at) : -1
-    console.log(seconds)
     const shouldUpdate = seconds < 0 || seconds >= row.refresh_cycle
 
     if (shouldUpdate) {
         const current_time = new Date().toString()
         await db.runAsync(
-            `
+          `
             UPDATE 
                 update_history 
             SET 
                 last_refreshed_at = ?
             WHERE name = ?;
-            `,
-            [current_time, name]
+          `,
+          [current_time, name]
         ).catch(error => console.log("error dbShouldUpdate update_historyerror", name, error));
         return true
     }
@@ -317,7 +329,8 @@ async function dbUpsertGenres(db: SQLite.SQLiteDatabase, genres: Genre[]) {
         genre
       ) 
       VALUES ${placeholders}
-      ON CONFLICT (genre_id)
+      ON CONFLICT 
+        (genre_id)
       DO NOTHING;
     `, 
     params
@@ -338,7 +351,8 @@ async function dbUpsertMangaGenres(db: SQLite.SQLiteDatabase, mangaGenres: Manga
             manga_id
         ) 
         VALUES ${placeholders}
-        ON CONFLICT (manga_id, genre_id)
+        ON CONFLICT 
+          (manga_id, genre_id)
         DO NOTHING;
     `, params
     ).catch(error => console.log("error dbUpsertMangaGenres", error));
@@ -360,7 +374,8 @@ async function dbUpsertAuthors(db: SQLite.SQLiteDatabase, authors: Author[]) {
             role
         ) 
         VALUES ${placeholders}
-        ON CONFLICT (author_id)
+        ON CONFLICT 
+          (author_id)
         DO NOTHING;
         `, 
         params
@@ -377,14 +392,15 @@ async function dbUpsertMangaAuthors(db: SQLite.SQLiteDatabase, mangaAuthor: Mang
     ]);
     await db.runAsync(
     `
-        INSERT INTO manga_authors (
-            author_id, 
-            manga_id,
-            role
-        ) 
-        VALUES ${placeholders}
-        ON CONFLICT (author_id, manga_id, role)
-        DO NOTHING;
+      INSERT INTO manga_authors (
+          author_id, 
+          manga_id,
+          role
+      ) 
+      VALUES ${placeholders}
+      ON CONFLICT 
+        (author_id, manga_id, role)
+      DO NOTHING;
     `, params
     ).catch(error => console.log("error dbUpsertMangaAuthors", error));
 }
@@ -418,8 +434,7 @@ export async function dbUpdateDatabase(db: SQLite.SQLiteDatabase) {
     await dbUpsertMangaAuthors(db, mangaAuthors)
 
     const end = Date.now()
-    console.log((end - start) / 1000)
-    console.log("[DATABASE UPDATED]")
+    console.log("[DATABASE UPDATED]", (end - start) / 1000)
 }
 
 
@@ -745,7 +760,7 @@ export async function dbUpdateMangaReadingStatus(
   db: SQLite.SQLiteDatabase,
   manga_id: number, 
   status: string
-) {
+) {  
   await db.runAsync(
     `
       INSERT INTO reading_status (

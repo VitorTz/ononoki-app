@@ -1,7 +1,6 @@
 import { Colors } from "@/constants/Colors"
-import { Genre } from "@/helpers/types"
+import { Genre, Manga } from "@/helpers/types"
 import { dbReadManhwaGenres } from "@/lib/database"
-import { useMangaState } from "@/store/mangaState"
 import { AppStyle } from "@/styles/AppStyle"
 import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
@@ -9,10 +8,13 @@ import { useEffect, useRef, useState } from "react"
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
 
 
-const MangaGenreInfo = () => {
+interface MangaGenreInfoProps {
+  manga: Manga
+}
+
+const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
 
   const db = useSQLiteContext()
-  const { manga } = useMangaState()
   const [genres, setGenres] = useState<Genre[]>([])
 
   const flatListRef = useRef<FlatList>(null)  

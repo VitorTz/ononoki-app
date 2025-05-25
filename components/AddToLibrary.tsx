@@ -1,9 +1,9 @@
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
+import { Manga } from '@/helpers/types';
 import { dbGetMangaReadingStatus, dbUpdateMangaReadingStatus } from '@/lib/database';
 import { spUpdateMangaReadingStatus } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
-import { useMangaState } from '@/store/mangaState';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
@@ -12,19 +12,20 @@ import Toast from 'react-native-toast-message';
 
 
 interface AddToLibrayProps {
+    manga: Manga,
     backgroundColor?: string
     textColor?: string
 }
 
 
 const AddToLibray = ({
+    manga,
     backgroundColor = Colors.libraryColor, 
     textColor = Colors.backgroundColor
 }: AddToLibrayProps) => {
 
     const db = useSQLiteContext()
     const { session } = useAuthState()
-    const { manga } = useMangaState()
 
     const [open, setOpen] = useState(false)
     const [value, setValue] = useState<string>()
@@ -37,7 +38,7 @@ const AddToLibray = ({
     useEffect(
         () => {
             async function init() {
-                await dbGetMangaReadingStatus(db, manga!.manga_id)
+                await dbGetMangaReadingStatus(db, manga.manga_id)
                 .then(value => {
                     if (!value) { return }
                     dbValue.current = value
@@ -49,14 +50,14 @@ const AddToLibray = ({
         [db, manga]
     )
 
-    const onChangeValue = async (value: string | null) => {
+    const onChangeValue = async (value: string | null) => {        
         if (!session) {
             Toast.show({text1: "Hey", text2: "You are not logged!", type: "info"})
             return
         }
         if (!value || value === dbValue.current) { return }
-        await dbUpdateMangaReadingStatus(db, manga!.manga_id, value)
-        spUpdateMangaReadingStatus(session.user.id, manga!.manga_id, value)
+        await dbUpdateMangaReadingStatus(db, manga.manga_id, value)
+        spUpdateMangaReadingStatus(session.user.id, manga.manga_id, value)
     }
 
     return (

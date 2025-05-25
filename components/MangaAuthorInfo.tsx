@@ -1,7 +1,6 @@
 import { Colors } from "@/constants/Colors"
-import { MangaAuthor } from "@/helpers/types"
+import { Manga, MangaAuthor } from "@/helpers/types"
 import { dbReadMangaAuthors } from "@/lib/database"
-import { useMangaState } from "@/store/mangaState"
 import { AppStyle } from "@/styles/AppStyle"
 import { router } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
@@ -9,10 +8,13 @@ import { useEffect, useRef, useState } from "react"
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
 
 
-const MangaAuthorInfo = () => {
+interface MangaAuthorInfoProps {
+  manga: Manga
+}
 
-  const db = useSQLiteContext()
-  const { manga } = useMangaState()
+const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
+
+  const db = useSQLiteContext()  
   const [authors, setAuthors] = useState<MangaAuthor[]>([])
   const flatListRef = useRef<FlatList>(null)  
 

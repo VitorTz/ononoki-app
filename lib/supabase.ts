@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createClient, Session } from '@supabase/supabase-js';
+import { AuthError, createClient, Session } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 import Config from 'react-native-config';
-import { AppRelease, Chapter, ChapterImage, Manga, OnonokiUser } from "../helpers/types";
+import { AppRelease, Chapter, ChapterImage, DonateMethod, Manga, OnonokiUser } from "../helpers/types";
 
 
 const supabaseUrl = Config.SUPABASE_URL as any
@@ -193,4 +193,55 @@ export async function spGetReleases(): Promise<AppRelease[]> {
     }    
 
     return data as any
+}
+
+
+export async function spRequestManga(manga: string, message: string | null) {
+    const { error } = await supabase
+        .from("manga_requests")
+        .insert([{manga, message}])
+
+    if (error) {
+        console.log("error spRequestManga")
+    }
+}
+
+
+export async function spCreateUser(
+    email: string, 
+    password: string, 
+    username: string
+): Promise<{
+    user: OnonokiUser | null, 
+    session: Session | null,
+    error: AuthError | null
+}> {
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username } }
+    })
+
+    if (error) {
+        console.log("error spCreateUser", error)
+        return {user: null, session: null, error}
+    }    
+
+    const user = await spFetchUser(data.session!.user.id)
+
+    return {user, error, session: data.session}
+}
+
+
+export async function spGetDonationMethods(): Promise<DonateMethod[]> {
+    const { data, error } = await supabase
+        .from("donate_methods")
+        .select("method, value, action")
+
+    if (error) {
+        console.log("error spGetDonationMethods", error)
+        return []
+    }
+
+    return data
 }

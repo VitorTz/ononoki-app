@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/Colors';
-import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
+import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
 import { spFetchUser, spGetReleases, spGetSession, supabase } from '@/lib/supabase';
 import { useAppVersionState } from '@/store/appReleaseState';
 import { useAuthState } from '@/store/authState';
@@ -58,17 +58,17 @@ const App = () => {
         const session = await spGetSession()
 
         if (!session) { 
-        await dbClearTable(db, 'reading_status')
-        return 
+            await dbClearTable(db, 'reading_status')
+            return 
         }
 
         const user = await spFetchUser(session.user.id)
         
         if (user) {
-        login(user, session)
+            login(user, session)
         } else {
-        console.log("error fetching user", session.user.id)
-        logout()
+            console.log("error fetching user", session.user.id)
+            logout()
         }
         
         await dbPopulateReadingStatusTable(db, session.user.id)
@@ -86,13 +86,14 @@ const App = () => {
                     return
                 }
 
-                await dbGetAppVersion(db).then(value => setLocalVersion(value))
                 spGetReleases().then(values => setAllReleases(values))
+                await dbGetAppVersion(db).then(value => setLocalVersion(value))
                 await initSession()
                 
                 const shouldUpdate = await dbShouldUpdate(db, 'server')
                 if (shouldUpdate) {
                     Toast.show({text1: "Updating local database", type: "info"})
+                    await dbSetLastRefresh(db, 'client')
                     await dbUpdateDatabase(db)
                 }
             

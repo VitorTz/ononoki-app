@@ -65,8 +65,7 @@ const MangaByGenre = () => {
                 estimatedItemSize={400}
                 hasResults={true}
                 listMode='FlashList'
-                showChaptersPreview={true}
-                shouldShowChapterDate={false}
+                showChaptersPreview={false}                
                 onEndReached={onEndReached}/>            
         </SafeAreaView>
   )

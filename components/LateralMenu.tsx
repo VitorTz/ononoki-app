@@ -105,7 +105,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
         router.replace("/(pages)/Home")
     }
 
-    const openRequestManhwa = () => {
+    const openMangaRequest = () => {
         router.navigate("/(pages)/MangaRequest")
     }
 
@@ -160,8 +160,8 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                 />
 
                 <Option 
-                    onPress={openRequestManhwa} 
-                    title='Request Manhwa' 
+                    onPress={openMangaRequest} 
+                    title='Manga Request'
                     iconName='megaphone-outline'
                     iconColor={Colors.requestMangaColor}
                 />

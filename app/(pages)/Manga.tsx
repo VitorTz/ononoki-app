@@ -104,13 +104,16 @@ const MangaPage = () => {
                   <Text style={AppStyle.textRegular}>{manga.descr}</Text>
                 </View>
                 
-                <MangaAuthorInfo/>
-                <MangaGenreInfo/>
-                <AddToLibray textColor={Colors.backgroundColor} backgroundColor={manga.color} />
+                <MangaAuthorInfo manga={manga} />
+                <MangaGenreInfo manga={manga} />
+                <AddToLibray 
+                  manga={manga} 
+                  textColor={Colors.backgroundColor} 
+                  backgroundColor={manga.color} />
 
                 <View style={{flexDirection: 'row', width: '100%', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
                   <Item text={manga.status} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
-                  <Item text={`Views: ${manga.views}`} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
+                  <Item text={`Views: ${manga.views + 1}`} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
                 </View>
 
                 <MangaChapterGrid manga={manga} />
