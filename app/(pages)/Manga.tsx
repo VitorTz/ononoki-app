@@ -5,6 +5,7 @@ import RandomMangaButton from '@/components/buttons/RandomMangaButton';
 import ReturnButton from '@/components/buttons/ReturnButton';
 import MangaChapterGrid from '@/components/grid/MangaChapterGrid';
 import MangaAuthorInfo from '@/components/MangaAuthorInfo';
+import MangaCommenctSection from '@/components/MangaCommentSection';
 import MangaGenreInfo from '@/components/MangaGenreInfo';
 import { Colors } from '@/constants/Colors';
 import { Manga } from '@/helpers/types';
@@ -29,7 +30,6 @@ import {
   View
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-// import ManhwaCommentSection from '@/components/ManhwaCommentSection';
 
 
 interface ItemProps {
@@ -117,7 +117,7 @@ const MangaPage = () => {
                 </View>
 
                 <MangaChapterGrid manga={manga} />
-                {/* <ManhwaCommentSection manhwa={manhwa} /> */}
+                <MangaCommenctSection manga={manga} />
             </View>
           </>
 

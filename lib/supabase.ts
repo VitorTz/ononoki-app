@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthError, createClient, Session } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 import Config from 'react-native-config';
-import { AppRelease, Chapter, ChapterImage, DonateMethod, Manga, OnonokiUser } from "../helpers/types";
+import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, OnonokiUser } from "../helpers/types";
 
 
 const supabaseUrl = Config.SUPABASE_URL as any
@@ -244,4 +244,108 @@ export async function spGetDonationMethods(): Promise<DonateMethod[]> {
     }
 
     return data
+}
+
+
+export async function spCreateComment(
+    user_id: string, 
+    comment: string,
+    manga_id: number, 
+    parent_comment_id: string | null = null
+): Promise<number | null> {
+    
+    const { data, error } = await supabase
+        .from("comments")
+        .insert([{user_id, comment, manga_id, parent_comment_id}])
+        .select("comment_id")
+        .single()
+
+    if (error) {
+        console.log("error spCreateComment", error)
+        return null
+    }
+
+    return data.comment_id
+}
+
+
+export async function spGetComments(
+    manga_id: number, 
+    p_offset: number = 0, 
+    p_limit: number = 30
+): Promise<Comment[]> {
+    const { data, error } = await supabase
+        .from("comments")
+        .select(
+            `
+                comment_id,
+                user_id,
+                parent_comment_id,
+                comment,
+                users!comments_user_id_fkey (
+                    username,
+                    avatars ( image_url )
+                ),
+                comment_metrics ( likes )
+            `
+        )
+        .eq('manga_id', manga_id)
+        .range(p_limit * p_offset, (p_limit + 1) * p_offset)
+    
+    if (error) {
+        console.log("error spGetComments", error)
+        return []
+    }
+
+    return data.map(item => {return {
+        user_id: item.user_id,
+        manga_id,
+        comment: item.comment,
+        comment_id: item.comment_id,
+        image_url: (item.users as any).avatars.image_url,
+        likes: (item.comment_metrics as any).likes,
+        parent_comment_id: item.parent_comment_id,
+        username: (item.users as any).username,
+        thread: []
+    }})
+
+}
+
+
+export async function spCheckUserVote(
+    user_id: string, 
+    comment_id: number
+): Promise<{voted: boolean, voteUp: boolean}> {
+    const { data, error } = await supabase
+        .from("comment_likes")
+        .select("vote_up")
+        .eq("user_id", user_id)
+        .eq("comment_id", comment_id)
+        
+    if (error) {
+        console.log("error spCheckUserVote", error)
+        return {voted: false, voteUp: false}
+    }    
+
+    return {
+        voted: data && data.length != 0, 
+        voteUp: data && data.length > 0 && data[0].vote_up
+    }
+}
+
+
+export async function spVoteComment(
+    p_user_id: string,
+    p_comment_id: number,
+    p_vote: boolean
+): Promise<{success: boolean, newVoteCount: number | null}> {
+    const { data, error } = await supabase
+        .rpc("vote_comment", { p_user_id, p_comment_id, p_vote })
+
+    if (error) {
+        console.log("error dbVoteComment", error)
+        return {success: false, newVoteCount: null}
+    }    
+
+    return {success: true, newVoteCount: data}
 }
