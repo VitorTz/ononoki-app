@@ -74,7 +74,7 @@ const MangaPage = () => {
 
   return (
     <SafeAreaView style={[AppStyle.safeArea, {padding: 0}]} >
-      <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} >
+      <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
         {
           manga ?
           <>

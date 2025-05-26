@@ -72,7 +72,7 @@ const _layout = () => {
             avoidKeyboard={true} 
             swipeable={true}/>
         </SQLiteProvider>
-      </GestureHandlerRootView>
+      </GestureHandlerRootView>    
   )
 }
 

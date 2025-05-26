@@ -185,7 +185,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     title='Disclaimer' 
                     iconName='newspaper-outline'
                     iconColor={Colors.disclaimerColor}
-                />
+                />                
 
                 {
                     session &&
