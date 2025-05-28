@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { router } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useState } from 'react'
 import {
@@ -68,6 +68,7 @@ interface LateralMenuProps {
 const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     
     const db = useSQLiteContext()
+    const router = useRouter()
     const { session, logout } = useAuthState()
     
     const accountPage = () => {
@@ -102,6 +103,9 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
         await supabase.auth.signOut()
         await dbClearTable(db, 'reading_status')
         logout()
+        while (router.canGoBack()) {
+            router.back();
+        }        
         router.replace("/(pages)/Home")
     }
 

@@ -94,7 +94,7 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
         url TEXT NOT NULL,
         descr TEXT,
         created_at TIMESTAMP NOT NULL
-      );
+      );      
 
       CREATE INDEX IF NOT EXISTS idx_chapters_manga_id ON chapters(manga_id);
       CREATE INDEX IF NOT EXISTS idx_ma_manga_id ON manga_authors(manga_id);
@@ -109,6 +109,13 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
         app_info (name, value)
       VALUES 
         ('version', 'v1.0');
+      
+      INSERT INTO
+        app_info (name, value)
+      VALUES
+        ('read_mode', 'List')
+      ON CONFLICT (name)
+      DO NOTHING;
 
       INSERT INTO
           update_history (name, refresh_cycle)
@@ -941,6 +948,34 @@ export async function dbGetAppVersion(db: SQLite.SQLiteDatabase): Promise<string
   ).catch(error => console.log('dbGetAppVersion', error)); 
 
   return row!.value
+}
+
+
+export async function dbReadAppInfo(db: SQLite.SQLiteDatabase, info: string): Promise<any> {
+  const row = await db.getFirstAsync<{value: string}>(
+    `
+      SELECT
+        value
+      FROM
+        app_info
+      WHERE
+        name = ?;
+    `,
+    [info]
+  ).catch(error => console.log('dbGetAppVersion', error)); 
+
+  return row!.value
+}
+
+
+export async function dbSetAppInfo(db: SQLite.SQLiteDatabase, name: string, value: any) {
+  await db.runAsync(
+    `
+      INSERT OR REPLACE INTO app_info (name, value)
+      VALUES (?, ?);
+    `,
+    [name, value]
+  ).catch(error => console.log("error dbSetAppInfo"))
 }
 
 

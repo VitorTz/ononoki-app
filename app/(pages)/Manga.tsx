@@ -73,7 +73,7 @@ const MangaPage = () => {
   )  
 
   return (
-    <SafeAreaView style={[AppStyle.safeArea, {padding: 0}]} >
+    <SafeAreaView style={[AppStyle.safeArea, {paddingHorizontal: 0, paddingVertical: 0}]} >
       <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
         {
           manga ?
@@ -93,7 +93,6 @@ const MangaPage = () => {
 
             {/* Manhwa Info */}
             <View style={styles.manhwaContainer}>
-                
                 <Image
                   source={manga.cover_image_url}
                   cachePolicy={'disk'}
@@ -151,12 +150,13 @@ const styles = StyleSheet.create({
     flex: 1
   },
   topBar: {
-    width: '100%', 
-    marginVertical: 10, 
+    width: '100%',     
     flexDirection: 'row', 
     alignItems: "center", 
     justifyContent: "space-between", 
-    padding: wp(5)
+    marginTop: 24,
+    paddingHorizontal: wp(5),
+    paddingVertical: hp(2)
   },
   manhwaContainer: {
     width: '100%', 

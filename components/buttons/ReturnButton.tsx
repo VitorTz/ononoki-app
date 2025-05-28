@@ -1,7 +1,7 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { router } from 'expo-router'
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { Pressable, StyleSheet } from 'react-native'
 
@@ -17,13 +17,31 @@ interface ReturnButtonProps {
 const ReturnButton = ({
   size = 28, 
   color = Colors.white, 
-  onPress = () => router.back(),
+  onPress,
   backgroundColor = Colors.almostBlack
 }: ReturnButtonProps) => {
+
+  const router = useRouter();
+
+  const tryGoBack = () => {
+    if (router.canGoBack()) {
+      try {
+        router.back()
+      } catch (e) {
+        console.log(e)
+        router.replace("/(pages)/Home")
+      }
+    } else {
+      router.replace("/(pages)/Home")
+    }
+  }
+
+  const o = onPress ? onPress : tryGoBack
+
   return (
     <Pressable 
       style={[styles.container, {backgroundColor}]}
-      onPress={onPress} 
+      onPress={o} 
       hitSlop={AppConstants.hitSlop} >
         <Ionicons name='return-down-back-outline' size={size} color={color} />
     </Pressable>

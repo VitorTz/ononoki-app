@@ -7,14 +7,14 @@ import {
 } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
+    ActivityIndicator, Keyboard, KeyboardAvoidingView,
     Platform,
     Pressable,
     ScrollView,
@@ -48,6 +48,7 @@ const SignInForm = () => {
     const db = useSQLiteContext()
     const { login } = useAuthState()  
     const [isLoading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
     
     const {
         control,
@@ -62,6 +63,8 @@ const SignInForm = () => {
     });
     
     const onSubmit = async (form_data: FormData) => {
+        Keyboard.dismiss()
+        
         setLoading(true)
 
         const { error } = await supabase.auth.signInWithPassword({
@@ -94,14 +97,14 @@ const SignInForm = () => {
 
         dbPopulateReadingStatusTable(db, session.user.id)
 
-        setLoading(false)
+        setLoading(false)        
         Toast.show({text1: "Success", type: 'success'})
         router.replace("/(pages)/Home")
     };
 
   return (
     <KeyboardAvoidingView style={{width: '100%', gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{width: '100%'}} >
+        <ScrollView style={{width: '100%'}} keyboardShouldPersistTaps='always' >
 
             {/* Email */}
             <Text style={AppStyle.inputHeaderText}>Email</Text>
@@ -123,19 +126,24 @@ const SignInForm = () => {
             
             {/* Password */}
             <Text style={AppStyle.inputHeaderText}>Password</Text>
-            <Controller
-                name="password"
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                    style={AppStyle.input}                    
-                    secureTextEntry
-                    autoCapitalize="none"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}/>
-                )}
-            />
+            <View>
+                <Controller
+                    name="password"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                        style={AppStyle.input}                    
+                        secureTextEntry={!showPassword}
+                        autoCapitalize="none"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}/>
+                    )}
+                />
+                <Pressable onPress={() => setShowPassword(prev => !prev)} style={{position: 'absolute', height: '100%', right: 10, justifyContent: "center"}} >
+                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color={Colors.white} />
+                </Pressable>
+            </View>
             {errors.password && (<Text style={AppStyle.error}>{errors.password.message}</Text>)}
     
             {/* Login Button */}

@@ -2,7 +2,7 @@ import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { dbGetRandomMangaId } from '@/lib/database'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { router } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native'
@@ -11,12 +11,16 @@ import Toast from 'react-native-toast-message'
 
 interface RandomManhwaButtonProps {
     size?: number
-    color?: string
+    color?: string    
 }
 
 
-const RandomMangaButton = ({size = 28, color = Colors.white}: RandomManhwaButtonProps) => {
-
+const RandomMangaButton = ({
+    size = 28, 
+    color = Colors.white    
+}: RandomManhwaButtonProps) => {
+    
+    const router = useRouter()
     const db = useSQLiteContext()    
     const [loading, setLoading] = useState(false)
 
@@ -27,7 +31,7 @@ const RandomMangaButton = ({size = 28, color = Colors.white}: RandomManhwaButton
             Toast.show({text1: "No mangas!", text2: "Try update the database", type: "info"})
             setLoading(false)
             return
-        }
+        }        
         router.navigate({pathname: '/(pages)/Manga', params: {manga_id}})
         setLoading(false)
     }

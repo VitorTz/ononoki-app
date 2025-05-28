@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/Colors";
-import { wp } from "@/helpers/util";
+import { hp, wp } from "@/helpers/util";
 import { StyleSheet } from "react-native";
 
 
@@ -28,7 +28,8 @@ export const AppStyle = StyleSheet.create({
     safeArea: {
         width: '100%', 
         flex: 1, 
-        padding: wp(4),
+        paddingHorizontal: wp(3),
+        paddingVertical: hp(2),
         backgroundColor: Colors.backgroundColor        
     },
     formButtonText: {

@@ -2,7 +2,7 @@ import { Colors } from "@/constants/Colors"
 import { Genre, Manga } from "@/helpers/types"
 import { dbReadManhwaGenres } from "@/lib/database"
 import { AppStyle } from "@/styles/AppStyle"
-import { router } from "expo-router"
+import { useRouter } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
 import { useEffect, useRef, useState } from "react"
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
@@ -15,8 +15,8 @@ interface MangaGenreInfoProps {
 const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
 
   const db = useSQLiteContext()
+  const router = useRouter()
   const [genres, setGenres] = useState<Genre[]>([])
-
   const flatListRef = useRef<FlatList>(null)  
 
   useEffect(
@@ -31,7 +31,7 @@ const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
   )
 
   const openGenrePage = (genre: Genre) => {
-    router.navigate({
+    router.push({
       pathname: '/(pages)/MangaByGenre', 
       params: {
         genre_id: genre.genre_id,

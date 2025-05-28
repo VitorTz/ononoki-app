@@ -51,7 +51,7 @@ const MangaCard = ({
         Colors.neonRed
     
     const onPress = () => {
-        router.navigate({
+        router.push({
             pathname: '/(pages)/Manga', 
             params: {manga_id: manga.manga_id}
         })

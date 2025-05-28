@@ -2,7 +2,7 @@ import { Colors } from "@/constants/Colors"
 import { Manga, MangaAuthor } from "@/helpers/types"
 import { dbReadMangaAuthors } from "@/lib/database"
 import { AppStyle } from "@/styles/AppStyle"
-import { router } from "expo-router"
+import { useRouter } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
 import { useEffect, useRef, useState } from "react"
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
@@ -13,7 +13,8 @@ interface MangaAuthorInfoProps {
 }
 
 const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
-
+  
+  const router = useRouter()
   const db = useSQLiteContext()  
   const [authors, setAuthors] = useState<MangaAuthor[]>([])
   const flatListRef = useRef<FlatList>(null)  
@@ -30,7 +31,7 @@ const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
   )
   
   const openAuthorPage = (author: MangaAuthor) => {
-    router.navigate({
+    router.push({
       pathname: '/(pages)/MangaByAuthor',
       params: {
         author_id: author.author_id,

@@ -1,8 +1,9 @@
 import { Colors } from '@/constants/Colors';
-import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
+import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbReadAppInfo, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
 import { spFetchUser, spGetSession, supabase } from '@/lib/supabase';
 import { useAppVersionState } from '@/store/appReleaseState';
 import { useAuthState } from '@/store/authState';
+import { useReadModeState } from '@/store/readModeState';
 import { AppStyle } from '@/styles/AppStyle';
 import {
     LeagueSpartan_100Thin,
@@ -41,6 +42,7 @@ const App = () => {
     const db = useSQLiteContext()
     const { login, logout } = useAuthState()
     const { setLocalVersion } = useAppVersionState()
+    const { setMode } = useReadModeState()
     const alreadyInited = useRef(false)
 
     let [fontsLoaded] = useFonts({
@@ -97,6 +99,11 @@ const App = () => {
                     Toast.show({text1: "Updating local database", type: "info"})
                     await dbSetLastRefresh(db, 'client')
                     await dbUpdateDatabase(db)
+                }
+
+                const readMode = await dbReadAppInfo(db, 'read_mode')
+                if (readMode == 'List' || readMode == 'Page') {
+                    setMode(readMode)
                 }
             
                 router.replace("/(pages)/Home")

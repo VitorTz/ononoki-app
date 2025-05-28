@@ -7,8 +7,8 @@ import TopBar from '@/components/TopBar';
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
 import { Chapter, ChapterImage } from '@/helpers/types';
-import { hp, wp } from '@/helpers/util';
-import { dbUpsertReadingHistory } from '@/lib/database';
+import { getRelativeHeight, hp, wp } from '@/helpers/util';
+import { dbSetAppInfo, dbUpsertReadingHistory } from '@/lib/database';
 import { spFetchChapterImages } from '@/lib/supabase';
 import { useChapterState } from '@/store/chapterState';
 import { useReadModeState } from '@/store/readModeState';
@@ -76,27 +76,35 @@ interface ChangeChapterPageComponentProps {
   currentPage: number
   goToPreviousPage: () => any
   goToNextPage: () => any
+  maxPage: number
 }
 
 
 const ChangeChapterPageComponent = ({
   currentPage,
   goToPreviousPage,
-  goToNextPage
+  goToNextPage,
+  maxPage
 }: ChangeChapterPageComponentProps) => {
 
   return (
     <View style={{flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "flex-start"}} >
       <Text style={[AppStyle.textRegular, {fontSize: 18}]}>Page</Text>
-      <Pressable onPress={goToPreviousPage} style={{alignItems: "center", justifyContent: "center", marginTop: 2}} hitSlop={AppConstants.hitSlop} >
-        <Ionicons name='chevron-back' size={20} color={Colors.white} />
-      </Pressable>
+      {
+        currentPage > 0 &&
+        <Pressable onPress={goToPreviousPage} style={{alignItems: "center", justifyContent: "center", marginTop: 2}} hitSlop={AppConstants.hitSlop} >
+          <Ionicons name='chevron-back' size={20} color={Colors.white} />
+        </Pressable>
+      }
       <View style={{alignItems: "center", justifyContent: "center"}} >
         <Text style={[AppStyle.textRegular, {fontSize: 18}]}>{currentPage + 1}</Text>
       </View>
-      <Pressable onPress={goToNextPage} style={{alignItems: "center", justifyContent: "center", marginTop: 2}} hitSlop={AppConstants.hitSlop}>
-        <Ionicons name='chevron-forward' size={20} color={Colors.white} />
-      </Pressable>
+      {
+        currentPage < maxPage &&
+        <Pressable onPress={goToNextPage} style={{alignItems: "center", justifyContent: "center", marginTop: 2}} hitSlop={AppConstants.hitSlop}>
+          <Ionicons name='chevron-forward' size={20} color={Colors.white} />
+        </Pressable>
+      }
     </View> 
   )
 }
@@ -126,7 +134,7 @@ const ChapterHeader = ({
   }  
 
   return (
-    <View style={{width: '100%', paddingHorizontal: wp(5)}} >
+    <View style={{width: '100%', paddingHorizontal: wp(5), paddingVertical: 8}} >
       <TopBar title={mangaTitle} >
         <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
       </TopBar>
@@ -315,7 +323,7 @@ const ChapterPageMode = ({mangaTitle}: {mangaTitle: string}) => {
   const [currentImage, setCurrentImage] = useState<ChapterImage | null>(null)  
   const [loading, setLoading] = useState(false)
 
-  const currentChapter: Chapter = chapters[currentChapterIndex]  
+  const currentChapter: Chapter = chapters[currentChapterIndex]    
 
   const imageIndex = useRef(0)
   const prefetchState = useRef<{url: string, fetched: boolean}[]>([])
@@ -357,38 +365,34 @@ const ChapterPageMode = ({mangaTitle}: {mangaTitle: string}) => {
     [db, currentChapterIndex]
   )
 
-  const prefetch = () => {
-    const start = imageIndex.current
-    const end = start + 2
-    for (let i = start; i < end && i < images.length; i++) {
+  const prefetchImages = () => {
+    for (let i = imageIndex.current; i < imageIndex.current + 2 && i < images.length; i++) {
       if (!prefetchState.current[i].fetched) {
         Image.prefetch(prefetchState.current[i].url)
-      }
-    }    
-  }
-
-  const moveToNextImage = () => {
-    if (imageIndex.current + 1 < images.length ) {
-      prefetch()
-      imageIndex.current += 1
-      setCurrentImage(images[imageIndex.current])
-      Image.prefetch(images[imageIndex.current].image_url)
-      if (imageIndex.current < images.length) {
-
+        prefetchState.current[i].fetched = true
       }
     }
   }
 
-  const moveToPreviousImage = () => {
+  const moveToNextImage = () => {
+    if (imageIndex.current + 1 < images.length ) {
+      imageIndex.current += 1
+      setCurrentImage(images[imageIndex.current])
+      prefetchImages()
+    }
+  }
+
+  const moveToPreviousImage = () => {  
     if (imageIndex.current - 1 >= 0 && images.length > 0) {
       imageIndex.current -= 1
       setCurrentImage(images[imageIndex.current])
+      prefetchImages()
     }
   }
 
   return (
     <View style={{flex: 1}} >
-      <View style={{paddingHorizontal: wp(5)}} >
+      <View style={{paddingHorizontal: wp(5), paddingVertical: 8}} >
         <TopBar title={mangaTitle!} >
           <ReturnButton backgroundColor={Colors.black} />
         </TopBar>
@@ -397,14 +401,13 @@ const ChapterPageMode = ({mangaTitle}: {mangaTitle: string}) => {
           <ChangeChapterComponent 
             loading={loading} 
             goToNextChapter={goToNextChapter} 
-            goToPreviousChapter={goToPreviousChapter} />
+            goToPreviousChapter={goToPreviousChapter}/>
 
           <ChangeChapterPageComponent
             currentPage={imageIndex.current}
-            goToNextPage={moveToNextImage}
-            goToPreviousPage={moveToPreviousImage}
-          /> 
-
+            goToNextPage={moveToPreviousImage}
+            goToPreviousPage={moveToNextImage}
+            maxPage={images.length - 1}/>
           <ChangeChapterReadModeButton/>
         </View>
 
@@ -413,13 +416,13 @@ const ChapterPageMode = ({mangaTitle}: {mangaTitle: string}) => {
       {
         currentImage &&
         <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
-          <InteractiveImage 
-            imageUri={currentImage.image_url }
-            imageWidth={currentImage.width}
-            imageHeight={currentImage.height}
-            containerWidth={wp(100)}
-            containerHeight={hp(80)}
-          />
+          <InteractiveImage
+            swapLeft={moveToPreviousImage}
+            swapRight={moveToNextImage}
+            width={wp(100)}
+            height={getRelativeHeight(wp(100), currentImage.width, currentImage.height)}
+            imageUri={currentImage.image_url}
+          />          
         </View>
       }      
     </View>
@@ -429,12 +432,24 @@ const ChapterPageMode = ({mangaTitle}: {mangaTitle: string}) => {
 
 const ChapterPage = () => {
     
+  const db = useSQLiteContext()
   const { readMode } = useReadModeState()
   const params = useLocalSearchParams()  
-  const mangaTitle: string = params.mangaTitle as any  
+  const mangaTitle: string = params.mangaTitle as any
+
+  useEffect(
+    () => {
+      if (!readMode) { return }
+      async function init() {
+        await dbSetAppInfo(db, 'read_mode', readMode)
+      }
+      init()
+    },
+    [readMode]
+  )
 
   return (
-    <SafeAreaView style={[AppStyle.safeArea, {padding: 0, backgroundColor: Colors.black}]} >
+    <SafeAreaView style={[AppStyle.safeArea, {paddingHorizontal: 0, paddingVertical: 0, backgroundColor: Colors.black}]} >
       {
         readMode === 'List' ? 
         <ChapterListMode mangaTitle={mangaTitle} /> :

@@ -2,12 +2,14 @@ import { Colors } from '@/constants/Colors';
 import { spCreateUser, supabase } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     ActivityIndicator,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -52,6 +54,7 @@ const SignUpForm = () => {
 
     const { login, logout } = useAuthState()
     const [isLoading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
     
     const {
         control,
@@ -68,6 +71,7 @@ const SignUpForm = () => {
     });
     
     const onSubmit = async (form_data: FormData) => {
+        Keyboard.dismiss()
         setLoading(true)
 
         const { user, session ,error } = await spCreateUser(
@@ -110,7 +114,7 @@ const SignUpForm = () => {
 
   return (
     <KeyboardAvoidingView style={{width: '100%', gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{width: '100%'}} >
+        <ScrollView style={{width: '100%'}} keyboardShouldPersistTaps={'always'} >
 
             {/* Username */}
             <Text style={AppStyle.inputHeaderText}>Username</Text>
@@ -148,19 +152,24 @@ const SignUpForm = () => {
             
             {/* Password */}
             <Text style={AppStyle.inputHeaderText}>Password</Text>
-            <Controller
-                name="password"
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                    style={AppStyle.input}
-                    secureTextEntry
-                    autoCapitalize="none"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}/>
-                )}
-            />
+            <View>
+                <Controller
+                    name="password"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                        style={AppStyle.input}
+                        secureTextEntry={!showPassword}
+                        autoCapitalize="none"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}/>
+                    )}
+                />
+                <Pressable onPress={() => setShowPassword(prev => !prev)} style={{position: 'absolute', height: '100%', alignItems: "center", justifyContent: "center", right: 10}} >
+                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color={Colors.white} />
+                </Pressable>
+            </View>
             {errors.password && (<Text style={AppStyle.error}>{errors.password.message}</Text>)}
 
             {/* Confirm Password */}
@@ -171,7 +180,7 @@ const SignUpForm = () => {
                 render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                     style={AppStyle.input}
-                    secureTextEntry
+                    secureTextEntry={!showPassword}
                     autoCapitalize="none"
                     onBlur={onBlur}
                     onChangeText={onChange}
