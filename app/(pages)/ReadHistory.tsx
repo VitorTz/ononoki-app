@@ -2,7 +2,7 @@ import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
 import { Colors } from '@/constants/Colors'
 import { Chapter, ChapterReadLog } from '@/helpers/types'
-import { hp, isColorDark } from '@/helpers/util'
+import { hp, isColorDark, wp } from '@/helpers/util'
 import { dbGetUserReadHistory } from '@/lib/database'
 import { spFetchChapterList } from '@/lib/supabase'
 import { useChapterState } from '@/store/chapterState'
@@ -59,7 +59,7 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
 
   return (
     <View style={styles.itemContainer} >
-      <Pressable onPress={onImagePress} style={{width: '100%', maxWidth: 380, height: 480, borderRadius: 12}} >
+      <Pressable onPress={onImagePress} style={{width: '100%'}} >
         <Image 
           source={log.cover_image_url}
           contentFit='cover'
@@ -67,7 +67,6 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
           />
       </Pressable>
       <View style={{gap: 10, width: '100%'}} >
-        <Text numberOfLines={1} style={[AppStyle.textRegular, {fontSize: 20}]}>{log.title}</Text>
         {
           loading ?
           <View style={{paddingVertical: 20, alignItems: "center", justifyContent: "center"}} >
@@ -168,10 +167,10 @@ const styles = StyleSheet.create({
     marginBottom: 40
   },
   image: {
-    width: '100%', 
-    maxWidth: 380, 
-    height: 480, 
-    borderRadius: 12,
+    width: '100%',
+    maxWidth: wp(92),
+    height: 520, 
+    borderRadius: 4,
     alignSelf: "flex-start"
   },
   itemGrid: {
