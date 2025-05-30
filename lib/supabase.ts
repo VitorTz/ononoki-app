@@ -1,8 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthError, createClient, Session } from '@supabase/supabase-js';
-import { AppState } from 'react-native';
 import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, OnonokiUser } from "../helpers/types";
-
 
 // RLS ENABLE
 const supabaseUrl = "https://hfflwodueiqktdhmvfzd.supabase.co"
@@ -17,17 +15,6 @@ export const supabase = createClient(supabaseUrl, supabaseKey as any, {
       detectSessionInUrl: false,
     },
 });
-
-
-AppState.addEventListener(
-    'change', (state) => {  
-        if (state === 'active') {    
-            supabase.auth.startAutoRefresh()  
-        } else {    
-            supabase.auth.stopAutoRefresh()
-        }
-    }
-)
 
 
 export async function spGetSession(): Promise<Session | null> {
