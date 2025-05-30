@@ -67,10 +67,9 @@ const Home = () => {
         
 
     return (
-        <SafeAreaView style={AppStyle.safeArea} >
+        <SafeAreaView style={AppStyle.safeArea} >            
             <View style={{width: '100%', 
-                flexDirection: 'row', 
-                marginTop: 20, 
+                flexDirection: 'row',
                 marginBottom: 10, 
                 alignItems: "center", 
                 justifyContent: "space-between"}} >

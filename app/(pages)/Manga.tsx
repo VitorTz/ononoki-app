@@ -73,7 +73,7 @@ const MangaPage = () => {
   )  
 
   return (
-    <SafeAreaView style={[AppStyle.safeArea, {paddingHorizontal: 0, paddingVertical: 0}]} >
+    <SafeAreaView style={[AppStyle.safeArea, {paddingHorizontal: 0, paddingVertical: 0, paddingTop: 0}]} >
       <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
         {
           manga ?
@@ -154,9 +154,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: "center", 
     justifyContent: "space-between", 
-    marginTop: 24,
+    
     paddingHorizontal: wp(5),
-    paddingVertical: hp(2)
+    paddingVertical: hp(4),
+    paddingBottom: 20
   },
   manhwaContainer: {
     width: '100%', 

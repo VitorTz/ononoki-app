@@ -1,6 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
-import { wp } from '@/helpers/util'
+import { hp, wp } from '@/helpers/util'
 import { dbClearTable } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
@@ -118,7 +118,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     }
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} >
+        <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
             <View style={styles.container} >
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between", marginBottom: 10}} >
                     <Text style={[AppStyle.textHeader, {color: Colors.ononokiBlue, fontFamily: "LeagueSpartan_600SemiBold"}]}>Menu</Text>
@@ -216,9 +216,9 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         gap: 20,
-        padding: wp(5),
-        marginTop: 20, 
-        marginBottom: 10, 
+        paddingHorizontal: wp(5),
+        marginTop: hp(3), 
+        marginBottom: 10 
     },
     link: {
         width: '100%',

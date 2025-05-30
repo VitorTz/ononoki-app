@@ -41,8 +41,8 @@ const TOAST_CONFIG = {
 const _layout = () => {
   return (
       <GestureHandlerRootView style={{flex: 1, backgroundColor: Colors.backgroundColor}} >
+        <StatusBar hidden={true} barStyle={'dark-content'} animated={true} showHideTransition={'fade'} />
         <SQLiteProvider databaseName='ononoki.db' onInit={dbMigrate}>
-          <StatusBar hidden={true} backgroundColor={Colors.backgroundColor} />
           <Stack>
               <Stack.Screen name='index' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/Home' options={{headerShown: false}} />
