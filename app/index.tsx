@@ -130,7 +130,7 @@ const App = () => {
                 </View>
             </View>
             <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
-                <ActivityIndicator size={48} color={Colors.ononokiBlue} />
+                <ActivityIndicator size={32} color={Colors.ononokiBlue} />
             </View>
         </SafeAreaView>
     )
