@@ -2,7 +2,7 @@ import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { Comment, Manga } from '@/helpers/types'
 import { hp } from '@/helpers/util'
-import { spCreateComment, spGetComments, spVoteComment } from '@/lib/supabase'
+import { spCreateComment, spDeleteComment, spGetComments, spVoteComment } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -10,24 +10,26 @@ import { Image } from 'expo-image'
 import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import Toast from 'react-native-toast-message'
+import Column from './util/Column'
+import Row from './util/Row'
 
 
 const PAGE_LIMIT = 30
 
-
-interface CommentListProps {
-    loading: boolean
-    comments: Comment[]
+interface CommentComponentProps {
+    comment: Comment
+    deleteComment: (comment_id: number) => any
 }
 
 
-const CommentComponent = ({comment}: {comment: Comment}) => {
+const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
 
     const { session } = useAuthState()
 
     const [numLikes, setNumLikes] = useState(comment.comment_total_likes)
     const [loading, setLoading] = useState(false)
     const [userVote, setUserVote] = useState<boolean | null>(comment.user_vote_state)
+    const userIsOwner = session ? session.user.id == comment.author_user_id : false
     
     const vote = async (type: 'Up' | "Down") => {
         if (!session) {
@@ -60,36 +62,52 @@ const CommentComponent = ({comment}: {comment: Comment}) => {
 
     return (
         <View style={{width: '100%', gap: 20, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
-            <Image 
-                source={comment.author_avatar_url} 
-                style={{width: 64, height: 64, alignSelf: "flex-start"}} 
-                contentFit='cover' />
-            <View style={{flex: 1, gap: 10}} >
+            <Column style={{height: '100%'}} >
+                <Image 
+                    source={comment.author_avatar_url} 
+                    style={{width: 64, height: 64, alignSelf: "flex-start"}} 
+                    contentFit='cover' />
+            </Column>
+            <Column style={{gap: 10}} >
                 <Text style={AppStyle.textRegular} >{comment.author_username}</Text>
                 <Text style={AppStyle.textRegular}>{comment.comment_text}</Text>
-                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "flex-start", gap: 20}} >
+                <Row style={{width: '100%', justifyContent: "flex-start"}} >
                     {
                         loading ?
+
                         <ActivityIndicator size={32} color={Colors.white} /> :
-                        <>
-                            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 10}} >
-                                <Pressable onPress={() => vote("Up")} hitSlop={AppConstants.hitSlop} >
-                                    <Ionicons name='arrow-up' size={18} color={upColor} />
+
+                        <Row style={{gap: 10, justifyContent: "flex-start"}} >
+                            <Pressable onPress={() => vote("Up")} hitSlop={AppConstants.hitSlop} >
+                                <Ionicons name='arrow-up' size={18} color={upColor} />
+                            </Pressable>
+                            <Text style={AppStyle.textRegular}>{numLikes}</Text>
+                            <Pressable onPress={() => vote("Down")} hitSlop={AppConstants.hitSlop} >
+                                <Ionicons name='arrow-down' size={18} color={downColor} />
+                            </Pressable>
+                            {
+                                userIsOwner &&
+                                <Pressable onPress={() => deleteComment(comment.comment_id)} style={{marginLeft: 10}} hitSlop={AppConstants.hitSlop} >
+                                    <Ionicons name='trash-sharp' size={22} color={Colors.white} />
                                 </Pressable>
-                                <Text style={AppStyle.textRegular}>{numLikes}</Text>
-                                <Pressable onPress={() => vote("Down")} hitSlop={AppConstants.hitSlop} >
-                                    <Ionicons name='arrow-down' size={18} color={downColor} />
-                                </Pressable>
-                            </View>
-                        </>
+                            }
+                        </Row>
                     }
-                </View>
-            </View>            
+                </Row>
+            </Column>
         </View>
     )
 }
 
-const CommentList = ({loading, comments}: CommentListProps) => {    
+
+interface CommentListProps {
+    loading: boolean
+    comments: Comment[]
+    deleteComment: (comment_id: number) => any
+}
+
+
+const CommentList = ({loading, comments, deleteComment}: CommentListProps) => {    
 
     return (
         <>
@@ -98,7 +116,7 @@ const CommentList = ({loading, comments}: CommentListProps) => {
             <ActivityIndicator size={32} color={Colors.white} /> : 
             <View style={{width: '100%', gap: 30, alignItems: "center", justifyContent: "flex-start"}} >
                 {
-                    comments.map(item => <CommentComponent key={item.comment_id} comment={item} />)
+                    comments.map(item => <CommentComponent deleteComment={deleteComment} key={item.comment_id} comment={item} />)
                 }
             </View>
         }
@@ -292,11 +310,19 @@ const MangaCommenctSection = ({manga}: MangaCommentSectionProps) => {
         [manga.manga_id]
     )
 
+    const deleteComment = async (comment_id: number) => {
+        const success = await spDeleteComment(comment_id)
+        if (success) {
+            setComments(prev => [...prev.filter((comt, index, arr) => comt.comment_id != comment_id)])
+            Toast.show({text1: "Success", text2: "Your comment has deleted!", type: "success"})
+        }
+    }
+
     return (        
         <View style={{width: '100%', gap: 20, marginTop: 40}} >
             <Text style={AppStyle.textHeader}>Comments</Text>
             {!laodingComments && <UserCommentBox manga_id={manga.manga_id} setComments={setComments} />}
-            <CommentList loading={laodingComments} comments={comments} />
+            <CommentList deleteComment={deleteComment} loading={laodingComments} comments={comments} />
             <LoadMoreCommentsComponent 
                 loadingFirstComments={laodingComments} 
                 numComments={comments.length} 

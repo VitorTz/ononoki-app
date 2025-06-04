@@ -333,3 +333,22 @@ export async function spSearchManga(
 
     return data as Manga[]
 }
+
+
+export async function spDeleteComment(comment_id: number): Promise<boolean> {
+    try {
+        const { error } = await supabase
+            .from("comments")
+            .delete()
+            .eq("comment_id", comment_id)
+        if (error) {
+            console.log("error spDeleteComment", error)
+            return false
+        }
+    } catch (e) {
+        console.log("exception spDeleteComment", e)
+        return false
+    } 
+    
+    return true
+}

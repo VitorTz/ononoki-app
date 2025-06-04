@@ -4,9 +4,10 @@ import TopBar from '@/components/TopBar'
 import { Colors } from '@/constants/Colors'
 import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { Image } from 'expo-image'
 import React from 'react'
-import { SafeAreaView, View } from 'react-native'
+import { Pressable, SafeAreaView, StyleSheet, View } from 'react-native'
 
 
 const Account = () => {
@@ -19,10 +20,15 @@ const Account = () => {
         <ReturnButton color={Colors.accountColor} />
       </TopBar>
       <View style={{width: '100%', alignItems: "center", justifyContent: "center"}} >
-        <Image
-          source={user!.image_url} 
-          style={{width: 128, height: 128}}
-          contentFit='cover' />
+        <View style={{marginBottom: 20}} >
+          <Image
+            source={user!.image_url} 
+            style={{width: 128, height: 128}}
+            contentFit='cover' />
+          <Pressable style={style.brush} >
+            <Ionicons name='brush-outline' size={20} color={Colors.backgroundColor} />
+          </Pressable>
+        </View>
       </View>
       <ChangeProfileInfoForm/>
     </SafeAreaView>
@@ -31,3 +37,14 @@ const Account = () => {
 }
 
 export default Account
+
+const style = StyleSheet.create({
+  brush: {
+    backgroundColor: Colors.accountColor, 
+    padding: 8, 
+    borderRadius: 42,
+    position: 'absolute', 
+    right: -20,
+    bottom: -20
+  }
+})

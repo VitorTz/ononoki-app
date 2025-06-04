@@ -113,7 +113,7 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
       INSERT INTO
         app_info (name, value)
       VALUES
-        ('read_mode', 'List')
+        ('read_mode', 'List')        
       ON CONFLICT (name)
       DO NOTHING;
 
