@@ -1,13 +1,11 @@
-import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { hasInternetAvailable } from '@/helpers/util'
 import { dbCheckSecondsSinceLastRefresh, dbHasMangas, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { router } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
-import React, { useState } from 'react'
-import { ActivityIndicator, Pressable } from 'react-native'
+import React from 'react'
 import Toast from 'react-native-toast-message'
+import BooleanRotatingButton from './BooleanRotatingButton'
 
 
 interface UpdateDatabaseProps {
@@ -16,21 +14,19 @@ interface UpdateDatabaseProps {
     type: "server" | "client"
 }
 
+
 const UpdateDatabase = ({
     iconSize = 28, 
     iconColor = Colors.white,
     type
 }: UpdateDatabaseProps) => {
 
-    const db = useSQLiteContext()
-    const [loading, setLoading] = useState(false)
+    const db = useSQLiteContext()    
 
-    const update = async () => {
-        setLoading(true)
+    const update = async () => {        
         const hasInternet = await hasInternetAvailable()
         if (!hasInternet) { 
             Toast.show({text1: "Hey", text2: "You don’t have internet access", type: 'info'})
-            setLoading(false)
             return 
         }
 
@@ -51,32 +47,30 @@ const UpdateDatabase = ({
             })
         } else {
             Toast.show({
-                text1: "Updating local database",
+                text1: "Synchronizing local database...",
                 type: 'info'
             })
             try {
                 await dbUpdateDatabase(db)
-                setLoading(false)
+                Toast.show({
+                    text1: "Sync completed",
+                    type: 'info'
+                })
                 router.replace("/(pages)/Home")
                 return
             } catch (error) {
                 console.log(error)
             }
         }
-
-        setLoading(false)
+        
     }
 
-    return (
-        <>
-            {
-                loading ?
-                <ActivityIndicator size={iconSize} color={iconColor} /> :
-                <Pressable onPress={update} hitSlop={AppConstants.hitSlop} >
-                    <Ionicons name='cloud-download-outline' size={iconSize} color={iconColor} />
-                </Pressable>
-            }
-        </>
+    return (           
+        <BooleanRotatingButton 
+            onPress={update} 
+            iconSize={iconSize} 
+            iconColor={iconColor}
+        />
     )
 }
 

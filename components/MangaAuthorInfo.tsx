@@ -5,7 +5,8 @@ import { AppStyle } from "@/styles/AppStyle"
 import { useRouter } from "expo-router"
 import { useSQLiteContext } from "expo-sqlite"
 import { useEffect, useRef, useState } from "react"
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native"
+import { FlatList, Pressable, StyleSheet, Text } from "react-native"
+import Row from "./util/Row"
 
 
 interface MangaAuthorInfoProps {
@@ -18,7 +19,7 @@ const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
   const db = useSQLiteContext()  
   const [authors, setAuthors] = useState<MangaAuthor[]>([])
   const flatListRef = useRef<FlatList>(null)  
-
+  
   useEffect(
     () => {
       async function init() {
@@ -37,11 +38,11 @@ const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
         author_id: author.author_id,
         author_name: author.name, 
         author_role: author.role
-      }})
+    }})
   }
 
   return (
-    <View style={{width: '100%', flexWrap: 'wrap', flexDirection: 'row', gap: 10}} >
+    <Row style={{flexWrap: 'wrap', gap: 10}} >
       <FlatList
         ref={flatListRef}
         data={authors}
@@ -50,11 +51,11 @@ const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
         showsHorizontalScrollIndicator={false}
         renderItem={({item}) => 
           <Pressable style={styles.item} onPress={() => openAuthorPage(item)}>
-            <Text style={[AppStyle.textRegular, {color: Colors.white}]} >{item.role}: {item.name}</Text>
+            <Text style={[AppStyle.textRegular, {color: Colors.white}]} >{item.role == "Author" ? "Story" : "Art"}: {item.name}</Text>
           </Pressable>
         }
       />
-    </View>
+    </Row>
   )
 
 }

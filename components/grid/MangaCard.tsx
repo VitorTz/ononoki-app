@@ -112,5 +112,5 @@ const styles = StyleSheet.create({
         width: '100%',
         borderBottomLeftRadius: 4,
         borderBottomRightRadius: 4        
-    }    
+    }
 })

@@ -1,5 +1,6 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
+import Column from '@/components/util/Column'
 import { Colors } from '@/constants/Colors'
 import { DonateMethod } from '@/helpers/types'
 import { spGetDonationMethods } from '@/lib/supabase'
@@ -50,10 +51,10 @@ const DonateMethodComponent = ({donateMethod}: {donateMethod: DonateMethod}) => 
 
   return (
     <Pressable onPress={onPress} style={{maxWidth: '100%', padding: 10, borderRadius: 4, backgroundColor: Colors.donateColor, gap: 10}} >
-      <View style={{width: "100%", flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "space-between"}} >
+      <Column style={{width: "100%", flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "space-between"}} >
         <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]}>{donateMethod.method}</Text>
         <Ionicons name={iconName as any} size={28} color={Colors.backgroundColor} />
-      </View>
+      </Column>
       <Text adjustsFontSizeToFit={true} style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>{donateMethod.value}</Text>
     </Pressable>
   )
@@ -89,26 +90,9 @@ const Donate = () => {
           :
 
           <View style={{flex: 1, gap: 20}} >
-
             {
               donateMethods.map((item, index) => <DonateMethodComponent key={index} donateMethod={item} />)
-            }            
-
-            <View style={{gap: 10}} >
-              <Text style={AppStyle.textRegular} >
-                Ougi contains no paid subscriptions, in-app purchases, or advertising interruptions—every feature is offered entirely free of charge.
-              </Text>
-              <Text style={AppStyle.textRegular} >
-                However, operating and maintaining the servers that store and deliver thousands of images and user data does incur ongoing expenses.
-              </Text>
-              <Text style={AppStyle.textRegular} >
-                To ensure that Ougi continues running smoothly and to fund future enhancements, we kindly invite you to consider making a voluntary contribution.
-              </Text>
-              <Text style={AppStyle.textRegular} >
-                Your support is completely optional, but any gift helps us keep delivering the best possible experience.
-              </Text>
-            </View>
-
+            }
           </View>
         }
 

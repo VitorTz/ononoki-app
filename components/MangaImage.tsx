@@ -19,10 +19,7 @@ const MangaImageComponent = ({originalWidth, originalHeight, imageUrl}: MangaIma
     const height = width * (originalHeight / originalWidth)
     
     return (
-        <Image
-            style={{ width, height}}
-            source={imageUrl}
-            contentFit='cover'/>
+        <Image style={{ width, height}} source={imageUrl} contentFit='cover'/>
     )
 }
 

@@ -123,7 +123,7 @@ const App = () => {
                 justifyContent: "space-between"}} >
                 <Text style={[AppStyle.textHeader, {fontSize: 30, color: Colors.ononokiBlue}]}>Ononoki</Text>                
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 16}} >
-                    <Ionicons name='cloud-download-outline' size={28} color={Colors.white} />
+                    <Ionicons name='sync-outline' size={28} color={Colors.white} />
                     <Ionicons name='search-outline' size={28} color={Colors.white} />
                     <Ionicons name='dice-outline' size={28} color={Colors.white} />
                     <Ionicons name='options-outline' size={28} color={Colors.white} />

@@ -39,15 +39,15 @@ const RotatingButton = ({
     });
 
     return (
-    <Pressable onPress={handlePress} hitSlop={AppConstants.hitSlop}>
-        <Animated.View
-        style={[
-            styles.box,
-            { width: iconSize, height: iconSize, transform: [{ rotate: spinInterpolate }] },
-        ]}>
-        <Ionicons name={iconName as any} size={iconSize} color={iconColor}/>
-        </Animated.View>
-    </Pressable>
+        <Pressable onPress={handlePress} hitSlop={AppConstants.hitSlop}>
+            <Animated.View
+            style={[
+                styles.box,
+                { width: iconSize, height: iconSize, transform: [{ rotate: spinInterpolate }] },
+            ]}>
+                <Ionicons name={iconName as any} size={iconSize} color={iconColor}/>
+            </Animated.View>
+        </Pressable>
     )
 }
 

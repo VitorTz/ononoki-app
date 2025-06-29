@@ -434,6 +434,11 @@ export async function dbUpdateDatabase(db: SQLite.SQLiteDatabase) {
     const start = Date.now()
 
     const mangas: Manga[] = await spGetMangas()
+
+    if (mangas.length == 0) { 
+      return 
+    }
+    
     const releases: AppRelease[] = await spGetReleases()
 
     await dbClearDatabase(db)

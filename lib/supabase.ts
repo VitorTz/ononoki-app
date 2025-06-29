@@ -352,3 +352,36 @@ export async function spDeleteComment(comment_id: number): Promise<boolean> {
     
     return true
 }
+
+
+export async function uploadImageToSupabase(
+    arrayBuffer: any, 
+    filename: string, 
+    bucketName: string, 
+    mimeType: string
+): Promise<{
+    id: string;
+    path: string;
+    fullPath: string;
+} | null> {
+  try {
+    const { data, error } = await supabase
+     .storage
+     .from(bucketName)
+     .upload(filename, arrayBuffer, {
+        cacheControl: '3600',
+        contentType: mimeType,
+        upsert: true,
+      });
+
+    if (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+      throw error;
+    }
+    console.log('Imagem carregada com sucesso:', data);
+    return data;
+  } catch (error) {
+    console.error('Erro no processo de upload:', error);
+    throw error;
+  }
+}

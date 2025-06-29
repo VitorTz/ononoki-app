@@ -35,7 +35,7 @@ const DATA = [
 
 const DisclaimerText = ({title, message}: {title: string, message: string}) => {
     return (
-        <View style={{width: '100%', gap: 20}} >
+        <View style={{width: '100%', gap: 20}}>
             <Text style={[AppStyle.textHeader, {color: Colors.ononokiBlue}]}>{title}</Text>
             <Text style={[AppStyle.textRegular, {fontSize: 18}]}>{message}</Text>
         </View>

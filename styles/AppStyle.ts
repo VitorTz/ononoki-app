@@ -73,5 +73,9 @@ export const AppStyle = StyleSheet.create({
         height: 50,
         borderRadius: 4,
         backgroundColor: Colors.orange
+    },
+    center: {
+        alignItems: "center",
+        justifyContent: "center"
     }
 })

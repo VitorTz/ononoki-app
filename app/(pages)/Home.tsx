@@ -6,12 +6,14 @@ import LatestUpdatesGrid from '@/components/grid/LatestUpdates'
 import MostViewGrid from '@/components/grid/MostViewsGrid'
 import RandomMangaGrid from '@/components/grid/RandomMangaGrid'
 import LateralMenu from '@/components/LateralMenu'
+import Logo from '@/components/util/Logo'
+import Row from '@/components/util/Row'
 import { Colors } from '@/constants/Colors'
 import { hp, wp } from '@/helpers/util'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
 import React, { useRef } from 'react'
-import { Animated, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Animated, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
 
 
 const MENU_WIDTH = wp(70)
@@ -68,19 +70,15 @@ const Home = () => {
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >            
-            <View style={{width: '100%', 
-                flexDirection: 'row',
-                marginBottom: 10, 
-                alignItems: "center", 
-                justifyContent: "space-between"}} >
-                <Text style={[AppStyle.textHeader, {fontSize: 30, color: Colors.ononokiBlue}]}>Ononoki</Text>                
-                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 16}} >
+            <Row style={{marginBottom: 20, justifyContent: "space-between"}} >
+                <Logo/>
+                <Row style={{gap: 16}} >
                     <UpdateDatabase iconColor={Colors.white} type='client' />
                     <Button iconName='search-outline' onPress={searchPress} iconColor={Colors.white} />
                     <RandomMangaButton color={Colors.white} size={28} />
                     <Button iconName='options-outline' onPress={toggleMenu} iconColor={Colors.white} />
-                </View>
-            </View>
+                </Row>
+            </Row>
 
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
                 <View style={{gap: 20}} >

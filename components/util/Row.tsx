@@ -1,11 +1,6 @@
 import React from 'react'
-import { StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
+import { StyleSheet, View, ViewProps } from 'react-native'
 
-
-interface RowProps {
-    style?: ViewStyle
-    children?: React.JSX.Element
-}
 
 
 const Row = (props: ViewProps) => {

@@ -9,9 +9,7 @@ interface SearchBarProps {
     onChangeValue: (value: string) => any
 }
 
-const SearchBar = ({
-    onChangeValue
-}: SearchBarProps) => {    
+const SearchBar = ({ onChangeValue }: SearchBarProps) => {    
 
     const inputRef = useRef<TextInput>(null)
 

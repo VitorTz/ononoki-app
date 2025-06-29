@@ -9,6 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 import {
     ActivityIndicator,
     FlatList,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -110,19 +111,20 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
     
     const onSubmit = async (form_data: FormData) => {
         setLoading(true)
-        await spReportBug(
-            form_data.title, 
-            form_data.descr.trim() === '' ? null : form_data.descr.trim(), 
-            form_data.bugType
-        )
-        Toast.show({text1: "Thanks!", type: "success"})
+            await spReportBug(
+                form_data.title, 
+                form_data.descr.trim() === '' ? null : form_data.descr.trim(), 
+                form_data.bugType
+            )
+            Keyboard.dismiss()
+            Toast.show({text1: "Thanks!", type: "success"})
+            router.back()
         setLoading(false)
-        router.back()
     };
 
   return (
     <KeyboardAvoidingView style={{flex: 1, gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{flex: 1}} >
+        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps='always' >
             
             {/* Title */}
             <Text style={AppStyle.inputHeaderText}>Title</Text>

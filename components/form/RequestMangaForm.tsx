@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     ActivityIndicator,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -21,11 +22,11 @@ import * as yup from 'yup';
 
 
 const schema = yup.object().shape({  
-    manhwa_title: yup
+    manga_title: yup
         .string()
         .min(3, 'Min 3 characters')
         .max(256, 'Max 256 characters')
-        .required('Manhwa name is required'),
+        .required('Manga name is required'),
     descr: yup
         .string()
         .max(1024)    
@@ -33,7 +34,7 @@ const schema = yup.object().shape({
 
 
 interface FormData {
-    manhwa_title: string
+    manga_title: string
     descr: string
 }
 
@@ -49,7 +50,7 @@ const RequestMangaForm = () => {
     } = useForm<FormData>({
         resolver: yupResolver(schema as any),
         defaultValues: {            
-            manhwa_title: '',
+            manga_title: '',
             descr: ''
         },
     });
@@ -57,21 +58,22 @@ const RequestMangaForm = () => {
     const onSubmit = async (form_data: FormData) => {
         setLoading(true)
             const m = form_data.descr.trim() == '' ? null : form_data.descr.trim()
-            await spRequestManga(form_data.manhwa_title, m)
-            Toast.show({text1: "Thanks ♥️", type: 'success'})
+            await spRequestManga(form_data.manga_title, m)
+            Keyboard.dismiss()
+            Toast.show({text1: "Thanks!", type: 'success'})
+            router.back()
         setLoading(false)
-        router.back()
     };
 
   return (
     <KeyboardAvoidingView style={{flex: 1, gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{flex: 1}} >
+        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps='always' >
             
-            {/* Manhwa Name */}
+            {/* Manga Name */}
             <Text style={AppStyle.inputHeaderText}>Name</Text>
             <Controller
                 control={control}
-                name="manhwa_title"
+                name="manga_title"
                 render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                     style={AppStyle.input}
@@ -81,7 +83,7 @@ const RequestMangaForm = () => {
                     value={value}/>
                 )}
             />
-            {errors.manhwa_title && (<Text style={AppStyle.error}>{errors.manhwa_title.message}</Text>)}
+            {errors.manga_title && (<Text style={AppStyle.error}>{errors.manga_title.message}</Text>)}
 
             {/* Description */}
             <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "center", alignSelf: 'flex-start'}} >
