@@ -14,7 +14,10 @@ interface TopBarProps {
 const TopBar = ({title, children, titleColor = Colors.white}: TopBarProps) => {
   return (
     <View style={styles.container} >
-        <Text style={[AppStyle.textHeader, styles.title, {color: titleColor}]}>{title}</Text>
+        <Text 
+          style={[AppStyle.textHeader, styles.title, {color: titleColor}]}>
+          {title}
+        </Text>
         {children}
     </View>
   )
@@ -26,8 +29,7 @@ export default TopBar
 const styles = StyleSheet.create({
   container: {
     width: '100%', 
-    flexDirection: 'row', 
-    marginTop: 24, 
+    flexDirection: 'row',     
     marginBottom: 10, 
     alignItems: "center", 
     justifyContent: "space-between"

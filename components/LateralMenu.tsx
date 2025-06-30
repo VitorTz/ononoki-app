@@ -122,7 +122,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
             <View style={styles.container} >
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between", marginBottom: 10}} >
                     <Text style={[AppStyle.textHeader, {color: Colors.ononokiBlue, fontFamily: "LeagueSpartan_600SemiBold"}]}>Menu</Text>
-                    <CloseBtn onPress={closeMenu} style={{padding: 2}} />
+                    <CloseBtn onPress={closeMenu} style={{padding: 2}} color={Colors.ononokiBlue} />
                 </View>
             
                 {

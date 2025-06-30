@@ -29,7 +29,7 @@ export const AppStyle = StyleSheet.create({
         width: '100%', 
         flex: 1, 
         paddingHorizontal: wp(4),
-        paddingTop: hp(3),
+        paddingTop: hp(4),
         backgroundColor: Colors.backgroundColor        
     },
     formButtonText: {
@@ -42,7 +42,6 @@ export const AppStyle = StyleSheet.create({
         borderRadius: 4, 
         backgroundColor: Colors.almostBlack  
     },
-
     input: {
         backgroundColor: Colors.gray1,
         borderRadius: 4,

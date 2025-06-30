@@ -6,6 +6,7 @@ import { create } from 'zustand'
 type AuthState = {
     user: OnonokiUser | null
     session: Session | null
+    changeUserName: (username: string) => void
     login: (user: OnonokiUser, session: Session | null) => void
     logout: () => void
 }
@@ -19,6 +20,9 @@ export const useAuthState = create<AuthState>(
         },
         logout: () => {
             set((state) => {return {...state, user: null, session: null}})
+        },
+        changeUserName: (username: string) => {
+            set((state) => {return {...state, user: {image_url: state.user!.image_url, user_id: state.user!.user_id, username}, session: null}})
         }
     })
 )

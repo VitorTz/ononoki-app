@@ -11,13 +11,15 @@ import Toast from 'react-native-toast-message'
 
 interface RandomManhwaButtonProps {
     size?: number
-    color?: string    
+    color?: string
+    backgroundColor?: string
 }
 
 
 const RandomMangaButton = ({
     size = 28, 
-    color = Colors.white    
+    color = Colors.white,
+    backgroundColor = Colors.backgroundColor
 }: RandomManhwaButtonProps) => {
     
     const router = useRouter()
@@ -37,7 +39,7 @@ const RandomMangaButton = ({
     }
 
     return (
-        <View style={styles.container}  >
+        <View style={[styles.container, {backgroundColor}]}  >
             {
                 loading ?
                 <ActivityIndicator size={size} color={color} /> :
@@ -54,8 +56,7 @@ export default RandomMangaButton
 
 const styles = StyleSheet.create({
     container: {
-        padding: 6, 
-        backgroundColor: Colors.backgroundColor, 
+        padding: 6,         
         borderRadius: 4
     }
 })

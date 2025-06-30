@@ -42,7 +42,7 @@ const GenreGrid = () => {
                 horizontal={true}
                 renderItem={({item, index}) => 
                     <Pressable onPress={() => onPress(item)} style={styles.button} >
-                        <Text style={AppStyle.textRegular}>{item.genre}</Text>
+                        <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>{item.genre}</Text>
                     </Pressable>
                 }
             />
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         borderRadius: 4,
-        backgroundColor: Colors.gray,
+        backgroundColor: Colors.ononokiBlue,
         marginRight: 10
     }   
 })

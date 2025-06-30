@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthError, createClient, Session } from '@supabase/supabase-js';
+import { AuthError, createClient, PostgrestError, Session } from '@supabase/supabase-js';
 import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, OnonokiUser } from "../helpers/types";
 
 // RLS ENABLE
@@ -384,4 +384,14 @@ export async function uploadImageToSupabase(
     console.error('Erro no processo de upload:', error);
     throw error;
   }
+}
+
+
+export async function spChangeUsername(user_id: string, username: string): Promise<PostgrestError | null> {
+    const { data, error } = await supabase
+        .from("users")
+        .update({username})
+        .eq("user_id", user_id)
+
+    return error
 }

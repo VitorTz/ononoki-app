@@ -1,11 +1,14 @@
 import { Colors } from '@/constants/Colors';
+import { spChangeUsername } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
 import { yupResolver } from '@hookform/resolvers/yup';
-import React, { useState } from 'react';
+import { PostgrestError } from '@supabase/supabase-js';
+import React, { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     ActivityIndicator,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -38,7 +41,9 @@ interface FormData {
 const ChangeProfileInfoForm = () => {
 
     const [isLoading, setLoading] = useState(false)
-    const { user, session } = useAuthState()
+    const { user, session, changeUserName } = useAuthState()
+
+    const changingInfo = useRef(false)
     
     const {
         control,
@@ -52,17 +57,51 @@ const ChangeProfileInfoForm = () => {
         },
     });
     
-    const onSubmit = async (form_data: FormData) => {        
-        Toast.show({
-            text1: "Sorry", 
-            text2: 'At the moment, it is not possible to modify user data.',
-            type: "error"            
-        })
+    const onSubmit = async (form_data: FormData) => {
+        if (!user) {
+            Toast.show({
+                text1: "Sorry", 
+                text2: 'You are not logged!',
+                type: "error"
+            })
+            return
+        }
+
+        if (changingInfo.current) { return }
+        changingInfo.current = true
+        setLoading(true)
+            Keyboard.dismiss()
+            console.log(form_data)
+            
+            // Change username
+            if (form_data.name != user.username) {
+                console.log(form_data.name, user.username)
+                const nameChangeError: PostgrestError | null = await spChangeUsername(user.user_id, form_data.name);
+                if (nameChangeError) {
+                    console.log(nameChangeError)
+                    Toast.show({
+                        text1: "Error", 
+                        text2: nameChangeError.message,
+                        type: "error"
+                    })
+                } else {
+                    changeUserName(form_data.name)
+                    Toast.show({
+                        text1: "Success", 
+                        type: "success"
+                    })
+                }
+            }
+
+            // change email
+            
+        setLoading(false)
+        changingInfo.current = false
     };
 
   return (
     <KeyboardAvoidingView style={{width: '100%', gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{width: '100%'}} >
+        <ScrollView style={{width: '100%'}} keyboardShouldPersistTaps={'always'} >
 
             {/* Username */}
             <Text style={AppStyle.inputHeaderText}>Username</Text>

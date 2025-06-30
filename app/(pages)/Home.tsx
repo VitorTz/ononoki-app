@@ -69,14 +69,14 @@ const Home = () => {
         
 
     return (
-        <SafeAreaView style={AppStyle.safeArea} >            
+        <SafeAreaView style={AppStyle.safeArea} >
             <Row style={{marginBottom: 20, justifyContent: "space-between"}} >
-                <Logo/>
+                <Logo/>                
                 <Row style={{gap: 16}} >
                     <UpdateDatabase iconColor={Colors.white} type='client' />
-                    <Button iconName='search-outline' onPress={searchPress} iconColor={Colors.white} />
-                    <RandomMangaButton color={Colors.white} size={28} />
-                    <Button iconName='options-outline' onPress={toggleMenu} iconColor={Colors.white} />
+                    <Button iconName='search-outline' onPress={searchPress} iconSize={28} iconColor={Colors.white} />
+                    <RandomMangaButton color={Colors.white} size={28} backgroundColor='' />
+                    <Button iconName='options-outline' onPress={toggleMenu} iconSize={28} iconColor={Colors.white} />
                 </Row>
             </Row>
 
