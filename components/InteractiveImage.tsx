@@ -1,7 +1,6 @@
 import { wp } from '@/helpers/util';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -33,8 +32,11 @@ export default function InteractiveImage({
   const maxZoom = originalScale * 2
   const minZoom = originalScale
   const scale = useSharedValue(1);
+
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const baseTranslateX = useSharedValue(0);
+  const baseTranslateY = useSharedValue(0);
 
   useEffect(
     () => {
@@ -42,6 +44,8 @@ export default function InteractiveImage({
         scale.value = MAX_WIDTH / originalWidth
         translateX.value = 0
         translateY.value = 0
+        baseTranslateX.value = 0
+        baseTranslateY.value = 0
       }
       init()
     },
@@ -52,48 +56,70 @@ export default function InteractiveImage({
     .runOnJS(true)
     .onStart(() => {
       'worklet';
-    })    
+    })
+    .onUpdate((e) => {
+      if (scale.value != originalScale) {        
+        translateX.value = e.translationX
+        translateY.value = e.translationY
+      }
+    })
     .onEnd((e) => {
       'worklet';
+      baseTranslateX.value += translateX.value;
+      baseTranslateY.value += translateY.value;
+      translateX.value = 0;
+      translateY.value = 0;
       if (scale.value != originalScale || Math.abs(e.velocityX) <= 500) { return }
       e.velocityX < 0 ? runOnJS(swapLeft)() : runOnJS(swapRight)()      
-  });
+    })
+    .minDistance(10)
+    .activeOffsetX([-1000, 1000])
+    .activeOffsetY([-1000, 1000])
 
   // Double tap gesture
   const doubleTap = Gesture.Tap()
     .runOnJS(true)
     .numberOfTaps(2)
-    .onEnd(() => {
+    .onEnd((e) => {
       'worklet';
-      if (scale.value != minZoom) {
+      if (scale.value != minZoom) {      
         scale.value = withTiming(minZoom);
-        translateX.value = withTiming(0);
-        translateY.value = withTiming(0);
+        baseTranslateX.value = withTiming(0);
+        baseTranslateY.value = withTiming(0);
       } else {
         scale.value = withTiming(maxZoom)
       }
   });
 
+  const clamp = (value: number, min: number, max: number) => {
+    'worklet'; // Indica que esta função pode rodar no thread de UI
+    return Math.min(Math.max(value, min), max);
+  };
+
   const pinch = Gesture.Pinch()
     .runOnJS(true)
     .onUpdate((e) => {
       'worklet';
-      console.log(e.scale)
-      let newScale = originalScale * e.scale
-      newScale = newScale
+      if (e.numberOfPointers < 2) { return }
+      let newScale = scale.value * e.scale;
       if (newScale < minZoom) newScale = minZoom;
       if (newScale > maxZoom) newScale = maxZoom;
-      scale.value = newScale;
-      translateX.value = e.focalX;
-      translateY.value = e.focalY;
-  });
+      scale.value = newScale;  
+    })
+    .onEnd(() => {
+      if (scale.value >= originalScale) {
+        baseTranslateX.value = withTiming(0)
+        baseTranslateY.value = withTiming(0)
+      }
+    })
+    
 
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {
       transform: [
-        { translateX: translateX.value},
-        { translateY: translateY.value},
+        { translateX: baseTranslateX.value + translateX.value},
+        { translateY: baseTranslateY.value + translateY.value},
         { scale: scale.value },        
       ],
     };
@@ -116,12 +142,3 @@ export default function InteractiveImage({
     </GestureDetector>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000',
-  },
-});
