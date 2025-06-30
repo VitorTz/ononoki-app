@@ -1,5 +1,4 @@
 import { Colors } from '@/constants/Colors';
-import { getRelativeHeight, wp } from '@/helpers/util';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
@@ -13,7 +12,6 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 
-const MAX_WIDTH = wp(100)
 
 interface InteractiveImageProps {
   imageUri: string
@@ -34,14 +32,8 @@ const InteractiveImage = ({
   swapLeft,
   swapRight
 }: InteractiveImageProps) => {
-    
-  const imageState = useSharedValue({ 
-    scale: 1, 
-    width: width, 
-    height: height,
-    currentWidth: width > MAX_WIDTH ? MAX_WIDTH : width,
-    currentHeight: getRelativeHeight(width > MAX_WIDTH ? MAX_WIDTH : width, width, height)
-  });
+  
+  const initialState = useSharedValue({ scale: 1, width: width, height: height });
 
   // Inicialize shared values com primitivos ou props diretamente.
   const baseScale = useSharedValue(1);
@@ -52,28 +44,21 @@ const InteractiveImage = ({
   const panTranslateX = useSharedValue(0);
   const panTranslateY = useSharedValue(0);
   
-  // Inicialize com as props minZoom e maxZoom.
-  // Se initialState.value.scale fosse diferente de 1, você faria o ajuste em useEffect.
   const minZoomAdjusted = useSharedValue(minZoom);
   const maxZoomAdjusted = useSharedValue(maxZoom);
 
   useEffect(() => {
     // Atualize initialState se as props width/height mudarem.
-    imageState.value = { 
-      scale: 1, 
-      width: width, 
-      height: height,
-      currentWidth: width > MAX_WIDTH ? MAX_WIDTH : width,
-      currentHeight: getRelativeHeight(width > MAX_WIDTH ? MAX_WIDTH : width, width, height)
-    }
-        
-    minZoomAdjusted.value = minZoom;
-    maxZoomAdjusted.value = maxZoom;
+    initialState.value = { scale: 1, width: width, height: height };
+    
+    // Atualize os limites de zoom com base nas props.
+    minZoomAdjusted.value = minZoom; // Assumindo que a escala base para zoom é 1
+    maxZoomAdjusted.value = maxZoom; // Assumindo que a escala base para zoom é 1
 
     // Resetar transformações e escalas
     baseTranslateX.value = withTiming(0);
     baseTranslateY.value = withTiming(0);
-    baseScale.value = withTiming(1);
+    baseScale.value = withTiming(1); // Resetar para a escala base (1)
 
     panTranslateX.value = 0;
     panTranslateY.value = 0;
@@ -113,9 +98,6 @@ const InteractiveImage = ({
     })
     .onEnd(() => {
       baseScale.value *= pinchScale.value;
-      imageState.value.currentWidth = (imageState.value.width > MAX_WIDTH ? MAX_WIDTH : imageState.value.width) * baseScale.value
-      imageState.value.currentHeight = imageState.value.currentWidth * (imageState.value.height / imageState.value.width)
-
       pinchScale.value = 1;
       
       const finalClampedScale = clamp(baseScale.value, minZoomAdjusted.value, maxZoomAdjusted.value);
@@ -135,7 +117,7 @@ const InteractiveImage = ({
     })
     .onEnd((event) => {      
       // Use initialState.value.scale (que é 1) para a condição de swipe.
-      if (baseScale.value === imageState.value.scale && pinchScale.value === 1) {
+      if (baseScale.value === initialState.value.scale && pinchScale.value === 1) {
         if (event.translationX >= 40) {
           runOnJS(swapRight)();
         } else if (event.translationX <= -40) {
@@ -148,32 +130,30 @@ const InteractiveImage = ({
       panTranslateY.value = 0;
     })
     .minDistance(20)
-    .activeOffsetX([-1000, 1000])
-    .activeOffsetY([-1000, 1000])
+    .activeOffsetX([-1000, 1000]) // Permite grande movimento no eixo X
+    .activeOffsetY([-1000, 1000]); // Permite grande movimento no eixo Y
+
 
   const doubleTapGesture = Gesture.Tap()
     .numberOfTaps(2)
     .onEnd(() => {
-      if (pinchScale.value <= 1) {
-        baseScale.value = withTiming(1.5);
-        pinchScale.value = withTiming(1.5); 
-      } else {
-        baseScale.value = withTiming(imageState.value.scale);
-        pinchScale.value = withTiming(1); 
-      }
+      // Use initialState.value.scale (que é 1) para resetar.
+      baseScale.value = withTiming(initialState.value.scale);
       baseTranslateX.value = withTiming(0);
       baseTranslateY.value = withTiming(0);
+      pinchScale.value = withTiming(1); 
       panTranslateX.value = withTiming(0);
       panTranslateY.value = withTiming(0);
     });
 
-  const animatedStyle = useAnimatedStyle(() => {    
+  const animatedStyle = useAnimatedStyle(() => {
+    const currentTotalScale = baseScale.value * pinchScale.value;
     return {
       transform: [
         { translateX: baseTranslateX.value + panTranslateX.value },
-        { translateY: baseTranslateY.value + panTranslateY.value }
+        { translateY: baseTranslateY.value + panTranslateY.value },
+        { scale: currentTotalScale },
       ],
-      width: imageState.value.currentWidth, height: imageState.value.currentHeight
     };
   });
 
@@ -181,20 +161,19 @@ const InteractiveImage = ({
     doubleTapGesture,
     Gesture.Simultaneous(pinchGesture, panGesture)
   );
-      
+
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View style={styles.container}>
-        {/* Use as props width e height diretamente para o tamanho base do Animated.View */}
         <Animated.View style={[
           styles.image,
-          animatedStyle          
+          { width, height },
+          animatedStyle,
         ]} >
           <Image
-            cachePolicy={'disk'}
             source={imageUri}
-            style={{ width: '100%', height: '100%' }}
-            contentFit='cover' />
+            style={{ width, height }}
+            contentFit='contain' />
         </Animated.View>
       </Animated.View>
     </GestureDetector>

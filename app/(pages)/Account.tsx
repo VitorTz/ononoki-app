@@ -2,122 +2,124 @@ import ReturnButton from '@/components/buttons/ReturnButton'
 import ChangeProfileInfoForm from '@/components/form/ChangeProfileInfoForm'
 import TopBar from '@/components/TopBar'
 import { Colors } from '@/constants/Colors'
-import { uploadImageToSupabase } from '@/lib/supabase'
+import { spSetUserProfileImageUrl, supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { decode } from 'base64-arraybuffer'
 import { Image } from 'expo-image'
-import React from 'react'
-import { Alert, PermissionsAndroid, Platform, Pressable, SafeAreaView, StyleSheet, View } from 'react-native'
-import ImagePicker from 'react-native-image-crop-picker'
+import React, { useRef, useState } from 'react'
+import { ActivityIndicator, Alert, PermissionsAndroid, Platform, Pressable, SafeAreaView, StyleSheet, View } from 'react-native'
+import RNFS from 'react-native-fs'
+import { launchImageLibrary } from 'react-native-image-picker'
+import * as mime from 'react-native-mime-types'
+import Toast from 'react-native-toast-message'
 
 
 
-const requestGalleryPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const grantedReadMediaImages = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-        {
-          title: "Permissão de Galeria",
-          message: "Este aplicativo precisa de acesso à sua galeria para selecionar fotos.",
-          buttonNeutral: "Perguntar Depois",
-          buttonNegative: "Cancelar",
-          buttonPositive: "OK"
-        }
+const Account = () => {
+
+  const { user, changeProfileImage } = useAuthState()
+  const [loading, setLoading] = useState(false)
+
+  const uploadingPhoto = useRef(false)
+
+  const requestPermissions = async () => {
+    if (Platform.OS !== 'android') return true;
+    try {        
+      const storageGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title: "Storage Permission",
+            message: "Ononoki needs access to your photos",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK"
+          }
       );
-      const grantedReadExternalStorage = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: "Permissão de Galeria",
-          message: "Este aplicativo precisa de acesso à sua galeria para selecionar fotos.",
-          buttonNeutral: "Perguntar Depois",
-          buttonNegative: "Cancelar",
-          buttonPositive: "OK"
-        }
-      );
-      if (
-        grantedReadExternalStorage === PermissionsAndroid.RESULTS.GRANTED &&
-        grantedReadMediaImages === PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.log("Permissão concedida");
-        return true;
-      } else {
-        console.log("Permissão negada");
-        Alert.alert("Permissão Necessária", "Por favor, conceda acesso à galeria nas configurações do seu dispositivo para selecionar uma imagem.");
-        return false;
-      }
+
+      return storageGranted === PermissionsAndroid.RESULTS.GRANTED
     } catch (err) {
       console.warn(err);
       return false;
     }
-  }
-  return true; // iOS permissions are handled via Info.plist and typically prompt automatically
-};
+  };
 
+  const handlePickPhoto = async () => {
+    if (uploadingPhoto.current) { return }
+    await requestPermissions();
 
-const selectAndCropImage = async () => {
-  if (!(await requestGalleryPermission())) {
-    return null;
-  }
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: false,
+      },
+      (response: any) => {
+        handleResponse(response);
+      }
+    );
+  };
 
-  try {
-    const image = await ImagePicker.openPicker({
-      mediaType: 'photo',
-      cropping: true,
-      width: 256,
-      height: 256,
-      forceJpg: true,           // Garante que a saída seja JPG para uploads consistentes
-      includeBase64: true,      // CRUCIAL para upload no Supabase
-      compressImageQuality: 0.8, // Opcional: comprime a qualidade da imagem (0 a 1)
-      writeTempFile: false      // Otimização: não escreve arquivo temporário no disco se base64 for incluído
-    });
-
-    console.log('Imagem selecionada e cortada:', image);
-    return image; // Este objeto conterá path, mime, e data (base64)
-  } catch (error: any) {
-    if (error.message.includes('User cancelled') || error.message.includes('cancelled')) {
-      console.log('Seleção de imagem cancelada pelo usuário.');
-    } else if (error.message.includes('permission')) {
-      Alert.alert("Erro de Permissão", "O aplicativo não tem acesso às suas fotos. Por favor, vá para as configurações e permita o acesso."); [7]
-    } else {
-      console.error('Erro ao selecionar ou cortar imagem:', error);
-      Alert.alert("Erro", "Ocorreu um erro ao processar a imagem. Tente novamente.");
+  const handleResponse = async (response: any) => {
+    if (response.didCancel) {
+      Alert.alert('Cancelled', 'Operation was cancelled');
+    } else if (response.errorCode) {
+      Alert.alert('Error', response.errorMessage);
+    } else if (response.assets && response.assets.length > 0) {
+      const uri = response.assets[0].uri;
+      uploadingPhoto.current = true
+      await uploadToSupabase(uri);
+      uploadingPhoto.current = false
     }
-    return null;
-  }
-};
+  };
 
+  const decode = (base64: any) => {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  };
 
-const handleUpload = async (image: any, user_id: string) => {
-  if (!image ||!image.data ||!image.mime) {
-    console.warn('Dados da imagem inválidos.');
-    return;
-  }
+  const uploadToSupabase = async (uri: string) => {    
+    if (!user) {
+      Toast.show({text1: "Error", text2: "You are not logged!", type: "error"})
+      return
+    }
 
-  const filename = `avatars/${user_id}-${Date.now()}.jpeg`;
-  const mimeType = image.mime;
-  const base64Data = image.data;
-  const arrayBuffer = decode(base64Data);
+    setLoading(true);
+    
+    try {
+      const filename = uri.split('/').pop();
+      const mimeType = mime.lookup(uri) || 'image/jpeg';
+            
+      const fileData = await RNFS.readFile(uri, 'base64');
+      const filePath = `${Date.now()}_${filename}`;
+            
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, decode(fileData), {
+          contentType: mimeType,
+          upsert: false,
+        });
 
-  try {
-    const uploadResult = await uploadImageToSupabase(arrayBuffer, filename, 'profile-pictures', mimeType);
-    console.log(uploadResult)
-  } catch (error) {
-    console.log(error)
-  }
-};
+      if (error) throw error;
+      
+      const publicUrl = supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl
+      const profileUpdateError = await spSetUserProfileImageUrl(user!.user_id, publicUrl);
+      if (profileUpdateError) {
+        Toast.show({text1: "Error", text2: profileUpdateError.message, type: "error"})
+      } else {
+        changeProfileImage(publicUrl)
+        Toast.show({text1: "Success", type: "success"})
+      }
+    } catch (error: any) {
+      console.error('Erro no upload:', error);
+    } finally {
+      setLoading(false);
+    }
 
-const Account = () => {
-
-  const { user } = useAuthState()
-  
-  const changeUserProfileImage = async () => {
-    if (!user) { return }
-    const image: any = await selectAndCropImage()
-    await handleUpload(image, user.user_id)
-  }
+  };
   
   return (
     <SafeAreaView style={AppStyle.safeArea} >
@@ -128,10 +130,15 @@ const Account = () => {
         <View style={{marginBottom: 20}} >
           <Image
             source={user!.image_url} 
-            style={{width: 128, height: 128}}
-            contentFit='cover' />
-          <Pressable onPress={changeUserProfileImage} style={style.brush} >
-            <Ionicons name='brush-outline' size={20} color={Colors.backgroundColor} />
+            style={{width: 256, height: 256}}
+            contentFit='contain' />
+          
+          <Pressable onPress={handlePickPhoto} style={style.brush} >
+            {
+              loading ? 
+              <ActivityIndicator size={28} color={Colors.backgroundColor} /> :
+              <Ionicons name='brush-outline' size={20} color={Colors.backgroundColor} />
+            }
           </Pressable>
         </View>
       </View>

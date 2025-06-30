@@ -65,7 +65,7 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
             <Column style={{height: '100%'}} >
                 <Image 
                     source={comment.author_avatar_url} 
-                    style={{width: 64, height: 64, alignSelf: "flex-start"}} 
+                    style={{width: 96, height: 96, alignSelf: "flex-start"}} 
                     contentFit='cover' />
             </Column>
             <Column style={{gap: 10}} >

@@ -41,7 +41,7 @@ export async function spFetchUser(
 
     const { data, error } = await supabase
         .from("users")
-        .select("username, avatars (image_url)")
+        .select("username, avatars (image_url), profile_image_url")
         .eq("user_id", user_id)
         .single()
 
@@ -62,7 +62,7 @@ export async function spFetchUser(
     return {
         username: data.username,
         user_id,
-        image_url: data.avatars ? (data.avatars as any).image_url : null
+        image_url: data.profile_image_url ? data.profile_image_url : data.avatars ? (data.avatars as any).image_url : null
     }
 }
 
@@ -353,45 +353,19 @@ export async function spDeleteComment(comment_id: number): Promise<boolean> {
     return true
 }
 
-
-export async function uploadImageToSupabase(
-    arrayBuffer: any, 
-    filename: string, 
-    bucketName: string, 
-    mimeType: string
-): Promise<{
-    id: string;
-    path: string;
-    fullPath: string;
-} | null> {
-  try {
-    const { data, error } = await supabase
-     .storage
-     .from(bucketName)
-     .upload(filename, arrayBuffer, {
-        cacheControl: '3600',
-        contentType: mimeType,
-        upsert: true,
-      });
-
-    if (error) {
-      console.error('Erro ao fazer upload da imagem:', error);
-      throw error;
-    }
-    console.log('Imagem carregada com sucesso:', data);
-    return data;
-  } catch (error) {
-    console.error('Erro no processo de upload:', error);
-    throw error;
-  }
-}
-
-
 export async function spChangeUsername(user_id: string, username: string): Promise<PostgrestError | null> {
     const { data, error } = await supabase
         .from("users")
         .update({username})
         .eq("user_id", user_id)
+    return error
+}
 
+
+export async function spSetUserProfileImageUrl(user_id: string, profile_image_url: string): Promise<PostgrestError | null> {
+    const { data, error } = await supabase
+        .from("users")
+        .update({profile_image_url})
+        .eq("user_id", user_id)
     return error
 }

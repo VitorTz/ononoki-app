@@ -97,9 +97,10 @@ const App = () => {
                 
                 const shouldUpdate = await dbShouldUpdate(db, 'server')
                 if (shouldUpdate) {
-                    Toast.show({text1: "Updating local database", type: "info"})
+                    Toast.show({text1: "Synchronizing local database...", type: "info"})
                     await dbSetLastRefresh(db, 'client')
                     await dbUpdateDatabase(db)
+                    Toast.show({text1: "Sync completed", type: "info"})
                 }
 
                 const readMode = await dbReadAppInfo(db, 'read_mode')
