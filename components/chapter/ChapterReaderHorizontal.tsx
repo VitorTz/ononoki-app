@@ -90,6 +90,7 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
               setCurrentImage(imgs.length > 0 ? imgs[0] : null)
               imageIndex.current = 0
               prefetchState.current = imgs.map(i => {return {fetched: false, url: i.image_url}})
+              prefetchImages()
               setImages(imgs)
               dbUpsertReadingHistory(
                 db, 
@@ -159,8 +160,8 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
           <InteractiveImage
             swapLeft={moveToPreviousImage}
             swapRight={moveToNextImage}
-            width={currentImage.width}
-            height={currentImage.height}
+            originalWidth={currentImage.width}
+            originalHeight={currentImage.height}
             imageUri={currentImage.image_url}
           />          
         </View>
