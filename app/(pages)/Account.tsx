@@ -1,14 +1,14 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import ChangeProfileInfoForm from '@/components/form/ChangeProfileInfoForm'
+import ProfileImageBig from '@/components/ProfileImageBig'
 import TopBar from '@/components/TopBar'
 import { Colors } from '@/constants/Colors'
 import { spSetUserProfileImageUrl, supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { Image } from 'expo-image'
 import React, { useRef, useState } from 'react'
-import { ActivityIndicator, Alert, PermissionsAndroid, Platform, Pressable, SafeAreaView, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, PermissionsAndroid, Platform, Pressable, SafeAreaView, StyleSheet, View } from 'react-native'
 import RNFS from 'react-native-fs'
 import { launchImageLibrary } from 'react-native-image-picker'
 import * as mime from 'react-native-mime-types'
@@ -51,7 +51,7 @@ const Account = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
-        includeBase64: false,
+        includeBase64: false,        
       },
       (response: any) => {
         handleResponse(response);
@@ -61,13 +61,13 @@ const Account = () => {
 
   const handleResponse = async (response: any) => {
     if (response.didCancel) {
-      Alert.alert('Cancelled', 'Operation was cancelled');
+      Toast.show({text1: 'Cancelled', text2: 'Operation was cancelled', type: 'info'})      
     } else if (response.errorCode) {
-      Alert.alert('Error', response.errorMessage);
+      Toast.show({text1: 'Error', text2: response.errorMessage, type: 'error'})      
     } else if (response.assets && response.assets.length > 0) {
-      const uri = response.assets[0].uri;
+      const { uri, width, height } = response.assets[0];      
       uploadingPhoto.current = true
-      await uploadToSupabase(uri);
+      await uploadToSupabase(uri, width, height);
       uploadingPhoto.current = false
     }
   };
@@ -81,7 +81,7 @@ const Account = () => {
     return bytes.buffer;
   };
 
-  const uploadToSupabase = async (uri: string) => {    
+  const uploadToSupabase = async (uri: string, width: number, height: number) => {    
     if (!user) {
       Toast.show({text1: "Error", text2: "You are not logged!", type: "error"})
       return
@@ -89,28 +89,26 @@ const Account = () => {
 
     setLoading(true);
     
-    try {
-      const filename = uri.split('/').pop();
-      const mimeType = mime.lookup(uri) || 'image/jpeg';
-            
+    try {      
+      const mimeType = mime.lookup(uri) || 'image/jpeg';   
       const fileData = await RNFS.readFile(uri, 'base64');
-      const filePath = `${Date.now()}_${filename}`;
+      const filePath = `${user.user_id}/${Date.now()}.jpg`;
             
       const { data, error } = await supabase.storage
         .from('avatars')
         .upload(filePath, decode(fileData), {
           contentType: mimeType,
-          upsert: false,
+          upsert: false
         });
 
       if (error) throw error;
       
       const publicUrl = supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl
-      const profileUpdateError = await spSetUserProfileImageUrl(user!.user_id, publicUrl);
+      const profileUpdateError = await spSetUserProfileImageUrl(user!.user_id, publicUrl, width, height);
       if (profileUpdateError) {
         Toast.show({text1: "Error", text2: profileUpdateError.message, type: "error"})
       } else {
-        changeProfileImage(publicUrl)
+        changeProfileImage(publicUrl, width, height)
         Toast.show({text1: "Success", type: "success"})
       }
     } catch (error: any) {
@@ -128,10 +126,7 @@ const Account = () => {
       </TopBar>
       <View style={{width: '100%', alignItems: "center", justifyContent: "center"}} >
         <View style={{marginBottom: 20}} >
-          <Image
-            source={user!.image_url} 
-            style={{width: 256, height: 256}}
-            contentFit='contain' />
+          <ProfileImageBig image_url={user!.image_url} width={user!.profile_image_width} height={user!.profile_image_height} />          
           
           <Pressable onPress={handlePickPhoto} style={style.brush} >
             {
@@ -153,10 +148,12 @@ export default Account
 const style = StyleSheet.create({
   brush: {
     backgroundColor: Colors.accountColor, 
-    padding: 8, 
+    borderWidth: 2,
+    borderColor: Colors.backgroundColor,
+    padding: 10, 
     borderRadius: 42,
     position: 'absolute', 
-    right: -20,
-    bottom: -20
+    right: 4,
+    bottom: 4
   }
 })

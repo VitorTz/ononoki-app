@@ -41,7 +41,7 @@ export async function spFetchUser(
 
     const { data, error } = await supabase
         .from("users")
-        .select("username, avatars (image_url), profile_image_url")
+        .select("username, avatars (image_url), profile_image_url, profile_image_width, profile_image_height")
         .eq("user_id", user_id)
         .single()
 
@@ -62,7 +62,9 @@ export async function spFetchUser(
     return {
         username: data.username,
         user_id,
-        image_url: data.profile_image_url ? data.profile_image_url : data.avatars ? (data.avatars as any).image_url : null
+        image_url: data.profile_image_url ? data.profile_image_url : data.avatars ? (data.avatars as any).image_url : null,
+        profile_image_width: data.profile_image_width,
+        profile_image_height: data.profile_image_height
     }
 }
 
@@ -362,10 +364,15 @@ export async function spChangeUsername(user_id: string, username: string): Promi
 }
 
 
-export async function spSetUserProfileImageUrl(user_id: string, profile_image_url: string): Promise<PostgrestError | null> {
+export async function spSetUserProfileImageUrl(
+    user_id: string, 
+    profile_image_url: string,
+    profile_image_width: number,
+    profile_image_height: number
+): Promise<PostgrestError | null> {
     const { data, error } = await supabase
         .from("users")
-        .update({profile_image_url})
+        .update({profile_image_url, profile_image_width, profile_image_height})
         .eq("user_id", user_id)
     return error
 }
