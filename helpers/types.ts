@@ -108,3 +108,13 @@ export type Comment = {
     comment_total_likes: number
     user_vote_state: boolean | null
 }
+
+export type MangaCollection = {
+    collection_id: number
+    title: string
+    descr: string
+    color: string
+    cover_image_url: string
+    cover_image_width: number
+    cover_image_height: number
+}

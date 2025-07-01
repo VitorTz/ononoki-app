@@ -59,7 +59,7 @@ const MangaGrid = ({
     )
 
     return (
-        <View style={{width: '100%', flex: 1, marginBottom: 20}} >
+        <View style={{width: '100%', flex: 1, marginBottom: 42}} >
             {
                 listMode === 'FlashList' ?
                     <FlashList

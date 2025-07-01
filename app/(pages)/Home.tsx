@@ -3,6 +3,7 @@ import RandomMangaButton from '@/components/buttons/RandomMangaButton'
 import UpdateDatabase from '@/components/buttons/UpdateDatabase'
 import GenreGrid from '@/components/grid/GenreGrid'
 import LatestUpdatesGrid from '@/components/grid/LatestUpdates'
+import MangaCollectionsHorizontalGrid from '@/components/grid/MangaCollectionsHorizontalGrid'
 import MostViewGrid from '@/components/grid/MostViewsGrid'
 import RandomMangaGrid from '@/components/grid/RandomMangaGrid'
 import LateralMenu from '@/components/LateralMenu'
@@ -83,6 +84,7 @@ const Home = () => {
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
                 <View style={{gap: 20}} >
                     <GenreGrid/>
+                    <MangaCollectionsHorizontalGrid/>
                     <LatestUpdatesGrid/>
                     <MostViewGrid/>
                     <RandomMangaGrid/>

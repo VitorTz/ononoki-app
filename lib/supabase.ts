@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthError, createClient, PostgrestError, Session } from '@supabase/supabase-js';
-import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, OnonokiUser } from "../helpers/types";
+import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, MangaCollection, OnonokiUser } from "../helpers/types";
 
 // RLS ENABLE
 const supabaseUrl = "https://hfflwodueiqktdhmvfzd.supabase.co"
@@ -368,4 +368,38 @@ export async function spSetUserProfileImageUrl(user_id: string, profile_image_ur
         .update({profile_image_url})
         .eq("user_id", user_id)
     return error
+}
+
+
+export async function spFetchMangaCollections(p_offset: number = 0, p_limit: number | null = 30): Promise<MangaCollection[]> {
+    let q = supabase
+        .from("collections")
+        .select("*")
+        .order("created_at", {ascending: false})
+    
+    if (p_limit) {
+        q = q.range(p_offset * p_limit, (p_offset + 1) * p_limit)
+    }
+
+    const { data, error } = await q
+    
+    if (error) {
+        console.log(error)
+        return []
+    }
+        
+    return data as MangaCollection[]
+}
+
+
+export async function spFetchMangasByCollection(p_collection_id: number): Promise<Manga[]> {
+    const { data, error } = await supabase
+        .rpc("get_mangas_by_collection", {p_collection_id})
+
+    if (error) {
+        console.log("error spFetchMangasByCollection", error)
+        return []
+    }
+
+    return data as Manga[]
 }

@@ -1,0 +1,87 @@
+import { AppConstants } from '@/constants/AppConstants'
+import { Colors } from '@/constants/Colors'
+import { MangaCollection } from '@/helpers/types'
+import { hp, wp } from '@/helpers/util'
+import { spFetchMangaCollections } from '@/lib/supabase'
+import { useCollectionState } from '@/store/collectionsState'
+import { AppStyle } from '@/styles/AppStyle'
+import { Image } from 'expo-image'
+import { router } from 'expo-router'
+import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native'
+import Title from '../Title'
+
+
+
+const MangaCollectionsHorizontalGrid = () => {
+
+  const { collections, setCollections, setCurrentCollection } = useCollectionState()  
+  const [loading, setLoading] = useState(false)
+
+  useEffect(
+    () => {
+      const init = async () => {
+        if (collections.length == 0) {
+          setLoading(true)
+            await spFetchMangaCollections(0, 10)
+              .then(values => setCollections([...values]))
+          setLoading(false)
+        }    
+      }
+      init()
+    },
+    []
+  )
+
+
+  const onPress = () => {
+    router.navigate("/MangaCollections")
+  }
+
+  const onItemPress = (item: MangaCollection) => {
+    setCurrentCollection(item)
+    router.navigate("/(pages)/MangaCollection")
+  }
+  
+  const size = wp(35)
+
+  const renderItem = ({item}: {item: MangaCollection}) => {
+
+    return (
+      <Pressable onPress={() => onItemPress(item)} style={{alignItems: "center", justifyContent: "center", flexDirection: 'row', gap: 10, marginRight: 12, backgroundColor: item.color, padding: 10, borderRadius: 12}} >
+        <Image source={item.cover_image_url} style={{width: size, height: size, borderRadius: size, borderWidth: 4, borderColor: Colors.backgroundColor}} contentFit='cover' />
+        <Text style={[AppStyle.textRegular, {fontSize: hp(2.4), color: Colors.backgroundColor}]} >{item.title}</Text>        
+      </Pressable>
+    )
+  }
+
+  return (
+    <View style={{width: '100%', gap: 20}} >
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between"}} >
+          <Title title='Collections' iconName='folder-open-outline'/>
+          {
+            loading ?
+            <ActivityIndicator size={28} color={'white'} />
+            :
+            <Pressable onPress={onPress} hitSlop={AppConstants.hitSlopLarge} >
+                <Text style={[AppStyle.textRegular, {textDecorationLine: 'underline'}]}>view all</Text>
+            </Pressable>
+          }
+      </View>
+
+      <View style={{width: '100%'}}>
+        <FlatList
+          data={collections.slice(0, 10)}
+          keyExtractor={(item) => item.collection_id.toString()}
+          horizontal={true}
+          onEndReachedThreshold={2}
+          renderItem={renderItem}
+        />
+      </View>
+      
+    </View>
+  )
+}
+
+export default MangaCollectionsHorizontalGrid
+

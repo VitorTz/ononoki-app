@@ -55,7 +55,7 @@ const MangaCard = ({
             pathname: '/(pages)/Manga', 
             params: {manga_id: manga.manga_id}
         })
-    }    
+    }
     
     useEffect(
         () => {

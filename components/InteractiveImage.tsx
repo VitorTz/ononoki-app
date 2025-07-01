@@ -32,7 +32,7 @@ export default function InteractiveImage({
   const maxZoom = originalScale * 2
   const minZoom = originalScale
   const scale = useSharedValue(1);
-
+  const pinchScale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const baseTranslateX = useSharedValue(0);
@@ -98,29 +98,52 @@ export default function InteractiveImage({
 
   const pinch = Gesture.Pinch()
     .runOnJS(true)
-    .onUpdate((e) => {
+    .onUpdate((event) => {
       'worklet';
-      if (e.numberOfPointers < 2) { return }
-      let newScale = scale.value * e.scale;
-      if (newScale < minZoom) newScale = minZoom;
-      if (newScale > maxZoom) newScale = maxZoom;
-      scale.value = newScale;  
+      if (event.numberOfPointers < 2) { return }
+      // let newScale = scale.value * e.scale;
+      // if (newScale < minZoom) newScale = minZoom;
+      // if (newScale > maxZoom) newScale = maxZoom;
+      // scale.value = newScale;  
+      const proposedTotalAbsoluteScale = originalScale * event.scale;
+      const newTotalAbsoluteScale = clamp(proposedTotalAbsoluteScale, minZoom, maxZoom);
+      
+      // newPinchScale é o fator que, multiplicado por baseScale.value, resulta na nova escala absoluta clampada.
+      // Se baseScale.value for 0, evite divisão. (Na sua lógica, baseScale.value começa em 1).
+      const newPinchScale = scale.value !== 0 ? newTotalAbsoluteScale / scale.value : newTotalAbsoluteScale;
+
+      const incrementalScaleRatio = (pinchScale.value === 0 || pinchScale.value === 1 && newPinchScale === 1) ? 1 : newPinchScale / pinchScale.value;
+
+      if (incrementalScaleRatio !== 1 && isFinite(incrementalScaleRatio)) {
+        baseTranslateX.value = event.focalX - (event.focalX - baseTranslateX.value) * incrementalScaleRatio;
+        baseTranslateY.value = event.focalY - (event.focalY - baseTranslateY.value) * incrementalScaleRatio;
+      }
+      
+      pinchScale.value = newPinchScale;
     })
     .onEnd(() => {
-      if (scale.value >= originalScale) {
-        baseTranslateX.value = withTiming(0)
-        baseTranslateY.value = withTiming(0)
+      // if (scale.value >= originalScale) {
+      //   baseTranslateX.value = withTiming(0)
+      //   baseTranslateY.value = withTiming(0)
+      // }
+      scale.value *= pinchScale.value;
+      pinchScale.value = 1;
+
+      const finalClampedScale = clamp(scale.value, minZoom, maxZoom);
+      if (scale.value !== finalClampedScale) {
+        scale.value = withTiming(finalClampedScale);
       }
     })
     
 
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
+    const currentTotalScale = scale.value * pinchScale.value;
     return {
       transform: [
         { translateX: baseTranslateX.value + translateX.value},
         { translateY: baseTranslateY.value + translateY.value},
-        { scale: scale.value },        
+        { scale: currentTotalScale },        
       ],
     };
   });
