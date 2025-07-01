@@ -1,6 +1,7 @@
 import AddToLibray from '@/components/AddToLibrary';
 import BugReportButton from '@/components/buttons/BugReportButton';
 import HomeButton from '@/components/buttons/HomeButton';
+import MALButton from '@/components/buttons/MalButton';
 import RandomMangaButton from '@/components/buttons/RandomMangaButton';
 import ReturnButton from '@/components/buttons/ReturnButton';
 import MangaChapterGrid from '@/components/grid/MangaChapterGrid';
@@ -84,7 +85,8 @@ const MangaPage = () => {
                 style={styles.linearBackground} />
             <View style={styles.topBar} >
                 <HomeButton color={manga.color} />
-                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >
+                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >                    
+                    <MALButton mal_url='' color={manga.color} />
                     <BugReportButton color={manga.color} title={manga.title} />                    
                     <RandomMangaButton color={manga.color} />
                     <ReturnButton color={manga.color} />
@@ -93,11 +95,13 @@ const MangaPage = () => {
 
             {/* Manhwa Info */}
             <View style={styles.manhwaContainer}>
-                <Image
-                  source={manga.cover_image_url}
-                  cachePolicy={'disk'}
-                  contentFit='cover'
-                  style={styles.image} />
+                <View style={{width: '100%'}} >
+                  <Image
+                    source={manga.cover_image_url}
+                    cachePolicy={'disk'}
+                    contentFit='cover'
+                    style={styles.image} />
+                </View>
                 <View style={{alignSelf: "flex-start"}} >
                   <Text style={AppStyle.textManhwaTitle}>{manga!.title}</Text>
                   <Text style={AppStyle.textRegular}>{manga.descr}</Text>

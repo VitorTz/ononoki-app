@@ -1,11 +1,10 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { MangaCollection } from '@/helpers/types'
-import { hp, wp } from '@/helpers/util'
+import { hp } from '@/helpers/util'
 import { spFetchMangaCollections } from '@/lib/supabase'
 import { useCollectionState } from '@/store/collectionsState'
 import { AppStyle } from '@/styles/AppStyle'
-import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native'
@@ -42,14 +41,13 @@ const MangaCollectionsHorizontalGrid = () => {
     setCurrentCollection(item)
     router.navigate("/(pages)/MangaCollection")
   }
-  
-  const size = wp(35)
 
   const renderItem = ({item}: {item: MangaCollection}) => {
 
     return (
-      <Pressable onPress={() => onItemPress(item)} style={{alignItems: "center", justifyContent: "center", flexDirection: 'row', gap: 10, marginRight: 12, backgroundColor: item.color, padding: 10, borderRadius: 12}} >
-        <Image source={item.cover_image_url} style={{width: size, height: size, borderRadius: size, borderWidth: 4, borderColor: Colors.backgroundColor}} contentFit='cover' />
+      <Pressable 
+        onPress={() => onItemPress(item)} 
+        style={{alignItems: "center", justifyContent: "center", flexDirection: 'row', gap: 10, marginRight: 12, backgroundColor: Colors.ononokiBlue, paddingHorizontal: 10, paddingVertical: 12, borderRadius: 4}} >        
         <Text style={[AppStyle.textRegular, {fontSize: hp(2.4), color: Colors.backgroundColor}]} >{item.title}</Text>        
       </Pressable>
     )

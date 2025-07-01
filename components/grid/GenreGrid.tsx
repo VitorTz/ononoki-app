@@ -6,6 +6,7 @@ import { router } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useEffect, useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import Title from '../Title'
 
 
 const GenreGrid = () => {
@@ -35,6 +36,7 @@ const GenreGrid = () => {
 
     return (
         <View style={styles.container} >
+            <Title title='Genres' />            
             <FlatList
                 data={genres}
                 keyExtractor={(item, index) => index.toString()}
@@ -55,7 +57,8 @@ export default GenreGrid
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        gap: 10
+        gap: 20,
+        alignItems: "flex-start"
     },
     button: {
         paddingHorizontal: 10,
@@ -65,5 +68,5 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         backgroundColor: Colors.ononokiBlue,
         marginRight: 10
-    }   
+    }
 })

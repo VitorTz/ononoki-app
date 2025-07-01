@@ -7,7 +7,7 @@ import { Text, View } from 'react-native'
 
 interface TitleProps {
     title: string
-    iconName: string
+    iconName?: string
     textColor?: string
     iconColor?: string
 }
@@ -16,7 +16,7 @@ const Title = ({title, iconName, textColor = Colors.white, iconColor = Colors.wh
   return (
     <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 10}} >
         <Text style={[AppStyle.textHeader, {fontSize: 24, color: textColor}]}>{title}</Text>
-        <Ionicons name={iconName as any} size={28} color={iconColor} />
+        {iconName && <Ionicons name={iconName as any} size={28} color={iconColor} />}
     </View>
   )
 }
