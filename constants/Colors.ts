@@ -28,6 +28,7 @@ export const Colors = {
 
   backgroundColor: "#111419",
   accountColor: "#D38B5D",
+  peopleColor: "#FFFD82",
   accentColor: "#2C2C2C",
   mangaStatusColor: "#FFFDEC",
   disclaimerColor: "#C3C3C3",

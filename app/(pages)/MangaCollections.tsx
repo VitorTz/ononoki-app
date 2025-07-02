@@ -2,7 +2,7 @@ import TopBar from '@/components/TopBar'
 import ReturnButton from '@/components/buttons/ReturnButton'
 import { Colors } from '@/constants/Colors'
 import { MangaCollection } from '@/helpers/types'
-import { spFetchMangaCollections } from '@/lib/supabase'
+import { spFetchMangaCollections, spUpdateCollectionViews } from '@/lib/supabase'
 import { useCollectionState } from '@/store/collectionsState'
 import { AppStyle } from '@/styles/AppStyle'
 import { FlashList } from '@shopify/flash-list'
@@ -29,6 +29,7 @@ const MangaCollections = () => {
 
     const onItemPress = (item: MangaCollection) => {
         setCurrentCollection(item)
+        spUpdateCollectionViews(item.collection_id)
         router.navigate("/(pages)/MangaCollection")
     }    
     

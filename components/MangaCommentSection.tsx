@@ -61,15 +61,15 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
     const downColor = userVote == false ? Colors.orange : Colors.white
 
     return (
-        <View style={{width: '100%', gap: 20, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
+        <View style={{width: '100%', gap: 10, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
             <Column style={{height: '100%'}} >
                 <Image 
                     source={comment.author_avatar_url} 
-                    style={{width: 96, height: 96, alignSelf: "flex-start"}} 
+                    style={{width: 96, height: 96, alignSelf: "flex-start", borderRadius: 4}} 
                     contentFit='cover' />
             </Column>
             <Column style={{gap: 10}} >
-                <Text style={AppStyle.textRegular} >{comment.author_username}</Text>
+                <Text style={[AppStyle.textHeader, {fontSize: 20}]} >{comment.author_username}</Text>
                 <Text style={AppStyle.textRegular}>{comment.comment_text}</Text>
                 <Row style={{width: '100%', justifyContent: "flex-start"}} >
                     {
@@ -88,7 +88,7 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
                             {
                                 userIsOwner &&
                                 <Pressable onPress={() => deleteComment(comment.comment_id)} style={{marginLeft: 10}} hitSlop={AppConstants.hitSlop} >
-                                    <Ionicons name='trash-sharp' size={22} color={Colors.white} />
+                                    <Ionicons name='trash-sharp' size={18} color={Colors.white} />
                                 </Pressable>
                             }
                         </Row>
@@ -163,7 +163,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
             const c: Comment = {
                 user_vote_state: null,
                 author_username : user.username,
-                author_avatar_url: user.image_url,
+                author_avatar_url: user.profile_image_url,
                 author_user_id: user.user_id,
                 comment_id,
                 comment_text: t,
@@ -191,7 +191,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
     return (
         <View style={{width: '100%', gap: 20, alignItems: "center", justifyContent: "flex-start"}} >            
             <View style={{ width: '100%', flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
-                <Image source={user.image_url} style={styles.image} contentFit='cover' />
+                <Image source={user.profile_image_url} style={styles.image} contentFit='cover' />
                 <Text style={[AppStyle.textHeader, {alignSelf: "flex-end", fontSize: 22}]}>{user!.username}</Text>
             </View>
             <View style={{width: '100%', flex: 1, gap: 20}} >
@@ -205,9 +205,12 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
                     onChangeText={setText}
                 />                
                 <View style={{flexDirection: 'row', gap: 20, alignItems: "center", justifyContent: "flex-end"}} >
-                    <Pressable onPress={clearText} hitSlop={AppConstants.hitSlop} style={styles.sendCommentButton} >
-                        <Ionicons name='close-circle-sharp' size={28} color={Colors.white} />
-                    </Pressable>
+                    {
+                        text && 
+                        <Pressable onPress={clearText} hitSlop={AppConstants.hitSlop} style={styles.sendCommentButton} >
+                            <Ionicons name='close-circle-sharp' size={28} color={Colors.white} />
+                        </Pressable>
+                    }
                     {
                         loading ?
                         <View style={styles.sendCommentButton} >
@@ -340,6 +343,7 @@ const styles = StyleSheet.create({
     image: {
         width: 32, 
         height: 32, 
-        alignSelf: "flex-start"
+        alignSelf: "flex-start",
+        borderRadius: 4
     }
 })

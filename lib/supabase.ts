@@ -41,7 +41,7 @@ export async function spFetchUser(
 
     const { data, error } = await supabase
         .from("users")
-        .select("username, avatars (image_url), profile_image_url, profile_image_width, profile_image_height")
+        .select("username, profile_image_url, profile_image_width, profile_image_height")
         .eq("user_id", user_id)
         .single()
 
@@ -62,7 +62,7 @@ export async function spFetchUser(
     return {
         username: data.username,
         user_id,
-        image_url: data.profile_image_url ? data.profile_image_url : data.avatars ? (data.avatars as any).image_url : null,
+        profile_image_url: data.profile_image_url,
         profile_image_width: data.profile_image_width,
         profile_image_height: data.profile_image_height
     }
@@ -356,7 +356,7 @@ export async function spDeleteComment(comment_id: number): Promise<boolean> {
 }
 
 export async function spChangeUsername(user_id: string, username: string): Promise<PostgrestError | null> {
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from("users")
         .update({username})
         .eq("user_id", user_id)
@@ -370,7 +370,7 @@ export async function spSetUserProfileImageUrl(
     profile_image_width: number,
     profile_image_height: number
 ): Promise<PostgrestError | null> {
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from("users")
         .update({profile_image_url, profile_image_width, profile_image_height})
         .eq("user_id", user_id)
@@ -409,4 +409,32 @@ export async function spFetchMangasByCollection(p_collection_id: number): Promis
     }
 
     return data as Manga[]
+}
+
+
+export async function spUpdateCollectionViews(p_collection_id: number) {
+    const { error } = await supabase
+        .rpc('increment_collection_views', {p_collection_id})
+
+    if (error) {
+        console.log("error spUpdateCollectionViews", error)
+    }
+}
+
+
+export async function spFetchUsers(
+    p_ignore_user: string | null, 
+    p_username: string | null = null,
+    p_offset: number = 0, 
+    p_limit: number = 30
+): Promise<OnonokiUser[]> {
+    const { data, error } = await supabase
+        .rpc("get_users", {p_ignore_user, p_username, p_offset, p_limit})
+
+    if (error) {
+        console.log("error spFetchUsers", error)
+        return []
+    }
+
+    return data
 }

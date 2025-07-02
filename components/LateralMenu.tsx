@@ -73,7 +73,11 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     
     const accountPage = () => {
         router.navigate("/(pages)/Account")
-    }    
+    }
+
+    const usersPage = () => {
+        router.navigate("/(pages)/UsersPage")
+    }
 
     const loginPage = () => {
         router.navigate("/(auth)/SignIn")
@@ -100,12 +104,12 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     }
 
     const handleLogout = async () => {
-        await supabase.auth.signOut()
+        await supabase.auth.signOut().catch(e => console.log(e))
         await dbClearTable(db, 'reading_status')
         logout()
         while (router.canGoBack()) {
             router.back();
-        }        
+        }
         router.replace("/(pages)/Home")
     }
 
@@ -140,7 +144,14 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                         iconName='log-in'
                         iconColor={Colors.accountColor}
                     />
-                }                
+                }
+
+                <Option 
+                    onPress={usersPage} 
+                    title='Users' 
+                    iconName='people-outline'
+                    iconColor={Colors.peopleColor}
+                />
 
                 <Option 
                     onPress={libraryPage} 

@@ -133,9 +133,9 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
 
   return (
     <View style={{flex: 1}} >
-      <View style={{paddingHorizontal: wp(5), paddingVertical: 8}} >
+      <View style={{paddingHorizontal: wp(5), paddingTop: 26, paddingVertical: 8}} >
         <TopBar title={mangaTitle!} >
-          <ReturnButton backgroundColor={Colors.black} />
+          <ReturnButton backgroundColor={Colors.backgroundColor} />
         </TopBar>
 
         <Row style={{justifyContent: "space-between", marginBottom: 20}} >

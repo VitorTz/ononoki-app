@@ -44,7 +44,10 @@ export default ChapterPage
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 0, 
-    paddingVertical: 0,   
-    backgroundColor: Colors.black
+    paddingVertical: 0,  
+    paddingTop: 0,
+    marginBottom: 0,
+    marginTop: 0, 
+    backgroundColor: Colors.backgroundColor
   }
 })

@@ -58,7 +58,7 @@ export type Genre = {
 export type OnonokiUser = {
     username: string
     user_id: string
-    image_url: string
+    profile_image_url: string
     profile_image_width: number
     profile_image_height: number
 }

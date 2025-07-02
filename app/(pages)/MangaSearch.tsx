@@ -72,7 +72,7 @@ const SearchManhwa = () => {
         <ReturnButton/>
       </TopBar>
       <View style={{flex: 1, gap: 10}} >
-        <SearchBar onChangeValue={debounceSearch} />      
+        <SearchBar onChangeValue={debounceSearch} />
         <MangaGrid
           mangas={manhwas}
           loading={loading}

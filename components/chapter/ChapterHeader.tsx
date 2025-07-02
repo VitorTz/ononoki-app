@@ -38,9 +38,9 @@ const ChapterHeader = ({
   }  
 
   return (
-    <View style={{width: '100%', paddingHorizontal: wp(5), paddingBottom: 8}} >
+    <View style={{width: '100%', paddingHorizontal: wp(5), paddingTop: 26, paddingBottom: 8}} >
       <TopBar title={mangaTitle} >
-        <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
+        <ReturnButton onPress={exitChapter} backgroundColor={Colors.backgroundColor} />
       </TopBar>
 
       <Row style={{gap: 10, justifyContent: "space-between", marginBottom: 20}} >            

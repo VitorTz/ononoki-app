@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors'
 import { MangaCollection } from '@/helpers/types'
-import { spFetchMangaCollections } from '@/lib/supabase'
+import { spFetchMangaCollections, spUpdateCollectionViews } from '@/lib/supabase'
 import { useCollectionState } from '@/store/collectionsState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
@@ -38,6 +38,7 @@ const MangaCollectionsHorizontalGrid = () => {
 
   const onItemPress = (item: MangaCollection) => {
     setCurrentCollection(item)
+    spUpdateCollectionViews(item.collection_id)
     router.navigate("/(pages)/MangaCollection")
   }
 

@@ -26,14 +26,14 @@ export const useAuthState = create<AuthState>(
             set((state) => {
                 return {
                     ...state, 
-                    user: {image_url: state.user!.image_url, user_id: state.user!.user_id, username, profile_image_width: state.user!.profile_image_width, profile_image_height: state.user!.profile_image_height}}
+                    user: {profile_image_url: state.user!.profile_image_url, user_id: state.user!.user_id, username, profile_image_width: state.user!.profile_image_width, profile_image_height: state.user!.profile_image_height}}
             })
         },
         changeProfileImage: (image_url: string, width: number, height: number) => {
             set((state) => {
                 return {
                     ...state, 
-                    user: {image_url: image_url, user_id: state.user!.user_id, username: state.user!.username, profile_image_width: width, profile_image_height: height}}
+                    user: {profile_image_url: image_url, user_id: state.user!.user_id, username: state.user!.username, profile_image_width: width, profile_image_height: height}}
             })
         }
     })

@@ -116,7 +116,7 @@ const ChangeProfileImageForm = () => {
   return (
     <View style={{width: '100%', alignItems: "center", justifyContent: "center"}} >
         <View style={{marginBottom: 20}} >
-          <ProfileImageBig image_url={user!.image_url} width={user!.profile_image_width} height={user!.profile_image_height} />          
+          <ProfileImageBig image_url={user!.profile_image_url} width={user!.profile_image_width} height={user!.profile_image_height} />          
           <Pressable onPress={handlePickPhoto} style={styles.brush} >
             {
               loading ? 
