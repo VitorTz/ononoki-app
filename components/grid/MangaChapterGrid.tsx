@@ -65,8 +65,6 @@ const ChapterPageSelector = ({
   moveToNextChapterPage,
   numChapters
 }: ChapterPageSelectorProps) => {
-
-
   return (
     <View style={{width: '100%', gap: 10, flexDirection: 'row'}} >
       <View style={{flex: 1, alignItems: "center", justifyContent: "center", height: 52, borderRadius: 4, backgroundColor: mangaColor}} >

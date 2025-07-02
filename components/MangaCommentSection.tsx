@@ -108,19 +108,18 @@ interface CommentListProps {
 
 
 const CommentList = ({loading, comments, deleteComment}: CommentListProps) => {    
+    if (loading) {
+        return (
+            <ActivityIndicator size={32} color={Colors.white} />
+        )
+    }
 
     return (
-        <>
-        {
-            loading ?
-            <ActivityIndicator size={32} color={Colors.white} /> : 
-            <View style={{width: '100%', gap: 30, alignItems: "center", justifyContent: "flex-start"}} >
-                {
-                    comments.map(item => <CommentComponent deleteComment={deleteComment} key={item.comment_id} comment={item} />)
-                }
-            </View>
-        }
-        </>
+        <View style={{width: '100%', gap: 30, alignItems: "center", justifyContent: "flex-start"}} >
+            {
+                comments.map(item => <CommentComponent deleteComment={deleteComment} key={item.comment_id} comment={item} />)
+            }
+        </View>
     )
 }
 
@@ -181,46 +180,45 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
         setText('')
     }
 
-    return (
-        <View style={{width: '100%', gap: 20, alignItems: "center", justifyContent: "flex-start"}} >
-            {
-                user ? 
-                <>
-                    <View style={{ width: '100%', flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
-                        <Image source={user.image_url} style={styles.image} contentFit='cover' />
-                        <Text style={[AppStyle.textHeader, {alignSelf: "flex-end", fontSize: 22}]}>{user!.username}</Text>
-                    </View>
-                    <View style={{width: '100%', flex: 1, gap: 20}} >
-                        <TextInput
-                            placeholder='Write a comment...'
-                            placeholderTextColor={Colors.white}
-                            style={{padding: 10, width: '100%', borderRadius: 4, height: hp(20), backgroundColor: Colors.gray, color: Colors.white, fontFamily: "LeagueSpartan_400Regular", fontSize: 18}}
-                            multiline={true}
-                            textAlignVertical='top'
-                            value={text}
-                            onChangeText={setText}
-                        />                
-                        <View style={{flexDirection: 'row', gap: 20, alignItems: "center", justifyContent: "flex-end"}} >
-                            <Pressable onPress={clearText} hitSlop={AppConstants.hitSlop} style={styles.sendCommentButton} >
-                                <Ionicons name='close-circle-sharp' size={28} color={Colors.white} />
-                            </Pressable>
-                            {
-                                loading ?
-                                <View style={styles.sendCommentButton} >
-                                    <ActivityIndicator size={28} color={Colors.white} />
-                                </View> :
-                                <Pressable onPress={sendComment} style={styles.sendCommentButton} hitSlop={AppConstants.hitSlop} >
-                                    <Ionicons name='send-sharp' size={28} color={Colors.white} />
-                                </Pressable>
-                            }
-                        </View>
-                    </View>
-                </> :
+    if (!user) {
+        return (
+            <View style={{width: '100%', gap: 20, alignItems: "center", justifyContent: "flex-start"}} >
+                <Text style={AppStyle.error}>You need to be logged to comment</Text>
+            </View>    
+        )
+    }
 
-                <View style={{alignSelf: "flex-start"}} >
-                    <Text style={AppStyle.error}>You need to be logged to comment</Text>
+    return (
+        <View style={{width: '100%', gap: 20, alignItems: "center", justifyContent: "flex-start"}} >            
+            <View style={{ width: '100%', flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
+                <Image source={user.image_url} style={styles.image} contentFit='cover' />
+                <Text style={[AppStyle.textHeader, {alignSelf: "flex-end", fontSize: 22}]}>{user!.username}</Text>
+            </View>
+            <View style={{width: '100%', flex: 1, gap: 20}} >
+                <TextInput
+                    placeholder='Write a comment...'
+                    placeholderTextColor={Colors.white}
+                    style={{padding: 10, width: '100%', borderRadius: 4, height: hp(20), backgroundColor: Colors.gray, color: Colors.white, fontFamily: "LeagueSpartan_400Regular", fontSize: 18}}
+                    multiline={true}
+                    textAlignVertical='top'
+                    value={text}
+                    onChangeText={setText}
+                />                
+                <View style={{flexDirection: 'row', gap: 20, alignItems: "center", justifyContent: "flex-end"}} >
+                    <Pressable onPress={clearText} hitSlop={AppConstants.hitSlop} style={styles.sendCommentButton} >
+                        <Ionicons name='close-circle-sharp' size={28} color={Colors.white} />
+                    </Pressable>
+                    {
+                        loading ?
+                        <View style={styles.sendCommentButton} >
+                            <ActivityIndicator size={28} color={Colors.white} />
+                        </View> :
+                        <Pressable onPress={sendComment} style={styles.sendCommentButton} hitSlop={AppConstants.hitSlop} >
+                            <Ionicons name='send-sharp' size={28} color={Colors.white} />
+                        </Pressable>
+                    }
                 </View>
-            }
+            </View>
         </View>
     )
 }

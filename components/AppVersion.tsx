@@ -1,7 +1,7 @@
 import { useAppVersionState } from '@/store/appReleaseState'
 import { AppStyle } from '@/styles/AppStyle'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
 const AppVersion = () => {
 
@@ -18,5 +18,3 @@ const AppVersion = () => {
 }
 
 export default AppVersion
-
-const styles = StyleSheet.create({})

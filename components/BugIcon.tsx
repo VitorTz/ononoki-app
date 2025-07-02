@@ -15,5 +15,4 @@ const BugIcon = ({size = 28, color = Colors.BugReportColor}: BugIconProps) => {
   )
 }
 
-
 export default BugIcon

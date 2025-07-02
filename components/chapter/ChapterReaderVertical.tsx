@@ -1,8 +1,7 @@
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { FlashList } from '@shopify/flash-list'
 import { Image } from 'expo-image'
 import React, { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Dimensions, Pressable, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
   runOnJS,
@@ -11,7 +10,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
-import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { Chapter, ChapterImage } from '@/helpers/types'
 import { hp, wp } from '@/helpers/util'
@@ -19,13 +17,15 @@ import { dbUpsertReadingHistory } from '@/lib/database'
 import { spFetchChapterImages } from '@/lib/supabase'
 import { useChapterState } from '@/store/chapterState'
 import { useSQLiteContext } from 'expo-sqlite'
+import ChapterArrowUpButton from '../buttons/ChapterArrowUpButton'
 import ChapterFooter from './ChapterFooter'
 import ChapterHeader from './ChapterHeader'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
+
 const MAX_WIDTH = wp(100)
 
-export default function ChapterReaderVertical({ mangaTitle }: { mangaTitle: string }) {
+const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
+
   const db = useSQLiteContext()
   const { chapters, currentChapterIndex, setCurrentChapterIndex } = useChapterState()
   const [images, setImages] = useState<ChapterImage[]>([])
@@ -121,59 +121,46 @@ export default function ChapterReaderVertical({ mangaTitle }: { mangaTitle: stri
 
   return (
     <View style={{flex: 1}} >
-           <ChapterHeader
-             mangaTitle={mangaTitle}
-             currentChapter={currentChapter}
-             loading={loading}
-             goToNextChapter={goToNextChapter}
-             goToPreviousChapter={goToPreviousChapter}
-           />      
-    <GestureDetector gesture={pinchGesture}>
-      <Animated.View style={[styles.container, animatedStyle]}>
-        <FlashList
-          data={images}
-          ref={flashListRef}
-          keyExtractor={(item) => item.image_url}
-          renderItem={renderItem}
-          estimatedItemSize={hp(50)}
-          drawDistance={hp(300)}
-          onEndReachedThreshold={3}          
-          ListFooterComponent={
-            <ChapterFooter
-              mangaTitle={mangaTitle}
-              currentChapter={currentChapter}
-              loading={loading}
-              goToNextChapter={goToNextChapter}
-              goToPreviousChapter={goToPreviousChapter}
-            />
-          }
-          ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
-        />
-
-        <Pressable
-          onPress={scrollToTop}
-          hitSlop={AppConstants.hitSlopLarge}
-          style={styles.arrowUp}
-        >
-          <Ionicons name="arrow-up-outline" size={20} color="rgba(0,0,0,0.3)" />
-        </Pressable>
-      </Animated.View>
-    </GestureDetector>
+      <ChapterHeader
+        mangaTitle={mangaTitle}
+        currentChapter={currentChapter}
+        loading={loading}
+        goToNextChapter={goToNextChapter}
+        goToPreviousChapter={goToPreviousChapter}
+      />
+      <GestureDetector gesture={pinchGesture}>
+        <Animated.View style={[styles.container, animatedStyle]}>
+          <FlashList
+            data={images}
+            ref={flashListRef}
+            keyExtractor={(item) => item.image_url}
+            renderItem={renderItem}
+            estimatedItemSize={hp(50)}
+            drawDistance={hp(300)}
+            onEndReachedThreshold={3}          
+            ListFooterComponent={
+              <ChapterFooter
+                mangaTitle={mangaTitle}
+                currentChapter={currentChapter}
+                loading={loading}
+                goToNextChapter={goToNextChapter}
+                goToPreviousChapter={goToPreviousChapter}
+              />
+            }
+            ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
+          />
+          <ChapterArrowUpButton onPress={scrollToTop} />
+        </Animated.View>
+      </GestureDetector>
     </View>
   )
 }
+
+export default ChapterReaderVertical
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.black,
-  },
-  arrowUp: {
-    position: 'absolute',
-    bottom: 80,
-    right: 12,
-    padding: 6,
-    borderRadius: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
+  }  
 })
