@@ -2,12 +2,8 @@ import { FlashList } from '@shopify/flash-list'
 import { Image } from 'expo-image'
 import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+import {
+  runOnJS
 } from 'react-native-reanimated'
 
 import { Colors } from '@/constants/Colors'
@@ -34,37 +30,37 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
 
   const currentChapter: Chapter = chapters[currentChapterIndex]
 
-  // Estado compartilhado de escala
-  const scale = useSharedValue(1)
-  const savedScale = useSharedValue(1)
+  // // Estado compartilhado de escala
+  // const scale = useSharedValue(1)
+  // const savedScale = useSharedValue(1)
 
-  // Gesture Pinch
-  const pinchGesture = Gesture.Pinch()
-    .onUpdate((e) => {
-      // aplica escala relativa ao último valor salvo
-      scale.value = savedScale.value * e.scale
-      if (scale.value < 1) {
-        scale.value = 1
-      }
-    })
-    .onEnd(() => {
-      // ao terminar o gesto, salvamos a escala para ser usada como base no próximo gesto
-      savedScale.value = scale.value
-      // opcional: limitar valores de zoom
-      if (savedScale.value < 1) {
-        savedScale.value = 1
-        scale.value = withTiming(1)
-      }
-      if (savedScale.value > 2.5) {
-        savedScale.value = 2.5
-        scale.value = withTiming(2.5)
-      }
-    })
+  // // Gesture Pinch
+  // const pinchGesture = Gesture.Pinch()
+  //   .onUpdate((e) => {
+  //     // aplica escala relativa ao último valor salvo
+  //     scale.value = savedScale.value * e.scale
+  //     if (scale.value < 1) {
+  //       scale.value = 1
+  //     }
+  //   })
+  //   .onEnd(() => {
+  //     // ao terminar o gesto, salvamos a escala para ser usada como base no próximo gesto
+  //     savedScale.value = scale.value
+  //     // opcional: limitar valores de zoom
+  //     if (savedScale.value < 1) {
+  //       savedScale.value = 1
+  //       scale.value = withTiming(1)
+  //     }
+  //     if (savedScale.value > 2.5) {
+  //       savedScale.value = 2.5
+  //       scale.value = withTiming(2.5)
+  //     }
+  //   })
 
-  // estilo animado aplicado ao container de imagens
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }))
+  // // estilo animado aplicado ao container de imagens
+  // const animatedStyle = useAnimatedStyle(() => ({
+  //   transform: [{ scale: scale.value }],
+  // }))
 
   const scrollToTop = () => {
     flashListRef.current?.scrollToOffset({ animated: false, offset: 0 })
@@ -100,8 +96,8 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
           currentChapter.chapter_num
         )
         // reset zoom ao mudar de capítulo
-        savedScale.value = 1
-        scale.value = withTiming(1)
+        // savedScale.value = 1
+        // scale.value = withTiming(1)
       }
     }
     load()
@@ -121,23 +117,23 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
 
   return (
     <View style={{flex: 1}} >
-      <ChapterHeader
-        mangaTitle={mangaTitle}
-        currentChapter={currentChapter}
-        loading={loading}
-        goToNextChapter={goToNextChapter}
-        goToPreviousChapter={goToPreviousChapter}
-      />
-      <GestureDetector gesture={pinchGesture}>
-        <Animated.View style={[styles.container, animatedStyle]}>
-          <FlashList
+      <FlashList
             data={images}
             ref={flashListRef}
             keyExtractor={(item) => item.image_url}
             renderItem={renderItem}
             estimatedItemSize={hp(50)}
             drawDistance={hp(300)}
-            onEndReachedThreshold={3}          
+            onEndReachedThreshold={3}            
+            ListHeaderComponent={
+              <ChapterHeader
+                mangaTitle={mangaTitle}
+                currentChapter={currentChapter}
+                loading={loading}
+                goToNextChapter={goToNextChapter}
+                goToPreviousChapter={goToPreviousChapter}
+              />
+            }
             ListFooterComponent={
               <ChapterFooter
                 mangaTitle={mangaTitle}
@@ -150,10 +146,44 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
             ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
           />
           <ChapterArrowUpButton onPress={scrollToTop} />
-        </Animated.View>
-      </GestureDetector>
     </View>
   )
+
+  // return (
+  //   <View style={{flex: 1}} >
+  //     <ChapterHeader
+  //       mangaTitle={mangaTitle}
+  //       currentChapter={currentChapter}
+  //       loading={loading}
+  //       goToNextChapter={goToNextChapter}
+  //       goToPreviousChapter={goToPreviousChapter}
+  //     />
+  //     <GestureDetector gesture={pinchGesture}>
+  //       <Animated.View style={[styles.container, animatedStyle]}>
+  //         <FlashList
+  //           data={images}
+  //           ref={flashListRef}
+  //           keyExtractor={(item) => item.image_url}
+  //           renderItem={renderItem}
+  //           estimatedItemSize={hp(50)}
+  //           drawDistance={hp(300)}
+  //           onEndReachedThreshold={3}            
+  //           ListFooterComponent={
+  //             <ChapterFooter
+  //               mangaTitle={mangaTitle}
+  //               currentChapter={currentChapter}
+  //               loading={loading}
+  //               goToNextChapter={goToNextChapter}
+  //               goToPreviousChapter={goToPreviousChapter}
+  //             />
+  //           }
+  //           ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
+  //         />
+  //         <ChapterArrowUpButton onPress={scrollToTop} />
+  //       </Animated.View>
+  //     </GestureDetector>
+  //   </View>
+  // )
 }
 
 export default ChapterReaderVertical

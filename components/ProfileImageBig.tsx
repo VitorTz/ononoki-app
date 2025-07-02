@@ -10,7 +10,7 @@ interface ProfileImageBigProps {
 
 
 const MAX_WIDTH = wp(90)
-const MAX_HEIGHT = hp(50)
+const MAX_HEIGHT = hp(60)
 
 
 const ProfileImageBig = ({image_url, width, height}: ProfileImageBigProps) => {
@@ -21,7 +21,7 @@ const ProfileImageBig = ({image_url, width, height}: ProfileImageBigProps) => {
     return (
         <Image
             source={image_url} 
-            style={{width: w, height: h > MAX_HEIGHT ? MAX_HEIGHT : h, borderRadius: 4}}
+            style={{width: w, height: h > MAX_HEIGHT ? MAX_HEIGHT : h}}
             contentFit='contain' 
         />
     )
