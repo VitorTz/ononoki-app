@@ -1,7 +1,6 @@
 import { hp, wp } from '@/helpers/util'
 import { Image } from 'expo-image'
 import React from 'react'
-import { StyleSheet } from 'react-native'
 
 interface ProfileImageBigProps {
     image_url: string
@@ -22,12 +21,10 @@ const ProfileImageBig = ({image_url, width, height}: ProfileImageBigProps) => {
     return (
         <Image
             source={image_url} 
-            style={{width: w, height: h > MAX_HEIGHT ? MAX_HEIGHT : h }}
+            style={{width: w, height: h > MAX_HEIGHT ? MAX_HEIGHT : h, borderRadius: 4}}
             contentFit='contain' 
         />
     )
 }
 
 export default ProfileImageBig
-
-const styles = StyleSheet.create({})

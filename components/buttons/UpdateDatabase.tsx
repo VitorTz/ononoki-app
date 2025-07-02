@@ -15,7 +15,7 @@ interface UpdateDatabaseProps {
 }
 
 
-const UpdateDatabase = ({
+const UpdateDatabaseButton = ({
     iconSize = 28, 
     iconColor = Colors.white,
     type
@@ -74,4 +74,4 @@ const UpdateDatabase = ({
     )
 }
 
-export default UpdateDatabase
+export default UpdateDatabaseButton

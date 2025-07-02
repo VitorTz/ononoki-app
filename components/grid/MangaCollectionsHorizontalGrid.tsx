@@ -1,14 +1,13 @@
-import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { MangaCollection } from '@/helpers/types'
-import { hp } from '@/helpers/util'
 import { spFetchMangaCollections } from '@/lib/supabase'
 import { useCollectionState } from '@/store/collectionsState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import Title from '../Title'
+import ViewAllButton from '../buttons/ViewAllButton'
 
 
 
@@ -33,7 +32,7 @@ const MangaCollectionsHorizontalGrid = () => {
   )
 
 
-  const onPress = () => {
+  const onViewAllPress = () => {
     router.navigate("/MangaCollections")
   }
 
@@ -43,12 +42,11 @@ const MangaCollectionsHorizontalGrid = () => {
   }
 
   const renderItem = ({item}: {item: MangaCollection}) => {
-
     return (
       <Pressable 
         onPress={() => onItemPress(item)} 
-        style={{alignItems: "center", justifyContent: "center", flexDirection: 'row', gap: 10, marginRight: 12, backgroundColor: Colors.ononokiBlue, paddingHorizontal: 10, paddingVertical: 12, borderRadius: 4}} >        
-        <Text style={[AppStyle.textRegular, {fontSize: hp(2.4), color: Colors.backgroundColor}]} >{item.title}</Text>        
+        style={styles.item} >
+        <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]} >{item.title}</Text>        
       </Pressable>
     )
   }
@@ -61,9 +59,7 @@ const MangaCollectionsHorizontalGrid = () => {
             loading ?
             <ActivityIndicator size={28} color={'white'} />
             :
-            <Pressable onPress={onPress} hitSlop={AppConstants.hitSlopLarge} >
-                <Text style={[AppStyle.textRegular, {textDecorationLine: 'underline'}]}>view all</Text>
-            </Pressable>
+            <ViewAllButton onPress={onViewAllPress} />
           }
       </View>
 
@@ -73,6 +69,7 @@ const MangaCollectionsHorizontalGrid = () => {
           keyExtractor={(item) => item.collection_id.toString()}
           horizontal={true}
           onEndReachedThreshold={2}
+          showsHorizontalScrollIndicator={false}
           renderItem={renderItem}
         />
       </View>
@@ -83,3 +80,16 @@ const MangaCollectionsHorizontalGrid = () => {
 
 export default MangaCollectionsHorizontalGrid
 
+const styles = StyleSheet.create({
+  item: {
+    alignItems: "center", 
+    justifyContent: "center", 
+    flexDirection: 'row', 
+    gap: 10, 
+    marginRight: 10, 
+    backgroundColor: Colors.ononokiBlue, 
+    paddingHorizontal: 10, 
+    paddingVertical: 12,
+    borderRadius: 4
+  }
+})

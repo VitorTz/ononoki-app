@@ -1,3 +1,4 @@
+import AppLogo from '@/components/util/Logo';
 import { Colors } from '@/constants/Colors';
 import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbReadAppInfo, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
 import { spFetchUser, spGetSession, supabase } from '@/lib/supabase';
@@ -23,7 +24,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, AppState, SafeAreaView, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, SafeAreaView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 
@@ -63,6 +64,7 @@ const App = () => {
 
         if (!session) { 
             await dbClearTable(db, 'reading_status')
+            logout()
             return 
         }
 
@@ -92,9 +94,16 @@ const App = () => {
                     return
                 }
                 
-                await dbGetAppVersion(db).then(value => setLocalVersion(value))
+                await dbGetAppVersion(db)
+                    .then(value => setLocalVersion(value))
+
                 await initSession()
                 
+                const readMode = await dbReadAppInfo(db, 'read_mode')
+                if (readMode == 'List' || readMode == 'Page') {
+                    setMode(readMode)
+                }
+
                 const shouldUpdate = await dbShouldUpdate(db, 'server')
                 if (shouldUpdate) {
                     Toast.show({text1: "Synchronizing local database...", type: "info"})
@@ -103,11 +112,6 @@ const App = () => {
                     Toast.show({text1: "Sync completed", type: "info"})
                 }
 
-                const readMode = await dbReadAppInfo(db, 'read_mode')
-                if (readMode == 'List' || readMode == 'Page') {
-                    setMode(readMode)
-                }
-            
                 router.replace("/(pages)/Home")
             }
             init()
@@ -115,14 +119,13 @@ const App = () => {
         [fontsLoaded]
     )  
 
-
     return (
         <SafeAreaView style={AppStyle.safeArea} >
             <View style={{width: '100%', 
                 flexDirection: 'row',             
                 alignItems: "center", 
                 justifyContent: "space-between"}} >
-                <Text style={[AppStyle.textHeader, {fontSize: 30, color: Colors.ononokiBlue}]}>Ononoki</Text>                
+                <AppLogo/>
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 16}} >
                     <Ionicons name='sync-outline' size={28} color={Colors.white} />
                     <Ionicons name='search-outline' size={28} color={Colors.white} />

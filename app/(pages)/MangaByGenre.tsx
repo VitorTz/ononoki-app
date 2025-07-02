@@ -25,14 +25,15 @@ const MangaByGenre = () => {
     const [loading, setLoading] = useState(false)
     const hasResults = useRef(true)
     const page = useRef(0)
-    const isInitialized = useRef(false)    
+    const isInitialized = useRef(false)
 
     useEffect(
         () => {
             async function init() {
-              await dbReadMangasByGenreId(db, genre_id, 0, PAGE_LIMIT)
-                .then(values => setManhwas(values))
-              isInitialized.current = true        
+                await dbReadMangasByGenreId(db, genre_id, 0, PAGE_LIMIT)
+                    .then(values => setManhwas([...values]))
+                    .catch(e => setManhwas([]))
+                isInitialized.current = true
             }
             init()
         },
@@ -45,11 +46,11 @@ const MangaByGenre = () => {
         }
         page.current += 1
         setLoading(true)
-        await dbReadMangasByGenreId(db, genre_id, page.current * PAGE_LIMIT, PAGE_LIMIT)
-            .then(values => {
-                hasResults.current = values.length > 0
-                setManhwas(prev => [...prev, ...values])
-            })
+            await dbReadMangasByGenreId(db, genre_id, page.current * PAGE_LIMIT, PAGE_LIMIT)
+                .then(values => {
+                    hasResults.current = values.length > 0
+                    setManhwas(prev => [...prev, ...values])
+                })
         setLoading(false)
     }  
 

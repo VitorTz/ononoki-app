@@ -11,7 +11,7 @@ import { FlashList } from '@shopify/flash-list'
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 
 
@@ -70,7 +70,7 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
         {
           loading ?
           <View style={{paddingVertical: 20, alignItems: "center", justifyContent: "center"}} >
-            <ActivityIndicator size={32} color={Colors.white} />
+            <ActivityIndicator size={32} color={log.color} />
           </View>
           :
           <View style={styles.itemGrid} >
@@ -103,17 +103,18 @@ const ReadHistory = () => {
   const [logs, setLogs] = useState<ChapterReadLog[]>([])
   const [loading, setLoading] = useState(false)
 
-  const init = useCallback(async () => {
-    await dbGetUserReadHistory(db, 0, PAGE_LIMIT)
-      .then(values => setLogs(values))
-    isInitialized.current = true
-  }, [])
-
   useEffect(
     () => {
+      const init = async () => {
+        if (isInitialized.current) { return }
+        isInitialized.current = true
+        await dbGetUserReadHistory(db, 0, PAGE_LIMIT)
+          .then(values => setLogs(values))
+          .catch(e => {console.log(e); hasResults.current = false; setLogs([])})
+      }
       init()
     },
-    []
+    [db]
   )
 
   const onEndReached = async () => {
@@ -125,6 +126,7 @@ const ReadHistory = () => {
         hasResults.current = values.length > 0
         setLogs(prev => [...prev, ...values])
       })
+      .catch(e => {console.log(e); hasResults.current = false;})
     setLoading(false)
   }
 

@@ -15,7 +15,7 @@ interface RotatingButtonProps {
 
 
 const RotatingButton = ({
-    iconName = 'reload-circle',
+    iconName = 'reload-circle-outline',
     iconSize = 32,
     iconColor = Colors.white,
     duration = 500,

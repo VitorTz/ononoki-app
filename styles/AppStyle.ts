@@ -14,7 +14,7 @@ export const AppStyle = StyleSheet.create({
         color: 'white',
         fontFamily: 'LeagueSpartan_400Regular'
     },
-    textManhwaTitle: {
+    textMangaTitle: {
         fontSize: 28,
         color: 'white',
         fontFamily: 'LeagueSpartan_600SemiBold'

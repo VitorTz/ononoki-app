@@ -4,7 +4,7 @@ import React from 'react'
 import { Text, View } from 'react-native'
 
 
-const Logo = () => {
+const AppLogo = () => {
   return (
     <View>
       <Text style={[AppStyle.textHeader, {fontSize: 30, color: Colors.ononokiBlue}]}>Ononoki</Text>
@@ -13,4 +13,4 @@ const Logo = () => {
 }
 
 
-export default Logo
+export default AppLogo

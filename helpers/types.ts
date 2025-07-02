@@ -13,6 +13,7 @@ export type Manga = {
     genres: Genre[]
     authors: MangaAuthor[]
     chapters: Chapter[]
+    mal_url: string
 }
 
 export type RatingRegister = {
@@ -114,5 +115,5 @@ export type Comment = {
 export type MangaCollection = {
     collection_id: number
     title: string
-    descr: string    
+    descr: string | null
 }

@@ -2,7 +2,6 @@ import TopBar from '@/components/TopBar'
 import ReturnButton from '@/components/buttons/ReturnButton'
 import { Colors } from '@/constants/Colors'
 import { MangaCollection } from '@/helpers/types'
-import { hp } from '@/helpers/util'
 import { spFetchMangaCollections } from '@/lib/supabase'
 import { useCollectionState } from '@/store/collectionsState'
 import { AppStyle } from '@/styles/AppStyle'
@@ -38,8 +37,8 @@ const MangaCollections = () => {
         return (
           <Pressable 
             onPress={() => onItemPress(item)} 
-            style={{alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: item.color, paddingHorizontal: 10, paddingVertical: 30, borderRadius: 12, marginBottom: 10}} >
-            <Text numberOfLines={1} style={[AppStyle.textRegular, {fontSize: hp(2.4), color: Colors.backgroundColor}]} >{item.title}</Text>                    
+            style={styles.item} >
+            <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]} >{item.title}</Text>
           </Pressable>
         )
     }
@@ -61,4 +60,15 @@ const MangaCollections = () => {
 
 export default MangaCollections
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    item: {
+        alignItems: "center", 
+        justifyContent: "center", 
+        gap: 10, 
+        backgroundColor: Colors.ononokiBlue, 
+        paddingHorizontal: 10,
+        paddingVertical: 20, 
+        borderRadius: 4, 
+        marginBottom: 10
+    }
+})

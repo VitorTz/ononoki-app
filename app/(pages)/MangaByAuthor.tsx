@@ -28,6 +28,7 @@ const MangaByAuthor = () => {
                     setLoading(true)
                     await dbReadMangasByAuthorId(db, author_id)
                         .then(values => setMangas([...values]))
+                        .catch(e => setMangas([]))
                     setLoading(false)
                 }
             }

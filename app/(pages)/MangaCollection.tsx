@@ -10,9 +10,6 @@ import React, { useEffect, useState } from 'react'
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 
-const MAX_IMAGE_WIDTH = wp(90)
-
-
 const MangaCollection = () => {
 
     const { currentCollection } = useCollectionState()
@@ -41,23 +38,21 @@ const MangaCollection = () => {
                 </TopBar>
             </SafeAreaView>
         )
-    }
-    
-    const imageWidth = currentCollection.cover_image_width > MAX_IMAGE_WIDTH ? MAX_IMAGE_WIDTH : currentCollection.cover_image_width
-    const imageHeight = imageWidth * (currentCollection.cover_image_height / currentCollection.cover_image_width)    
+    }    
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
             <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
-                
                 <TopBar title={currentCollection.title} >
                     <ReturnButton/>    
                 </TopBar>                    
-                    
-                    <View style={{gap: 20}} >                        
-                        <Text style={[AppStyle.textRegular, {fontSize: hp(2.4)}]} >
-                            {currentCollection.descr}
-                        </Text>
+                    <View style={{gap: 20}} >
+                        {
+                            currentCollection.descr &&
+                            <Text style={[AppStyle.textRegular, {fontSize: hp(2.4)}]} >
+                                {currentCollection.descr}
+                            </Text>
+                        }
                         <MangaGrid 
                             mangas={mangas}
                             numColumns={2}
@@ -65,10 +60,9 @@ const MangaCollection = () => {
                             estimatedItemSize={400}
                             hasResults={true}
                             listMode='FlashList'
-                            showChaptersPreview={false}
+                            shouldShowChapterDate={false}
                         />
                     </View>
-         
             </ScrollView>
         </SafeAreaView>
     )

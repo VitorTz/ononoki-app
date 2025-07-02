@@ -13,6 +13,7 @@ import {
   Linking,
   Pressable,
   SafeAreaView,
+  StyleSheet,
   Text,
   View
 } from 'react-native'
@@ -50,8 +51,8 @@ const DonateMethodComponent = ({donateMethod}: {donateMethod: DonateMethod}) => 
   }
 
   return (
-    <Pressable onPress={onPress} style={{maxWidth: '100%', padding: 10, borderRadius: 4, backgroundColor: Colors.donateColor, gap: 10}} >
-      <Column style={{width: "100%", flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "space-between"}} >
+    <Pressable onPress={onPress} style={styles.donateButton} >
+      <Column style={styles.donateTitleContainer} >
         <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]}>{donateMethod.method}</Text>
         <Ionicons name={iconName as any} size={28} color={Colors.backgroundColor} />
       </Column>
@@ -68,7 +69,7 @@ const Donate = () => {
 
   const init = useCallback(async () => {
     setLoading(true)
-    await spGetDonationMethods().then(values => setDonateMethods(values))
+      await spGetDonationMethods().then(values => setDonateMethods(values))
     setLoading(false)
   }, [])
 
@@ -76,28 +77,47 @@ const Donate = () => {
     init()
   }, [])
 
+
+  if (loading) {
+    return (
+      <SafeAreaView style={AppStyle.safeArea} >
+        <TopBar title='Donate' titleColor={Colors.donateColor} >
+            <ReturnButton color={Colors.donateColor} />
+        </TopBar>
+        <ActivityIndicator size={32} color={Colors.white} />
+      </SafeAreaView>  
+    )
+  }
+
   return (
     <SafeAreaView style={AppStyle.safeArea} >
         <TopBar title='Donate' titleColor={Colors.donateColor} >
             <ReturnButton color={Colors.donateColor} />
         </TopBar>
-
-        {
-          loading ?
-          
-          <ActivityIndicator size={32} color={Colors.white} /> 
-          
-          :
-
-          <View style={{flex: 1, gap: 20}} >
-            {
-              donateMethods.map((item, index) => <DonateMethodComponent key={index} donateMethod={item} />)
-            }
-          </View>
-        }
-
+        <View style={{flex: 1, gap: 20}} >
+          {
+            donateMethods.map((item, index) => <DonateMethodComponent key={index} donateMethod={item} />)
+          }
+        </View>
     </SafeAreaView>
   )
 }
 
 export default Donate
+
+const styles = StyleSheet.create({
+  donateButton: {
+    maxWidth: '100%', 
+    padding: 10, 
+    borderRadius: 4, 
+    backgroundColor: Colors.donateColor, 
+    gap: 10
+  },
+  donateTitleContainer: {
+    width: "100%", 
+    flexDirection: 'row', 
+    alignItems: "center", 
+    gap: 10, 
+    justifyContent: "space-between"
+  }
+})

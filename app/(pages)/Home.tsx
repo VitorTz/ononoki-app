@@ -1,13 +1,13 @@
 import Button from '@/components/buttons/Button'
-import RandomMangaButton from '@/components/buttons/RandomMangaButton'
-import UpdateDatabase from '@/components/buttons/UpdateDatabase'
+import OpenRandomMangaButton from '@/components/buttons/RandomMangaButton'
+import UpdateDatabaseButton from '@/components/buttons/UpdateDatabase'
 import GenreGrid from '@/components/grid/GenreGrid'
 import LatestUpdatesGrid from '@/components/grid/LatestUpdates'
 import MangaCollectionsHorizontalGrid from '@/components/grid/MangaCollectionsHorizontalGrid'
 import MostViewGrid from '@/components/grid/MostViewsGrid'
 import RandomMangaGrid from '@/components/grid/RandomMangaGrid'
 import LateralMenu from '@/components/LateralMenu'
-import Logo from '@/components/util/Logo'
+import AppLogo from '@/components/util/Logo'
 import Row from '@/components/util/Row'
 import { Colors } from '@/constants/Colors'
 import { hp, wp } from '@/helpers/util'
@@ -67,20 +67,22 @@ const Home = () => {
     const toggleMenu = () => {
         menuVisible.current ? closeMenu() : openMenu()
     }
-        
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
+            
+            {/* Header */}
             <Row style={{marginBottom: 20, justifyContent: "space-between"}} >
-                <Logo/>                
+                <AppLogo/>              
                 <Row style={{gap: 16}} >
-                    <UpdateDatabase iconColor={Colors.white} type='client' />
+                    <UpdateDatabaseButton iconColor={Colors.white} type='client' />
                     <Button iconName='search-outline' onPress={searchPress} iconSize={28} iconColor={Colors.white} />
-                    <RandomMangaButton color={Colors.white} size={28} backgroundColor='' />
+                    <OpenRandomMangaButton color={Colors.white} size={28} backgroundColor='' />
                     <Button iconName='options-outline' onPress={toggleMenu} iconSize={28} iconColor={Colors.white} />
                 </Row>
             </Row>
 
+            {/* Main content */}
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
                 <View style={{gap: 20}} >
                     <GenreGrid/>

@@ -9,6 +9,7 @@ import { useSQLiteContext } from "expo-sqlite"
 import { useEffect, useRef, useState } from "react"
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native"
 import CButton from "../buttons/CButton"
+import Row from "../util/Row"
 
 
 interface ChapterItemProps {
@@ -162,69 +163,88 @@ const MangaChapterGrid = ({
   const moveToPreviousChapterPage = () => {
     setCurrentPage(prev => prev === 0 ? prev = maxChapterPageNum : prev - 1)
   }
-  
-  return (
-    <>
-      {
-        manga &&
 
-        <View style={{width: '100%', gap: 10, flexWrap: 'wrap', flexDirection: 'row', alignItems: "center", justifyContent: "center"}} >
-          {
-            loading ?
+  if (!manga) {
+    return
+  }
 
-              <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
-                <ActivityIndicator size={'large'} color={Colors.white} />
-              </View>
-
-              :
-
-              <View style={{width: '100%', gap: 10}} >
-                <View style={{width: '100%', flexDirection: 'row', gap: 10, alignItems: "center"}} >
-                  <Pressable onPress={readFirst} style={{flex: 1, backgroundColor: manga!.color, height: 52, borderRadius: 4, alignItems: "center", justifyContent: "center"}}  >
-                    <Text style={[AppStyle.textRegular, {color: textColor}]}>Read First</Text>
-                  </Pressable>
-                  <Pressable onPress={readLast} style={{flex: 1, backgroundColor: manga!.color, height: 52, borderRadius: 4, alignItems: "center", justifyContent: "center"}}  >
-                    <Text style={[AppStyle.textRegular, {color: textColor}]}>Read Last</Text>
-                  </Pressable>
-                </View>
-
-                  <ChapterPageSelector
-                    currentPage={currentPage}
-                    numChapters={chapters.length}
-                    mangaColor={manga!.color}
-                    textColor={textColor}              
-                    moveToNextChapterPage={moveToNextChapterPage}
-                    moveToPreviousChapterPage={moveToPreviousChapterPage}
-                  />
-
-                  <View style={{flex: 1, alignItems: "center", justifyContent: "center", gap: 10, flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {
-                      chapters.slice(currentPage * PAGE_LIMIT, (currentPage + 1) * PAGE_LIMIT).map((item, index) => 
-                        <ChapterItem
-                          key={item.chapter_id}
-                          chapter={item}
-                          isReaded={chaptersReadByUser.current.has(item.chapter_id)}
-                          mangaTitle={manga!.title}
-                        />
-                      )
-                    }
-                  </View>
-              </View>
-          }
+  if (loading) {
+    return (
+      <View style={styles.container} >
+        <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
+          <ActivityIndicator size={'large'} color={Colors.white} />
         </View>
-      }
-    </>
+      </View>
+    )
+  }
+  
+  return (    
+        <View style={[styles.container, {gap: 10}]} >          
+            <Row style={{gap: 10}} >
+              <Pressable onPress={readFirst} style={[styles.button, {backgroundColor: manga!.color, }]}>
+                <Text style={[AppStyle.textRegular, {color: textColor}]}>Read First</Text>
+              </Pressable>
+              <Pressable onPress={readLast} style={[styles.button, {backgroundColor: manga!.color, }]}>
+                <Text style={[AppStyle.textRegular, {color: textColor}]}>Read Last</Text>
+              </Pressable>
+            </Row>
+
+            <ChapterPageSelector
+              currentPage={currentPage}
+              numChapters={chapters.length}
+              mangaColor={manga!.color}
+              textColor={textColor}              
+              moveToNextChapterPage={moveToNextChapterPage}
+              moveToPreviousChapterPage={moveToPreviousChapterPage}
+            />
+
+            <View style={styles.chapterGrid}>
+              {
+                chapters.slice(currentPage * PAGE_LIMIT, (currentPage + 1) * PAGE_LIMIT).map((item, index) => 
+                  <ChapterItem
+                    key={item.chapter_id}
+                    chapter={item}
+                    isReaded={chaptersReadByUser.current.has(item.chapter_id)}
+                    mangaTitle={manga!.title}
+                  />
+                )
+              }
+            </View>
+        </View>
   )
 }
 
 export default MangaChapterGrid;
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%', 
+    gap: 10, 
+    flexWrap: 'wrap', 
+    flexDirection: 'row', 
+    alignItems: "center", 
+    justifyContent: "center"
+  },
   chapterItem: {    
     width: 42, 
     height: 42, 
     borderRadius: 4, 
     alignItems: "center", 
     justifyContent: "center"    
+  },
+  chapterGrid: {
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center", 
+    gap: 10, 
+    flexDirection: 'row', 
+    flexWrap: 'wrap'
+  },
+  button: {
+    flex: 1,     
+    height: 52, 
+    borderRadius: 4, 
+    alignItems: "center", 
+    justifyContent: "center"
   }
 })

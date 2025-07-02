@@ -7,7 +7,7 @@ import { AppStyle } from '@/styles/AppStyle';
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 
 
 const ChapterPage = () => {
@@ -29,7 +29,7 @@ const ChapterPage = () => {
   )
 
   return (
-    <SafeAreaView style={[AppStyle.safeArea, {paddingHorizontal: 0, paddingVertical: 0, backgroundColor: Colors.black}]} >
+    <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
       {
         readMode === 'List' ? 
         <ChapterReaderVertical mangaTitle={mangaTitle} /> :
@@ -40,3 +40,11 @@ const ChapterPage = () => {
 }
 
 export default ChapterPage
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 0, 
+    paddingVertical: 0,   
+    backgroundColor: Colors.black
+  }
+})

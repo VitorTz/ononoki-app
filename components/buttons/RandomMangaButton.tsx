@@ -16,7 +16,7 @@ interface RandomManhwaButtonProps {
 }
 
 
-const RandomMangaButton = ({
+const OpenRandomMangaButton = ({
     size = 28, 
     color = Colors.white,
     backgroundColor = Colors.backgroundColor
@@ -51,7 +51,7 @@ const RandomMangaButton = ({
     )
 }
 
-export default RandomMangaButton
+export default OpenRandomMangaButton
 
 
 const styles = StyleSheet.create({

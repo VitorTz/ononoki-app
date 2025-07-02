@@ -28,7 +28,7 @@ const MALButton = ({mal_url, style, color = 'white'}: MALButtonProps) => {
             hitSlop={AppConstants.hitSlopLarge}
             style={[style, {backgroundColor: Colors.backgroundColor, borderRadius: 4, width: 40, height: 40, alignItems: "center", justifyContent: "center"}]}
             >
-                <Text style={[AppStyle.textManhwaTitle, {fontSize: 12, color}]} >MAL</Text>
+                <Text style={[AppStyle.textMangaTitle, {fontSize: 12, color}]} >MAL</Text>
         </Pressable>
     )
 }

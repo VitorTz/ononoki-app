@@ -1,11 +1,10 @@
-import { AppConstants } from '@/constants/AppConstants'
 import { Manga } from '@/helpers/types'
 import { dbReadMangasOrderedByUpdateAt } from '@/lib/database'
-import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useEffect, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { View } from 'react-native'
+import ViewAllButton from '../buttons/ViewAllButton'
 import Title from '../Title'
 import MangaHorizontalGrid from './MangaHorizontalGrid'
 
@@ -26,7 +25,7 @@ const LatestUpdatesGrid = () => {
         [db]
     )
 
-    const onPress = () => {
+    const onViewAllPress = () => {
         router.navigate("/(pages)/LatestUpdates")
     }
 
@@ -34,9 +33,7 @@ const LatestUpdatesGrid = () => {
         <View style={{gap: 10}} >
             <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between"}} >                
                 <Title title='Latest Updates' iconName='rocket-outline'/>
-                <Pressable onPress={onPress} hitSlop={AppConstants.hitSlopLarge} >
-                    <Text style={[AppStyle.textRegular, {textDecorationLine: 'underline'}]}>view all</Text>
-                </Pressable>
+                <ViewAllButton onPress={onViewAllPress} />
             </View>
             <MangaHorizontalGrid mangas={mangas}/>
         </View>

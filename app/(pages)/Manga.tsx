@@ -2,7 +2,7 @@ import AddToLibray from '@/components/AddToLibrary';
 import BugReportButton from '@/components/buttons/BugReportButton';
 import HomeButton from '@/components/buttons/HomeButton';
 import MALButton from '@/components/buttons/MalButton';
-import RandomMangaButton from '@/components/buttons/RandomMangaButton';
+import OpenRandomMangaButton from '@/components/buttons/RandomMangaButton';
 import ReturnButton from '@/components/buttons/ReturnButton';
 import MangaChapterGrid from '@/components/grid/MangaChapterGrid';
 import MangaAuthorInfo from '@/components/MangaAuthorInfo';
@@ -48,7 +48,6 @@ const Item = ({text, backgroundColor, textColor = Colors.backgroundColor}: ItemP
 }
 
 
-
 const MangaPage = () => {
 
   const db = useSQLiteContext()
@@ -64,73 +63,77 @@ const MangaPage = () => {
           router.replace("/(pages)/Home")
           return
         }
-        await dbReadMangaById(db, manga_id).then(m => setManga(m))
+        const m: Manga | null = await dbReadMangaById(db, manga_id).catch(e => null)
+        if (m === null) {
+          Toast.show({text1: "Error", text2: "Invalid Manga", type: "error"})
+          router.replace("/(pages)/Home")
+          return
+        }
+        setManga(m)
         spUpdateMangaViews(manga_id)
         dbUpdateMangaViews(db, manga_id)
       }
       init()
     },
     [db, manga_id]
-  )  
+  )
+
+  if (!manga) {
+    return (
+      <SafeAreaView style={[AppStyle.safeArea, styles.container]} >        
+        <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
+          <ActivityIndicator size={'large'} color={Colors.white} />
+        </View>
+      </SafeAreaView>
+    )
+  }
 
   return (
-    <SafeAreaView style={[AppStyle.safeArea, {paddingHorizontal: 0, paddingVertical: 0, paddingTop: 0}]} >
+    <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
       <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
-        {
-          manga ?
-          <>
-            {/* Header */}
-            <LinearGradient 
-                colors={[manga.color, Colors.backgroundColor]}
-                style={styles.linearBackground} />
-            <View style={styles.topBar} >
-                <HomeButton color={manga.color} />
-                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >                    
-                    <MALButton mal_url='' color={manga.color} />
-                    <BugReportButton color={manga.color} title={manga.title} />                    
-                    <RandomMangaButton color={manga.color} />
-                    <ReturnButton color={manga.color} />
-                </View>
+        {/* Header */}
+        <LinearGradient 
+            colors={[manga.color, Colors.backgroundColor]}
+            style={styles.linearBackground} />
+        <View style={styles.topBar} >
+            <HomeButton color={manga.color} />
+            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >                    
+                <MALButton mal_url={manga.mal_url} color={manga.color} />
+                <BugReportButton color={manga.color} title={manga.title} />                    
+                <OpenRandomMangaButton color={manga.color} />
+                <ReturnButton color={manga.color} />
+            </View>
+        </View>
+
+        {/* Manga Info */}
+        <View style={styles.mangaContainer}>
+            <View style={{width: '100%'}} >
+              <Image
+                source={manga.cover_image_url}
+                cachePolicy={'disk'}
+                contentFit='cover'
+                style={styles.image} />
+            </View>
+            <View style={{alignSelf: "flex-start"}} >
+              <Text style={AppStyle.textMangaTitle}>{manga!.title}</Text>
+              <Text style={AppStyle.textRegular}>{manga.descr}</Text>
+            </View>
+            
+            <MangaAuthorInfo manga={manga} />
+            <MangaGenreInfo manga={manga} />
+            <AddToLibray 
+              manga={manga} 
+              textColor={Colors.backgroundColor} 
+              backgroundColor={manga.color} />
+
+            <View style={{flexDirection: 'row', width: '100%', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
+              <Item text={manga.status} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
+              <Item text={`Views: ${manga.views + 1}`} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
             </View>
 
-            {/* Manhwa Info */}
-            <View style={styles.manhwaContainer}>
-                <View style={{width: '100%'}} >
-                  <Image
-                    source={manga.cover_image_url}
-                    cachePolicy={'disk'}
-                    contentFit='cover'
-                    style={styles.image} />
-                </View>
-                <View style={{alignSelf: "flex-start"}} >
-                  <Text style={AppStyle.textManhwaTitle}>{manga!.title}</Text>
-                  <Text style={AppStyle.textRegular}>{manga.descr}</Text>
-                </View>
-                
-                <MangaAuthorInfo manga={manga} />
-                <MangaGenreInfo manga={manga} />
-                <AddToLibray 
-                  manga={manga} 
-                  textColor={Colors.backgroundColor} 
-                  backgroundColor={manga.color} />
-
-                <View style={{flexDirection: 'row', width: '100%', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
-                  <Item text={manga.status} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
-                  <Item text={`Views: ${manga.views + 1}`} textColor={Colors.backgroundColor} backgroundColor={manga.color} />
-                </View>
-
-                <MangaChapterGrid manga={manga} />
-                <MangaCommenctSection manga={manga} />
-            </View>
-          </>
-
-          :
-          
-          <View style={{flex: 1, height: hp(100), alignItems: "center", justifyContent: "center"}} >
-              <ActivityIndicator size={'large'} color={Colors.white} />
-          </View>
-        }
-
+            <MangaChapterGrid manga={manga} />
+            <MangaCommenctSection manga={manga} />
+        </View>          
       </ScrollView>
     </SafeAreaView>
   )
@@ -139,6 +142,11 @@ const MangaPage = () => {
 export default MangaPage
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 0, 
+    paddingVertical: 0, 
+    paddingTop: 0
+  },
   linearBackground: {
     position: 'absolute',
     width: wp(100),
@@ -163,7 +171,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(4),
     paddingBottom: 20
   },
-  manhwaContainer: {
+  mangaContainer: {
     width: '100%', 
     gap: 10, 
     alignItems: "center", 

@@ -5,7 +5,6 @@ import TopBar from '@/components/TopBar'
 import { Manga } from '@/helpers/types'
 import { spSearchManga } from '@/lib/supabase'
 import { AppStyle } from '@/styles/AppStyle'
-import { useSQLiteContext } from 'expo-sqlite'
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { SafeAreaView, View } from 'react-native'
@@ -15,8 +14,7 @@ const PAGE_LIMIT = 30
 
 
 const SearchManhwa = () => {
-
-  const db = useSQLiteContext()
+  
   const page = useRef(0)
   const hasResults = useRef(true)
   const isInitialized = useRef(false)

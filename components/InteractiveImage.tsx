@@ -29,10 +29,13 @@ export default function InteractiveImage({
 }: InteractiveImageProps) {
   
   const originalScale = MAX_WIDTH / originalWidth
-  const maxZoom = originalScale * 2
-  const minZoom = originalScale
-  const scale = useSharedValue(1);
-  const pinchScale = useSharedValue(1);
+  const minScale = 0.8
+  const maxScale = 2.5
+
+  const scale = useSharedValue(1);  
+  const savedScale = useSharedValue(1)
+  const focalX = useSharedValue(0)
+  const focalY = useSharedValue(0);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const baseTranslateX = useSharedValue(0);
@@ -41,7 +44,7 @@ export default function InteractiveImage({
   useEffect(
     () => {
       const init = () => {
-        scale.value = MAX_WIDTH / originalWidth
+        scale.value = 1
         translateX.value = 0
         translateY.value = 0
         baseTranslateX.value = 0
@@ -58,7 +61,7 @@ export default function InteractiveImage({
       'worklet';
     })
     .onUpdate((e) => {
-      if (scale.value != originalScale) {        
+      if (scale.value != 1) {        
         translateX.value = e.translationX
         translateY.value = e.translationY
       }
@@ -69,81 +72,52 @@ export default function InteractiveImage({
       baseTranslateY.value += translateY.value;
       translateX.value = 0;
       translateY.value = 0;
-      if (scale.value != originalScale || Math.abs(e.velocityX) <= 500) { return }
+      if (scale.value != 1 || Math.abs(e.velocityX) <= 500) { return }
       e.velocityX < 0 ? runOnJS(swapLeft)() : runOnJS(swapRight)()      
     })
     .minDistance(10)
     .activeOffsetX([-1000, 1000])
     .activeOffsetY([-1000, 1000])
-
-  // Double tap gesture
+  
   const doubleTap = Gesture.Tap()
     .runOnJS(true)
     .numberOfTaps(2)
     .onEnd((e) => {
       'worklet';
-      if (scale.value != minZoom) {      
-        scale.value = withTiming(minZoom);
+      if (scale.value != 1) {
+        scale.value = withTiming(1);
         baseTranslateX.value = withTiming(0);
         baseTranslateY.value = withTiming(0);
       } else {
-        scale.value = withTiming(maxZoom)
+        scale.value = withTiming(2)        
       }
-  });
-
-  const clamp = (value: number, min: number, max: number) => {
-    'worklet'; // Indica que esta função pode rodar no thread de UI
-    return Math.min(Math.max(value, min), max);
-  };
+  });  
 
   const pinch = Gesture.Pinch()
-    .runOnJS(true)
+    .onStart(() => {
+      
+    })
     .onUpdate((event) => {
-      'worklet';
-      if (event.numberOfPointers < 2) { return }
-      // let newScale = scale.value * e.scale;
-      // if (newScale < minZoom) newScale = minZoom;
-      // if (newScale > maxZoom) newScale = maxZoom;
-      // scale.value = newScale;  
-      const proposedTotalAbsoluteScale = originalScale * event.scale;
-      const newTotalAbsoluteScale = clamp(proposedTotalAbsoluteScale, minZoom, maxZoom);
-      
-      // newPinchScale é o fator que, multiplicado por baseScale.value, resulta na nova escala absoluta clampada.
-      // Se baseScale.value for 0, evite divisão. (Na sua lógica, baseScale.value começa em 1).
-      const newPinchScale = scale.value !== 0 ? newTotalAbsoluteScale / scale.value : newTotalAbsoluteScale;
+      let nextScale = savedScale.value * event.scale      
+      if (nextScale < minScale) nextScale = minScale
+      if (nextScale > maxScale) nextScale = maxScale
 
-      const incrementalScaleRatio = (pinchScale.value === 0 || pinchScale.value === 1 && newPinchScale === 1) ? 1 : newPinchScale / pinchScale.value;
-
-      if (incrementalScaleRatio !== 1 && isFinite(incrementalScaleRatio)) {
-        baseTranslateX.value = event.focalX - (event.focalX - baseTranslateX.value) * incrementalScaleRatio;
-        baseTranslateY.value = event.focalY - (event.focalY - baseTranslateY.value) * incrementalScaleRatio;
-      }
-      
-      pinchScale.value = newPinchScale;
+      scale.value = nextScale
+      focalX.value = event.focalX
+      focalY.value = event.focalY
     })
     .onEnd(() => {
-      // if (scale.value >= originalScale) {
-      //   baseTranslateX.value = withTiming(0)
-      //   baseTranslateY.value = withTiming(0)
-      // }
-      scale.value *= pinchScale.value;
-      pinchScale.value = 1;
-
-      const finalClampedScale = clamp(scale.value, minZoom, maxZoom);
-      if (scale.value !== finalClampedScale) {
-        scale.value = withTiming(finalClampedScale);
-      }
+      savedScale.value = scale.value
     })
     
 
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
-    const currentTotalScale = scale.value * pinchScale.value;
     return {
       transform: [
         { translateX: baseTranslateX.value + translateX.value},
         { translateY: baseTranslateY.value + translateY.value},
-        { scale: currentTotalScale },        
+        { scale: originalScale * scale.value },
       ],
     };
   });

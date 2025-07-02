@@ -22,7 +22,6 @@ const LatestUpdatesPage = () => {
   const [mangas, setMangas] = useState<Manga[]>([])
   const [loading, setLoading] = useState(false)
 
-  
   useEffect(
     () => {
       async function init() {

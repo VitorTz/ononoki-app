@@ -47,7 +47,7 @@ const MangaCard = ({
     const [chapters, setChapters] = useState<Chapter[]>([])
     
     const mangaStatusColor = manga.status === "Completed" ? 
-        Colors.orange : 
+        Colors.ononokiGreen : 
         Colors.neonRed
     
     const onPress = () => {
@@ -77,7 +77,7 @@ const MangaCard = ({
                 source={manga.cover_image_url} 
                 contentFit='cover'
                 cachePolicy={'disk'}
-                style={[{borderRadius: 12, width, height}]}/>
+                style={[{borderRadius: 4, width, height}]}/>
             <View style={styles.container} >
                 <Text numberOfLines={1} style={[AppStyle.textRegular, {fontSize: 20}]}>{manga.title}</Text>
                 {
@@ -92,7 +92,7 @@ const MangaCard = ({
                 )}
             </View>
             <MangaStatusComponent
-                style={{position: 'absolute', left: 10, top: 10,}}
+                style={{position: 'absolute', left: 8, top: 8, borderRadius: 12}}
                 status={manga.status}
                 paddingHorizontal={10}
                 paddingVertical={8}
