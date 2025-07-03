@@ -31,7 +31,7 @@ export const Colors = {
   peopleColor: "#FFFD82",
   accentColor: "#2C2C2C",
   mangaStatusColor: "#FFFDEC",
-  disclaimerColor: "#C3C3C3",
+  disclaimerColor: "#91C8E4",
   readingHistoryColor: "#E77390",
   libraryColor: "#8746A7",
   BugReportColor: "#ef4069",

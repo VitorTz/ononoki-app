@@ -2,14 +2,16 @@ import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import React, { useRef } from 'react'
-import { Pressable, StyleSheet, TextInput, View } from 'react-native'
+import { Pressable, StyleSheet, TextInput, View, ViewStyle } from 'react-native'
 
 
 interface SearchBarProps {
     onChangeValue: (value: string) => any
+    color?: string
+    style?: ViewStyle
 }
 
-const SearchBar = ({ onChangeValue }: SearchBarProps) => {    
+const SearchBar = ({ onChangeValue, style, color = 'white' }: SearchBarProps) => {    
 
     const inputRef = useRef<TextInput>(null)
 
@@ -19,11 +21,11 @@ const SearchBar = ({ onChangeValue }: SearchBarProps) => {
     }
 
     return (
-        <View style={{width: '100%'}} >
+        <View style={[{width: '100%'}, style]} >
             <TextInput
                 ref={inputRef}
                 placeholder='search'
-                placeholderTextColor={Colors.white}
+                placeholderTextColor={color}
                 style={styles.input}
                 onChangeText={onChangeValue}
             />
@@ -31,7 +33,7 @@ const SearchBar = ({ onChangeValue }: SearchBarProps) => {
                 style={{position: 'absolute', height: '100%', right: 10, alignItems: "center", justifyContent: "center"}}
                 onPress={clearText} 
                 hitSlop={AppConstants.hitSlopLarge} >
-                <Ionicons name='close-circle-outline' size={28} color={Colors.white} />
+                <Ionicons name='close-circle-outline' size={28} color={color} />
             </Pressable>
         </View>
     )

@@ -97,7 +97,7 @@ const MangaPage = () => {
             style={styles.linearBackground} />
         <View style={styles.topBar} >
             <HomeButton color={manga.color} />
-            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >                    
+            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 16}} >
                 <MALButton mal_url={manga.mal_url} color={manga.color} />
                 <BugReportButton color={manga.color} title={manga.title} />                    
                 <OpenRandomMangaButton color={manga.color} />

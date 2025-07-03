@@ -57,6 +57,7 @@ const _layout = () => {
               <Stack.Screen name='(pages)/BugReport' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/Releases' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/Account' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/ProfilePage' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/UsersPage' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/MangaRequest' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/ReadHistory' options={{headerShown: false}} />

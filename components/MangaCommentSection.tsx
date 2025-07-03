@@ -11,7 +11,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import Column from './util/Column'
-import Row from './util/Row'
 
 
 const PAGE_LIMIT = 30
@@ -61,7 +60,7 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
     const downColor = userVote == false ? Colors.orange : Colors.white
 
     return (
-        <View style={{width: '100%', gap: 10, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
+        <View style={{width: '100%', gap: 20, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
             <Column style={{height: '100%'}} >
                 <Image 
                     source={comment.author_avatar_url} 
@@ -70,14 +69,14 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
             </Column>
             <Column style={{gap: 10}} >
                 <Text style={[AppStyle.textHeader, {fontSize: 20}]} >{comment.author_username}</Text>
-                <Text style={AppStyle.textRegular}>{comment.comment_text}</Text>
-                <Row style={{width: '100%', justifyContent: "flex-start"}} >
+                <Text style={[AppStyle.textRegular, {maxWidth: '80%'}]}>{comment.comment_text}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start"}} >
                     {
                         loading ?
 
                         <ActivityIndicator size={32} color={Colors.white} /> :
 
-                        <Row style={{gap: 10, justifyContent: "flex-start"}} >
+                        <View style={{flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "flex-start"}} >
                             <Pressable onPress={() => vote("Up")} hitSlop={AppConstants.hitSlop} >
                                 <Ionicons name='arrow-up' size={18} color={upColor} />
                             </Pressable>
@@ -91,9 +90,9 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
                                     <Ionicons name='trash-sharp' size={18} color={Colors.white} />
                                 </Pressable>
                             }
-                        </Row>
+                        </View>
                     }
-                </Row>
+                </View>
             </Column>
         </View>
     )

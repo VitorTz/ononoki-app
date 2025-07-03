@@ -35,9 +35,9 @@ const DATA = [
 
 const DisclaimerText = ({title, message}: {title: string, message: string}) => {
     return (
-        <View style={{width: '100%', gap: 20}}>
-            <Text style={[AppStyle.textHeader, {color: Colors.ononokiBlue}]}>{title}</Text>
-            <Text style={[AppStyle.textRegular, {fontSize: 18}]}>{message}</Text>
+        <View style={{width: '100%', gap: 10, backgroundColor: Colors.disclaimerColor, borderRadius: 4, marginBottom: 20, padding: 10}}>
+            <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]}>{title}</Text>
+            <Text style={[AppStyle.textRegular, {fontSize: 18, color: Colors.backgroundColor}]}>{message}</Text>
         </View>
     )
 }
@@ -50,7 +50,7 @@ const Disclaimer = () => {
           <ReturnButton color={Colors.disclaimerColor} />
         </TopBar>
         <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
-          <View style={{width: '100%', gap: 20}} >
+          <View style={{width: '100%'}} >
               {
                   DATA.map((item, index) => <DisclaimerText key={index} title={item.title} message={item.message} />)
               }            
