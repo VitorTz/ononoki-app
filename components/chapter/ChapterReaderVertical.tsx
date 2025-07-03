@@ -113,7 +113,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
         contentFit="cover"
       />
     )
-  }
+  }  
 
   return (
     <View style={{flex: 1}} >

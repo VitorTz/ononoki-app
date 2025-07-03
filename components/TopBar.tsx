@@ -8,13 +8,14 @@ interface TopBarProps {
     title: string
     children?: React.JSX.Element
     titleColor?: string
+    numberOfLines?: number
+} 
 
-}
-
-const TopBar = ({title, children, titleColor = Colors.white}: TopBarProps) => {
+const TopBar = ({title, children, titleColor = Colors.white, numberOfLines}: TopBarProps) => {
   return (
     <View style={styles.container} >
-        <Text 
+        <Text
+          numberOfLines={numberOfLines}
           style={[AppStyle.textHeader, styles.title, {color: titleColor}]}>
           {title}
         </Text>

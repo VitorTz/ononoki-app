@@ -39,7 +39,7 @@ const ChapterHeader = ({
 
   return (
     <View style={{width: '100%', paddingHorizontal: wp(5), paddingTop: 26, paddingBottom: 8}} >
-      <TopBar title={mangaTitle} >
+      <TopBar title={mangaTitle} numberOfLines={1} >
         <ReturnButton onPress={exitChapter} backgroundColor={Colors.backgroundColor} />
       </TopBar>
 

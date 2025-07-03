@@ -8,7 +8,6 @@ import { router } from 'expo-router'
 import React from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import BugIcon from '../BugIcon'
-import Row from '../util/Row'
 
 
 interface ChapterFooterProps {
@@ -39,9 +38,9 @@ const ChapterFooter = ({
     <View style={{width: '100%', paddingHorizontal: wp(5), marginTop: 42, marginBottom: 220}} >
         
         {/* Chapter Controller Button */}
-        <Row style={{gap: 10, justifyContent: "center", marginBottom: 20}} >
+        <View style={{flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "center", marginBottom: 20}} >
           <Text style={AppStyle.textHeader}>Chapter</Text>
-          <Row style={{gap: 10}} >
+          <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 10}} >
             <Pressable onPress={goToPreviousChapter} hitSlop={AppConstants.hitSlop} >
               <Ionicons name='chevron-back' size={24} color={Colors.white} />
             </Pressable>
@@ -55,8 +54,8 @@ const ChapterFooter = ({
             <Pressable onPress={goToNextChapter} hitSlop={AppConstants.hitSlop}>
               <Ionicons name='chevron-forward' size={24} color={Colors.white} />
             </Pressable>
-          </Row>
-        </Row>
+          </View>
+        </View>
             
           
         {/* Custom Bug Report Button */}

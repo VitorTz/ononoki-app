@@ -134,11 +134,11 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
   return (
     <View style={{flex: 1}} >
       <View style={{paddingHorizontal: wp(5), paddingTop: 26, paddingVertical: 8}} >
-        <TopBar title={mangaTitle!} >
+        <TopBar title={mangaTitle!} numberOfLines={1} >
           <ReturnButton backgroundColor={Colors.backgroundColor} />
         </TopBar>
 
-        <Row style={{justifyContent: "space-between", marginBottom: 20}} >
+        <Row style={{justifyContent: "space-between"}} >
           <ChangeChapter 
             loading={loading} 
             goToNextChapter={goToNextChapter} 

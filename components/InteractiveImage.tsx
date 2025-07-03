@@ -29,13 +29,11 @@ export default function InteractiveImage({
 }: InteractiveImageProps) {
   
   const originalScale = MAX_WIDTH / originalWidth
-  const minScale = 0.8
+  const minScale = 1
   const maxScale = 2.5
 
   const scale = useSharedValue(1);  
-  const savedScale = useSharedValue(1)
-  const focalX = useSharedValue(0)
-  const focalY = useSharedValue(0);
+  const savedScale = useSharedValue(1)  
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const baseTranslateX = useSharedValue(0);
@@ -85,31 +83,34 @@ export default function InteractiveImage({
     .onEnd((e) => {
       'worklet';
       if (scale.value != 1) {
-        scale.value = withTiming(1);
-        baseTranslateX.value = withTiming(0);
-        baseTranslateY.value = withTiming(0);
+        scale.value = withTiming(1)
+        savedScale.value = 1
+        baseTranslateX.value = withTiming(0)
+        baseTranslateY.value = withTiming(0)
       } else {
-        scale.value = withTiming(2)        
+        scale.value = withTiming(1.8)       
+        savedScale.value = 1.8
       }
   });  
 
   const pinch = Gesture.Pinch()
-    .onStart(() => {
-      
-    })
+    .onStart(() => {})
     .onUpdate((event) => {
       let nextScale = savedScale.value * event.scale      
       if (nextScale < minScale) nextScale = minScale
-      if (nextScale > maxScale) nextScale = maxScale
-
+      if (nextScale > maxScale) nextScale = maxScale      
       scale.value = nextScale
-      focalX.value = event.focalX
-      focalY.value = event.focalY
     })
     .onEnd(() => {
       savedScale.value = scale.value
+      if (scale.value === minScale) {
+        baseTranslateX.value = 0
+        baseTranslateY.value = 0
+        translateX.value = 0
+        translateY.value = 0
+      }
     })
-    
+     
 
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
