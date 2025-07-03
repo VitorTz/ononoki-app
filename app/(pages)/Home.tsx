@@ -72,7 +72,7 @@ const Home = () => {
         <SafeAreaView style={AppStyle.safeArea} >
             
             {/* Header */}
-            <Row style={{marginBottom: 10, justifyContent: "space-between"}} >
+            <View style={{flexDirection: 'row', alignItems: "center", paddingRight: 2, marginBottom: 10, justifyContent: "space-between"}} >
                 <AppLogo/>
                 <Row style={{gap: 16}} >
                     <UpdateDatabaseButton iconColor={Colors.white} type='client' />
@@ -80,7 +80,7 @@ const Home = () => {
                     <OpenRandomMangaButton color={Colors.white} size={28} backgroundColor='' />
                     <Button iconName='options-outline' onPress={toggleMenu} iconSize={28} iconColor={Colors.white} />
                 </Row>
-            </Row>
+            </View>
 
             {/* Main content */}
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >

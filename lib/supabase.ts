@@ -446,7 +446,7 @@ export async function spFetchUsers(
 export async function spFetchUserReadingStatusSummary(
     p_user_id: string
 ): Promise<ReadingSummary[]> {
-
+    
     const { data, error } = await supabase
         .rpc("get_user_reading_status_summary", {p_user_id})
 
@@ -454,6 +454,6 @@ export async function spFetchUserReadingStatusSummary(
         console.log("error spFetchUserReadingStatusSummary", error)
         return AppConstants.READING_STATUS_ORDER.map(i => {return {status: i, total: 0}})
     }
-
+    
     return data
 }

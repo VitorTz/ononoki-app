@@ -1,15 +1,18 @@
 import { AppConstants } from '@/constants/AppConstants'
+import { Colors } from '@/constants/Colors'
 import { ReadingSummary } from '@/helpers/types'
 import { spFetchUserReadingStatusSummary } from '@/lib/supabase'
 import { AppStyle } from '@/styles/AppStyle'
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, DimensionValue, StyleSheet, Text, View } from 'react-native'
 
 interface ReadingSummaryProps {
     user_id: string
 }
 
+
 const ORDER = new Map(AppConstants.READING_STATUS_ORDER.map((v, i) => [v, i]))
+
 
 const sortSummary = (summary: ReadingSummary[]): ReadingSummary[] => {
     return summary.sort(
@@ -28,17 +31,60 @@ const sortSummary = (summary: ReadingSummary[]): ReadingSummary[] => {
 }
 
 
+const ReadingSummaryBar = ({items}: {items: ReadingSummary[]}) => {
+
+    const height = 20
+    
+    let total = 0;
+    items.forEach(i => total += i.total)
+
+    if (items.length == 0) {
+        return <></>
+    }
+
+    const calculateWidth = (value: number): string => {
+        const x = value / total * 100
+        return `${x.toString()}%`
+    }
+    
+    return (
+        <View style={{width: '100%', flexDirection: 'row'}} >
+            {
+                items.map(
+                    (item: ReadingSummary, index: number) => 
+                    <View 
+                        key={index}
+                        style={{
+                            height, 
+                            width: calculateWidth(item.total) as DimensionValue, 
+                            backgroundColor: AppConstants.READING_STATUS_COLOR.get(item.status)!,
+                            borderTopLeftRadius: index == 0 ? 4 : 0,
+                            borderBottomLeftRadius: index == 0 ? 4 : 0,
+                            borderTopRightRadius: index == items.length - 1 ? 4 : 0,
+                            borderBottomRightRadius: index == items.length - 1 ? 4 : 0,
+                        }}
+                    />
+                )
+            }
+        </View>
+    )
+}
+
+
 const ReadingSummaryComponent = ({user_id}: ReadingSummaryProps) => {
 
     const [readingSummary, setReadingSummary] = useState<ReadingSummary[]>([])
+    const [loading, setLoading] = useState(false)
     
     useEffect(
         () => {
             const init = async () => {
                 if (readingSummary.length > 0) { return }
+                setLoading(true)
                 await spFetchUserReadingStatusSummary(user_id)
                     .then(v => setReadingSummary(sortSummary(v)))
                     .catch(e => {console.log(e); setReadingSummary([])})
+                setLoading(false)
             }
             init()
         },
@@ -59,12 +105,21 @@ const ReadingSummaryComponent = ({user_id}: ReadingSummaryProps) => {
         )
     }
 
+    if (loading) {
+        return (
+            <ActivityIndicator size={32} color={Colors.peopleColor} />
+        )
+    }
+
+    if (readingSummary.length == 0) {
+        return <></>
+    }
+
     return (
         <View style={{width: '100%', gap: 10}} >
             <Text style={AppStyle.textHeader}>Manga Stats</Text>
-            {
-                readingSummary.map((i) => renderItem({item: i}))
-            }
+            <ReadingSummaryBar items={readingSummary} />
+            { readingSummary.map((i) => renderItem({item: i})) }
         </View>
     )
 }
