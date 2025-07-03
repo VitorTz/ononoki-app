@@ -1,4 +1,5 @@
 import AppLogo from '@/components/util/Logo';
+import Row from '@/components/util/Row';
 import { Colors } from '@/constants/Colors';
 import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbReadAppInfo, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
 import { spFetchUser, spGetSession, supabase } from '@/lib/supabase';
@@ -121,18 +122,15 @@ const App = () => {
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
-            <View style={{width: '100%', 
-                flexDirection: 'row',             
-                alignItems: "center", 
-                justifyContent: "space-between"}} >
+            <Row style={{marginBottom: 10, justifyContent: "space-between"}} >
                 <AppLogo/>
-                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 16}} >
+                <Row style={{gap: 16}} >
                     <Ionicons name='sync-outline' size={28} color={Colors.white} />
                     <Ionicons name='search-outline' size={28} color={Colors.white} />
                     <Ionicons name='dice-outline' size={28} color={Colors.white} />
                     <Ionicons name='options-outline' size={28} color={Colors.white} />
-                </View>
-            </View>
+                </Row>
+            </Row>
             <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
                 <ActivityIndicator size={32} color={Colors.ononokiBlue} />
             </View>

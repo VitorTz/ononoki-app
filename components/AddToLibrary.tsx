@@ -40,7 +40,11 @@ const AddToLibray = ({
             async function init() {
                 await dbGetMangaReadingStatus(db, manga.manga_id)
                 .then(value => {
-                    if (!value) { return }
+                    if (!value) { 
+                        dbValue.current = ''
+                        setValue(undefined)
+                        return 
+                    }
                     dbValue.current = value
                     setValue(value)
                 })

@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { hp } from '@/helpers/util';
 import { spCreateUser, supabase } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
@@ -14,6 +15,7 @@ import {
     Platform,
     Pressable,
     ScrollView,
+    StyleSheet,
     Text,
     TextInput,
     View
@@ -32,6 +34,9 @@ const schema = yup.object().shape({
         .string()
         .email('Please enter a valid email')
         .required('Email is required'),
+    bio: yup
+        .string()
+        .max(2048, "Max 2048 characters"),
     password: yup
         .string()
         .min(3, 'Password must be at least 3 characters')
@@ -47,6 +52,7 @@ interface FormData {
     email: string
     password: string
     confirmPassword: string
+    bio: string
 }
 
 
@@ -61,12 +67,13 @@ const SignUpForm = () => {
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema as any),
         defaultValues: {            
             name: '',
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            bio: ''
         },
     });
     
@@ -77,7 +84,8 @@ const SignUpForm = () => {
         const { user, session ,error } = await spCreateUser(
             form_data.email.trim(),
             form_data.password.trim(),
-            form_data.name.trim()
+            form_data.name.trim(),
+            form_data.bio.trim()
         )
         
         if (error) {
@@ -85,13 +93,13 @@ const SignUpForm = () => {
             switch (error.code) {
                 case "weak_password":
                     Toast.show({
-                        text1: "Error", 
-                        text2: "password must contain at least 1 uppercase, 1 lowercase, 1 digit and 1 symbol", 
+                        text1: "Weak Password!",
+                        text2: "Must contain at least 1 uppercase, 1 lowercase, 1 digit and 1 symbol", 
                         type: "error"                        
                     })
                     break
                 default:
-                    Toast.show({text1: "Error", type: "error"})
+                    Toast.show({text1: "Error", text2: error.message, type: "error"})
                     break
             }
             setLoading(false)
@@ -113,8 +121,8 @@ const SignUpForm = () => {
     };
 
   return (
-    <KeyboardAvoidingView style={{width: '100%', gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{width: '100%'}} keyboardShouldPersistTaps={'always'} >
+    <KeyboardAvoidingView style={{flex: 1, gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
+        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
 
             {/* Username */}
             <Text style={AppStyle.inputHeaderText}>Username</Text>
@@ -188,6 +196,27 @@ const SignUpForm = () => {
                 )}
             />
             {errors.confirmPassword && (<Text style={AppStyle.error}>{errors.confirmPassword.message}</Text>)}
+
+            {/* Bio */}
+            <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
+                <Text style={AppStyle.inputHeaderText}>Bio</Text>
+                <Text style={[AppStyle.textRegular, {color: Colors.orange, marginBottom: 10}]}>optional</Text>
+            </View>
+            <Controller
+                control={control}
+                name="bio"
+                render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                    style={styles.input}
+                    textAlignVertical='top'
+                    autoCapitalize="sentences"
+                    multiline={true}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}/>
+                )}
+            />
+            {errors.bio && (<Text style={AppStyle.error}>{errors.bio.message}</Text>)}
     
             {/* Sign Up Button */}
             <Pressable onPress={handleSubmit(onSubmit)} style={AppStyle.formButton} >
@@ -207,10 +236,23 @@ const SignUpForm = () => {
                     </Text> 
                 </Pressable>
             </View>
-            
+            <View style={{marginBottom: 80}} />
         </ScrollView>
     </KeyboardAvoidingView>
   )
 }
 
 export default SignUpForm
+
+const styles = StyleSheet.create({
+    input: {
+        backgroundColor: Colors.gray1,
+        borderRadius: 4,
+        height: hp(30),
+        fontSize: 18,
+        paddingHorizontal: 10,
+        color: Colors.white,
+        fontFamily: "LeagueSpartan_400Regular",
+        marginBottom: 10
+    }
+})

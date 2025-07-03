@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
-import { spChangeUsername } from '@/lib/supabase';
+import { hp } from '@/helpers/util';
+import { spChangeUsernameAndBio } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -9,12 +10,11 @@ import { Controller, useForm } from 'react-hook-form';
 import {
     ActivityIndicator,
     Keyboard,
-    KeyboardAvoidingView,
-    Platform,
     Pressable,
-    ScrollView,
+    StyleSheet,
     Text,
-    TextInput
+    TextInput,
+    View
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import * as yup from 'yup';
@@ -29,19 +29,23 @@ const schema = yup.object().shape({
     email: yup
         .string()
         .email('Please enter a valid email')
-        .required('Email is required')    
+        .required('Email is required'),
+    bio: yup
+        .string()
+        .max(2048, "Max 2048 characters")
 });
 
 interface FormData {
     name: string
     email: string
+    bio: string
 }
 
 
 const ChangeProfileInfoForm = () => {
 
     const [isLoading, setLoading] = useState(false)
-    const { user, session, changeUserName } = useAuthState()
+    const { user, session, setUser } = useAuthState()
 
     const changingInfo = useRef(false)
     
@@ -50,10 +54,11 @@ const ChangeProfileInfoForm = () => {
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema as any),
         defaultValues: {            
             name: user ? user.username : '',
-            email: session ? session.user.email! : ''
+            email: session ? session.user.email! : '',
+            bio: user && user.bio ? user.bio : ''
         },
     });
     
@@ -67,16 +72,20 @@ const ChangeProfileInfoForm = () => {
             return
         }
 
-        if (changingInfo.current) { return }
+        if (changingInfo.current) { return }        
         changingInfo.current = true
+        Keyboard.dismiss()
+
         setLoading(true)
-            Keyboard.dismiss()
-            console.log(form_data)
-            
-            // Change username
-            if (form_data.name != user.username) {
-                console.log(form_data.name, user.username)
-                const nameChangeError: PostgrestError | null = await spChangeUsername(user.user_id, form_data.name);
+            const newBio = form_data.bio.trim() === '' ? null : form_data.bio.trim()            
+            const newUsername = form_data.name.trim()
+
+            if (newUsername != user.username || newBio != user.bio) {                
+                const nameChangeError: PostgrestError | null = await spChangeUsernameAndBio(
+                    user.user_id, 
+                    newUsername,
+                    newBio
+                );
                 if (nameChangeError) {
                     console.log(nameChangeError)
                     Toast.show({
@@ -85,11 +94,17 @@ const ChangeProfileInfoForm = () => {
                         type: "error"
                     })
                 } else {
-                    changeUserName(form_data.name)
-                    Toast.show({
-                        text1: "Success", 
-                        type: "success"
-                    })
+                    setUser(
+                        {
+                            user_id: user.user_id,
+                            username: newUsername,
+                            bio: newBio,
+                            profile_image_url: user.profile_image_url,
+                            profile_image_width: user.profile_image_width,
+                            profile_image_height: user.profile_image_height
+                        }
+                    )
+                    Toast.show({text1: "Success", type: "success"})
                 }
             }
 
@@ -100,55 +115,87 @@ const ChangeProfileInfoForm = () => {
     };
 
   return (
-    <KeyboardAvoidingView style={{width: '100%', gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{width: '100%'}} keyboardShouldPersistTaps={'always'} >
+    <>
+        {/* Username */}
+        <Text style={AppStyle.inputHeaderText}>Username</Text>
+        <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={AppStyle.input}                    
+                autoComplete='name'
+                autoCapitalize='none'                    
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}/>
+            )}
+        />
+        {errors.name && (<Text style={AppStyle.error}>{errors.name.message}</Text>)}
 
-            {/* Username */}
-            <Text style={AppStyle.inputHeaderText}>Username</Text>
-            <Controller
-                control={control}
-                name="name"
-                render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                    style={AppStyle.input}                    
-                    autoComplete='name'
-                    autoCapitalize='none'                    
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}/>
-                )}
-            />
-            {errors.name && (<Text style={AppStyle.error}>{errors.name.message}</Text>)}
+        {/* Email */}
+        <Text style={AppStyle.inputHeaderText}>Email</Text>
+        <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={AppStyle.input}                    
+                keyboardType="email-address"
+                autoCapitalize="none"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}/>
+            )}
+        />
+        {errors.email && (<Text style={AppStyle.error}>{errors.email.message}</Text>)}
 
-            {/* Email */}
-            <Text style={AppStyle.inputHeaderText}>Email</Text>
-            <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                    style={AppStyle.input}                    
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}/>
-                )}
-            />
-            {errors.email && (<Text style={AppStyle.error}>{errors.email.message}</Text>)}
-        
-            {/* Save Changes Button */}
-            <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor}]} >
-                {
-                    isLoading ? 
-                    <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
-                    <Text style={AppStyle.formButtonText} >Save</Text>
-                }
-            </Pressable>
+        {/* Bio */}
+        <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
+            <Text style={AppStyle.inputHeaderText}>Bio</Text>
+            <Text style={[AppStyle.textRegular, {color: Colors.orange, marginBottom: 10}]}>optional</Text>
+        </View>
+        <Controller
+            control={control}
+            name="bio"
+            render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={styles.input}
+                textAlignVertical='top'
+                autoCapitalize="sentences"
+                multiline={true}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}/>
+            )}
+        />
+        {errors.bio && (<Text style={AppStyle.error}>{errors.bio.message}</Text>)}
 
-        </ScrollView>
-    </KeyboardAvoidingView>
+        {/* Save Changes Button */}
+        <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor}]} >
+            {
+                isLoading ? 
+                <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
+                <Text style={AppStyle.formButtonText} >Save</Text>
+            }
+        </Pressable>
+        <View style={{marginBottom: 160}} />
+    </>
   )
 }
 
 export default ChangeProfileInfoForm
+
+
+const styles = StyleSheet.create({
+    input: {
+        backgroundColor: Colors.gray1,
+        borderRadius: 4,
+        height: hp(30),
+        fontSize: 18,
+        paddingHorizontal: 10,
+        color: Colors.white,
+        fontFamily: "LeagueSpartan_400Regular",
+        marginBottom: 10
+    }
+})

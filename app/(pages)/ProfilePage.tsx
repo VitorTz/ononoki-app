@@ -1,18 +1,19 @@
 import Button from '@/components/buttons/Button'
 import ReturnButton from '@/components/buttons/ReturnButton'
 import ProfileImageBig from '@/components/ProfileImageBig'
+import ReadingSummaryComponent from '@/components/ReadingSummary'
 import TopBar from '@/components/TopBar'
 import Row from '@/components/util/Row'
 import { Colors } from '@/constants/Colors'
 import { useProfileState } from '@/store/profileState'
 import { AppStyle } from '@/styles/AppStyle'
 import React from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 
 const ProfilePage = () => {
 
-    const { profile } = useProfileState()
+    const { profile } = useProfileState()    
 
     const mail = () => {
 
@@ -20,7 +21,7 @@ const ProfilePage = () => {
 
     const addFriend = () => {
 
-    }
+    }    
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
@@ -48,6 +49,8 @@ const ProfilePage = () => {
                             style={styles.button}
                         />
                     </Row>
+                    {profile?.bio && <Text style={AppStyle.textRegular} >{profile?.bio}</Text>}
+                    <ReadingSummaryComponent user_id={profile!.user_id} />
                 </View>
             </ScrollView>
         </SafeAreaView>

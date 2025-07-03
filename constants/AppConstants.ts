@@ -60,5 +60,15 @@ export const AppConstants = {
         "#FFFDC7"
     ],
     DARK_COLOR_THRESHOLD: 60,
-    BLURHASH: '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
+    BLURHASH: '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[',
+    READING_STATUS_ORDER: ["Reading", "Completed", "Dropped", "None", "On Hold", "Plan to Read", "Re-Reading"],
+    READING_STATUS_COLOR: new Map([
+        ["Completed", "#2D4276"], 
+        ["Reading", "#338543"], 
+        ["Dropped", "#832F30"], 
+        ["None", "#ED65A4"], 
+        ["On Hold", "#C9A31F"], 
+        ["Plan to Read", "#747474"], 
+        ["Re-Reading", "#F8BCCD"]
+    ])
 }

@@ -73,7 +73,7 @@ const Home = () => {
             
             {/* Header */}
             <Row style={{marginBottom: 10, justifyContent: "space-between"}} >
-                <AppLogo/>              
+                <AppLogo/>
                 <Row style={{gap: 16}} >
                     <UpdateDatabaseButton iconColor={Colors.white} type='client' />
                     <Button iconName='search-outline' onPress={searchPress} iconSize={28} iconColor={Colors.white} />

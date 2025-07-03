@@ -8,7 +8,7 @@ import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
 import React from 'react'
-import { Pressable, SafeAreaView, StyleSheet, Text } from 'react-native'
+import { KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from 'react-native'
 
 
 
@@ -48,8 +48,12 @@ const Account = () => {
       <TopBar title='Account' titleColor={Colors.accountColor} >
         <ReturnButton color={Colors.accountColor} />
       </TopBar>
-      <ChangeProfileImageForm/>
-      <ChangeProfileInfoForm/>
+      <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
+        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
+          <ChangeProfileImageForm/>
+          <ChangeProfileInfoForm/>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
   

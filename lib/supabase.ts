@@ -1,8 +1,9 @@
+import { AppConstants } from "@/constants/AppConstants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthError, createClient, PostgrestError, Session } from '@supabase/supabase-js';
-import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, MangaCollection, OnonokiUser } from "../helpers/types";
+import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, MangaCollection, OnonokiUser, ReadingSummary } from "../helpers/types";
 
-// RLS ENABLE
+// RLS
 const supabaseUrl = "https://hfflwodueiqktdhmvfzd.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZmx3b2R1ZWlxa3RkaG12ZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2NDk5ODMsImV4cCI6MjA2MzIyNTk4M30.aQyHEIlQUAGvxI1anhz21h_cog2rNCO6m4gOaky9ebQ"
 
@@ -41,7 +42,7 @@ export async function spFetchUser(
 
     const { data, error } = await supabase
         .from("users")
-        .select("username, profile_image_url, profile_image_width, profile_image_height")
+        .select("user_id, username, bio, profile_image_url, profile_image_width, profile_image_height")
         .eq("user_id", user_id)
         .single()
 
@@ -59,20 +60,12 @@ export async function spFetchUser(
         spUpdateUserLastLogin(user_id)
     }
 
-    return {
-        username: data.username,
-        user_id,
-        profile_image_url: data.profile_image_url,
-        profile_image_width: data.profile_image_width,
-        profile_image_height: data.profile_image_height
-    }
+    return data
 }
 
 
 export async function spGetMangas(): Promise<Manga[]> {
-    const { data, error } = await supabase
-        .from("mv_mangas")
-        .select("*")
+    const { data, error } = await supabase.from("mv_mangas").select("*")
     
     if (error) {
         console.log("error spGetManhwas", error)
@@ -197,9 +190,10 @@ export async function spRequestManga(manga: string, message: string | null) {
 
 
 export async function spCreateUser(
-    email: string, 
+    email: string,
     password: string, 
-    username: string
+    username: string,
+    bio: string | null = null
 ): Promise<{
     user: OnonokiUser | null, 
     session: Session | null,
@@ -208,7 +202,7 @@ export async function spCreateUser(
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { username } }
+        options: { data: { username, bio: bio != '' ? bio : null } }
     })
 
     if (error) {
@@ -338,27 +332,36 @@ export async function spSearchManga(
 
 
 export async function spDeleteComment(comment_id: number): Promise<boolean> {
-    try {
-        const { error } = await supabase
-            .from("comments")
-            .delete()
-            .eq("comment_id", comment_id)
-        if (error) {
-            console.log("error spDeleteComment", error)
-            return false
-        }
-    } catch (e) {
-        console.log("exception spDeleteComment", e)
+    const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("comment_id", comment_id)
+
+    if (error) {
+        console.log("error spDeleteComment", error)
         return false
-    } 
-    
+    }
     return true
 }
+
 
 export async function spChangeUsername(user_id: string, username: string): Promise<PostgrestError | null> {
     const { error } = await supabase
         .from("users")
         .update({username})
+        .eq("user_id", user_id)
+    return error
+}
+
+
+export async function spChangeUsernameAndBio(
+    user_id: string, 
+    username: string, 
+    bio: string | null
+): Promise<PostgrestError | null> {
+    const { error } = await supabase
+        .from("users")
+        .update({username, bio})
         .eq("user_id", user_id)
     return error
 }
@@ -434,6 +437,22 @@ export async function spFetchUsers(
     if (error) {
         console.log("error spFetchUsers", error)
         return []
+    }
+
+    return data
+}
+
+
+export async function spFetchUserReadingStatusSummary(
+    p_user_id: string
+): Promise<ReadingSummary[]> {
+
+    const { data, error } = await supabase
+        .rpc("get_user_reading_status_summary", {p_user_id})
+
+    if (error) {
+        console.log("error spFetchUserReadingStatusSummary", error)
+        return AppConstants.READING_STATUS_ORDER.map(i => {return {status: i, total: 0}})
     }
 
     return data

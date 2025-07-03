@@ -58,6 +58,7 @@ export type Genre = {
 export type OnonokiUser = {
     username: string
     user_id: string
+    bio: string | null
     profile_image_url: string
     profile_image_width: number
     profile_image_height: number
@@ -116,4 +117,9 @@ export type MangaCollection = {
     collection_id: number
     title: string
     descr: string | null
+}
+
+export type ReadingSummary = {
+    status: string
+    total: number
 }
