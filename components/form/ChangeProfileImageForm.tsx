@@ -37,22 +37,7 @@ const ChangeProfileImageForm = () => {
           return false;
         }
       };
-    
-      const handlePickPhoto = async () => {
-        if (uploadingPhoto.current) { return }
-        await requestPermissions();
-    
-        launchImageLibrary(
-          {
-            mediaType: 'photo',
-            includeBase64: false,        
-          },
-          (response: any) => {
-            handleResponse(response);
-          }
-        );
-      };
-    
+
       const handleResponse = async (response: any) => {
         if (response.didCancel) {
           Toast.show({text1: 'Cancelled', text2: 'Operation was cancelled', type: 'info'})      
@@ -64,6 +49,19 @@ const ChangeProfileImageForm = () => {
           await uploadToSupabase(uri, width, height);
           uploadingPhoto.current = false
         }
+      };
+    
+      const handlePickPhoto = async () => {
+        if (uploadingPhoto.current) { return }
+        await requestPermissions();
+    
+        launchImageLibrary({
+            mediaType: 'photo',
+            includeBase64: false,        
+          },(response: any) => {
+            handleResponse(response);
+          }
+        );
       };
     
       const decode = (base64: any) => {
