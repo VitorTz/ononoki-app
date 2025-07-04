@@ -34,7 +34,6 @@ const ProfilePage = () => {
                         image_url={profile!.profile_image_url} 
                         width={profile!.profile_image_width} 
                         height={profile!.profile_image_height} />
-
                     <Row style={{width: '100%', gap: 10}} >
                         <Button 
                             iconName='mail' 
@@ -51,6 +50,7 @@ const ProfilePage = () => {
                     </Row>
                     {profile?.bio && <Text style={AppStyle.textRegular} >{profile?.bio}</Text>}
                     <ReadingSummaryComponent user_id={profile!.user_id} />
+                    <View style={{height: 80}} />
                 </View>
             </ScrollView>
         </SafeAreaView>

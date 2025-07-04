@@ -107,8 +107,12 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
         await supabase.auth.signOut().catch(e => console.log(e))
         await dbClearTable(db, 'reading_status')
         logout()
-        while (router.canGoBack()) {
-            router.back();
+        try {
+            while (router.canGoBack()) {
+                router.back();
+            }
+        } catch (e) {
+            console.log(e)
         }
         router.replace("/(pages)/Home")
     }
