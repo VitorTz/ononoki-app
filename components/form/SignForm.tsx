@@ -141,13 +141,13 @@ const SignInForm = () => {
                     )}
                 />
                 <Pressable onPress={() => setShowPassword(prev => !prev)} style={{position: 'absolute', height: '100%', right: 10, justifyContent: "center"}} >
-                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color={Colors.white} />
+                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color={Colors.accountColor} />
                 </Pressable>
             </View>
             {errors.password && (<Text style={AppStyle.error}>{errors.password.message}</Text>)}
     
             {/* Login Button */}
-            <Pressable onPress={handleSubmit(onSubmit)} style={AppStyle.formButton} >
+            <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor}]} >
                 {
                     isLoading ? 
                     <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
@@ -159,7 +159,7 @@ const SignInForm = () => {
             <View style={{flexDirection: "row", marginTop: 20, gap: 4}} >
                 <Text style={{color: Colors.white, fontSize: 14}} >Don't Have an Account?</Text> 
                 <Pressable onPress={() => router.replace("/(auth)/SignUp")}  hitSlop={{left: 10, top: 10, bottom: 10, right: 10}} >
-                    <Text style={{textDecorationLine: "underline", fontWeight: "bold", color: Colors.white, fontSize: 14}} >Sign Up</Text> 
+                    <Text style={{textDecorationLine: "underline", fontWeight: "bold", color: Colors.accountColor, fontSize: 14}} >Sign Up</Text> 
                 </Pressable>
             </View>
 

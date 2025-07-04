@@ -30,7 +30,7 @@ const ChapterFooter = ({
   const openBugReport = () => {    
     router.navigate({
       pathname: "/(pages)/BugReport",
-      params: {title: `${mangaTitle!}/${currentChapter}`}
+      params: {title: `${mangaTitle!}/${currentChapter.chapter_name}`}
     })
   }
 

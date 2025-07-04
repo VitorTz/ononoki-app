@@ -1,6 +1,7 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import MangaGrid from '@/components/grid/MangaGrid'
 import TopBar from '@/components/TopBar'
+import { Colors } from '@/constants/Colors'
 import { Manga } from '@/helpers/types'
 import { hp, wp } from '@/helpers/util'
 import { spFetchMangasByCollection } from '@/lib/supabase'
@@ -33,8 +34,8 @@ const MangaCollection = () => {
     if (!currentCollection) {
         return (
             <SafeAreaView style={AppStyle.safeArea} >
-                <TopBar title={'Collection'} >
-                    <ReturnButton/>
+                <TopBar title={'Collection'} titleColor={Colors.ononokiBlue} >
+                    <ReturnButton color={Colors.ononokiBlue}/>
                 </TopBar>
             </SafeAreaView>
         )
@@ -43,8 +44,8 @@ const MangaCollection = () => {
     return (
         <SafeAreaView style={AppStyle.safeArea} >
             <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
-                <TopBar title={currentCollection.title} >
-                    <ReturnButton/>    
+                <TopBar title={currentCollection.title} titleColor={Colors.ononokiBlue}  >
+                    <ReturnButton color={Colors.ononokiBlue} />
                 </TopBar>                    
                     <View style={{gap: 20}} >
                         {

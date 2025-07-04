@@ -44,7 +44,7 @@ const ChapterHeader = ({
       </TopBar>
 
       <Row style={{gap: 10, justifyContent: "space-between", marginBottom: 20}} >            
-        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} padding={0} />
+        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.backgroundColor} padding={0} />
         <ChangeChapter
             goToNextChapter={goToNextChapter}
             goToPreviousChapter={goToPreviousChapter}

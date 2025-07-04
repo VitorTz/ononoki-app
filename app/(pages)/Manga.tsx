@@ -144,7 +144,7 @@ export default MangaPage
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 0, 
-    paddingVertical: 0, 
+    paddingVertical: 0,
     paddingTop: 0
   },
   linearBackground: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     width: wp(100),
     left: 0,    
     top: 0,
-    height: hp(90)
+    height: hp(100)
   },
   item: {
     height: 52,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: "center", 
     justifyContent: "space-between", 
-    
+    marginTop: 10,
     paddingHorizontal: wp(5),
     paddingVertical: hp(4),
     paddingBottom: 20

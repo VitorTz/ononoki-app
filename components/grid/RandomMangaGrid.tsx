@@ -32,7 +32,7 @@ const RandomMangaGrid = () => {
     const reload = async () => {
         await dbReadRandomManga(db, 30)
             .then(values => {
-                setManhwas(values); 
+                setManhwas(values);
                 flashListRef.current?.scrollToIndex({animated: true, index: 0})
         })
     }
@@ -48,7 +48,7 @@ const RandomMangaGrid = () => {
     return (
         <View style={{gap: 10}} >
             <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between"}} >                
-                <Title title='Random' iconName='dice-outline'/>
+                <Title title='Random' iconName='dice'/>
                 <RotatingButton onPress={debounceReload} duration={800} />
             </View>
             <View style={style.gridContainer}>

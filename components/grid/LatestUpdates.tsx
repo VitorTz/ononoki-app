@@ -32,7 +32,7 @@ const LatestUpdatesGrid = () => {
     return (
         <View style={{gap: 10}} >
             <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between"}} >                
-                <Title title='Latest Updates' iconName='rocket-outline'/>
+                <Title title='Latest Updates' iconName='rocket'/>
                 <ViewAllButton onPress={onViewAllPress} />
             </View>
             <MangaHorizontalGrid mangas={mangas}/>

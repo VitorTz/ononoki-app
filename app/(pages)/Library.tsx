@@ -80,6 +80,7 @@ const Library = () => {
             showChaptersPreview={false}
             onEndReached={onEndReached}
             listMode='FlashList'
+            activityIndicatorColor={Colors.libraryColor}
           />
         </View>
     </SafeAreaView>

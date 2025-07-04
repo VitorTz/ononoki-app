@@ -11,6 +11,7 @@ interface TopBarProps {
     numberOfLines?: number
 } 
 
+
 const TopBar = ({title, children, titleColor = Colors.white, numberOfLines}: TopBarProps) => {
   return (
     <View style={styles.container} >
@@ -31,6 +32,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%', 
     flexDirection: 'row',     
+    marginTop: 10,
     marginBottom: 10, 
     alignItems: "center", 
     justifyContent: "space-between"

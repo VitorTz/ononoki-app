@@ -55,7 +55,7 @@ const BooleanRotatingButton = ({onPress, iconSize, iconColor}: BooleanRotatingBu
                 styles.box,
                 { width: iconSize, height: iconSize, transform: [{ rotate: rotation }] },
             ]}>
-                <Ionicons name='sync-outline' size={iconSize} color={iconColor}/>
+                <Ionicons name='sync' size={iconSize} color={iconColor}/>
             </Animated.View>
         </Pressable>        
     );

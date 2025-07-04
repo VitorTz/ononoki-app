@@ -4,26 +4,22 @@ import { spFetchMangaCollections, spUpdateCollectionViews } from '@/lib/supabase
 import { useCollectionState } from '@/store/collectionsState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
-import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
-import Title from '../Title'
-import ViewAllButton from '../buttons/ViewAllButton'
+import React, { useEffect } from 'react'
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+
 
 
 
 const MangaCollectionsHorizontalGrid = () => {
 
   const { collections, setCollections, setCurrentCollection } = useCollectionState()  
-  const [loading, setLoading] = useState(false)
 
   useEffect(
     () => {
       const init = async () => {
         if (collections.length == 0) {
-          setLoading(true)
             await spFetchMangaCollections(0, 10)
-              .then(values => setCollections([...values]))
-          setLoading(false)
+              .then(values => setCollections(values))
         }    
       }
       init()
@@ -42,7 +38,16 @@ const MangaCollectionsHorizontalGrid = () => {
     router.navigate("/(pages)/MangaCollection")
   }
 
-  const renderItem = ({item}: {item: MangaCollection}) => {
+  const renderItem = ({item}: {item: MangaCollection | "Header"}) => {
+    if (item === 'Header') {
+      return (
+        <Pressable 
+          onPress={onViewAllPress} 
+          style={styles.item} >
+          <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]} >All Collections</Text>        
+        </Pressable>  
+      )
+    }
     return (
       <Pressable 
         onPress={() => onItemPress(item)} 
@@ -52,22 +57,14 @@ const MangaCollectionsHorizontalGrid = () => {
     )
   }
 
+  const COLEC = [...['Header'], ...collections]
+
   return (
     <View style={{width: '100%', gap: 20}} >
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between"}} >
-          <Title title='Collections' iconName='folder-open-outline'/>
-          {
-            loading ?
-            <ActivityIndicator size={28} color={'white'} />
-            :
-            <ViewAllButton onPress={onViewAllPress} />
-          }
-      </View>
-
       <View style={{width: '100%'}}>
         <FlatList
-          data={collections.slice(0, 10)}
-          keyExtractor={(item) => item.collection_id.toString()}
+          data={[...['Header'], ...collections].slice(0, 11) as any}
+          keyExtractor={(item, index) => index.toString()}
           horizontal={true}
           onEndReachedThreshold={2}
           showsHorizontalScrollIndicator={false}

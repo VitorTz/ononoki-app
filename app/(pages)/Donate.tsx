@@ -10,56 +10,15 @@ import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
   ActivityIndicator,
+  FlatList,
   Linking,
   Pressable,
   SafeAreaView,
   StyleSheet,
-  Text,
-  View
+  Text
 } from 'react-native'
 import Toast from 'react-native-toast-message'
 
-
-const DonateMethodComponent = ({donateMethod}: {donateMethod: DonateMethod}) => {
-
-  const copyToClipboard = async () => {
-    await Clipboard.setStringAsync(donateMethod.value);
-    Toast.show({text1: "Copied to clipboard!", type: "success"})
-  }
-
-  const iconName = donateMethod.action == "copy" ? "copy-outline" : "globe-outline"
-
-  const openUrl = async () => {
-    try {
-        await Linking.openURL(donateMethod.value)
-    } catch (error) {
-      Toast.show({text1: "Unable to open the browser", type: "error"})
-    }
-  };
-
-  const onPress = async () => {
-    switch (donateMethod.action) {
-      case "copy":
-        await copyToClipboard()
-        break
-      case "link":
-        await openUrl()
-        break
-      default:
-        break
-    }
-  }
-
-  return (
-    <Pressable onPress={onPress} style={styles.donateButton} >
-      <Column style={styles.donateTitleContainer} >
-        <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]}>{donateMethod.method}</Text>
-        <Ionicons name={iconName as any} size={28} color={Colors.backgroundColor} />
-      </Column>
-      <Text adjustsFontSizeToFit={true} style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>{donateMethod.value}</Text>
-    </Pressable>
-  )
-}
 
 
 const Donate = () => {  
@@ -78,13 +37,54 @@ const Donate = () => {
   }, [])
 
 
+  const openUrl = async (url: string) => {
+    try {
+        await Linking.openURL(url)
+    } catch (error) {
+      Toast.show({text1: "Unable to open the browser", type: "error"})
+    }
+  };
+
+  const copyToClipboard = async (value: string) => {
+    await Clipboard.setStringAsync(value);
+    Toast.show({text1: "Copied to clipboard!", type: "success"})
+  }
+
+
+  const onPress = async (donate: DonateMethod) => {
+    switch (donate.action) {
+      case "copy":
+        await copyToClipboard(donate.value)
+        break
+      case "link":
+        await openUrl(donate.value)
+        break
+      default:
+        break
+    }
+  }
+  
+  const renderItem = ({item}: {item: DonateMethod}) => {
+    const iconName = item.action == "copy" ? "copy-outline" : "globe-outline"
+
+    return (
+      <Pressable onPress={() => onPress(item)} style={styles.donateButton} >
+        <Column style={styles.donateTitleContainer} >
+          <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]}>{item.method}</Text>
+          <Ionicons name={iconName as any} size={28} color={Colors.backgroundColor} />
+        </Column>
+        <Text adjustsFontSizeToFit={true} style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>{item.value}</Text>
+      </Pressable>
+    )
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={AppStyle.safeArea} >
         <TopBar title='Donate' titleColor={Colors.donateColor} >
             <ReturnButton color={Colors.donateColor} />
         </TopBar>
-        <ActivityIndicator size={32} color={Colors.white} />
+        <ActivityIndicator size={32} color={Colors.donateColor} />
       </SafeAreaView>  
     )
   }
@@ -94,11 +94,12 @@ const Donate = () => {
         <TopBar title='Donate' titleColor={Colors.donateColor} >
             <ReturnButton color={Colors.donateColor} />
         </TopBar>
-        <View style={{flex: 1, gap: 20}} >
-          {
-            donateMethods.map((item, index) => <DonateMethodComponent key={index} donateMethod={item} />)
-          }
-        </View>
+        <FlatList
+            data={donateMethods}
+            keyExtractor={(item) => item.value}
+            showsVerticalScrollIndicator={false}
+            renderItem={renderItem}
+        />
     </SafeAreaView>
   )
 }
@@ -111,6 +112,7 @@ const styles = StyleSheet.create({
     padding: 10, 
     borderRadius: 4, 
     backgroundColor: Colors.donateColor, 
+    marginBottom: 20,
     gap: 10
   },
   donateTitleContainer: {

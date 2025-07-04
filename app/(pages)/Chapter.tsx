@@ -4,10 +4,11 @@ import { Colors } from '@/constants/Colors';
 import { dbSetAppInfo } from '@/lib/database';
 import { useReadModeState } from '@/store/readModeState';
 import { AppStyle } from '@/styles/AppStyle';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 
 const ChapterPage = () => {
@@ -28,15 +29,34 @@ const ChapterPage = () => {
     [readMode]
   )
 
-  return (
-    <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
-      {
-        readMode === 'List' ? 
-        <ChapterReaderVertical mangaTitle={mangaTitle} /> :
-        <ChapterReaderHorizontal mangaTitle={mangaTitle} />
-      }
-    </SafeAreaView>
-  )
+  if (readMode == "List") {
+    return (
+        <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
+          <ChapterReaderVertical mangaTitle={mangaTitle} />
+        </SafeAreaView>
+    )
+  }
+
+  if (readMode == "Page") {
+    return (
+        <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
+          <ChapterReaderHorizontal mangaTitle={mangaTitle} />
+        </SafeAreaView>
+    )
+  }
+
+  Toast.show({text1: "Error", text2: "Invalid chapter orientation", type: "error"})
+  router.back()  
+
+  // return (
+  //   <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
+  //     {
+  //       readMode === 'List' ? 
+  //       <ChapterReaderVertical mangaTitle={mangaTitle} /> :
+  //       <ChapterReaderHorizontal mangaTitle={mangaTitle} />
+  //     }
+  //   </SafeAreaView>
+  // )
 }
 
 export default ChapterPage

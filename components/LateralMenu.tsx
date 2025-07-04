@@ -144,7 +144,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                         :
                     <Option 
                         onPress={loginPage} 
-                        title='Login' 
+                        title='SignIn/SignUp'
                         iconName='log-in'
                         iconColor={Colors.accountColor}
                     />
@@ -180,7 +180,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
 
                 <Option 
                     onPress={openMangaRequest} 
-                    title='Manga Request'
+                    title='Request Manga'
                     iconName='megaphone-outline'
                     iconColor={Colors.requestMangaColor}
                 />
@@ -231,8 +231,9 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         gap: 20,
-        paddingHorizontal: wp(5),
-        marginTop: hp(3), 
+        paddingHorizontal: wp(4),
+        paddingTop: hp(4),       
+        marginTop: 6, 
         marginBottom: 10 
     },
     link: {

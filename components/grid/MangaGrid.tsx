@@ -21,6 +21,7 @@ interface MangaGridProps {
     showChaptersPreview?: boolean
     listMode?: 'FlashList' | 'FlatList'
     estimatedItemSize?: number
+    activityIndicatorColor?: string
 }
 
 
@@ -36,7 +37,8 @@ const MangaGrid = ({
     shouldShowChapterDate = true,
     showChaptersPreview = true,
     listMode = 'FlashList',
-    estimatedItemSize = AppConstants.ManhwaCoverDimension.height + 180
+    estimatedItemSize = AppConstants.ManhwaCoverDimension.height + 180,
+    activityIndicatorColor = Colors.ononokiBlue
 }: MangaGridProps) => {    
 
     const ref = useRef<FlashList<Manga>>(null)
@@ -83,7 +85,7 @@ const MangaGrid = ({
                                 {
                                     loading && hasResults &&
                                     <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
-                                        <ActivityIndicator size={32} color={Colors.white} />
+                                        <ActivityIndicator size={32} color={activityIndicatorColor} />
                                     </View> 
                                 }
                             </>
@@ -117,7 +119,7 @@ const MangaGrid = ({
                                 {
                                     loading && hasResults &&
                                     <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
-                                        <ActivityIndicator size={32} color={Colors.white} />
+                                        <ActivityIndicator size={32} color={activityIndicatorColor} />
                                     </View> 
                                 }
                             </>

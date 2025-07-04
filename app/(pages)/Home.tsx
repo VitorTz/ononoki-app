@@ -75,18 +75,19 @@ const Home = () => {
             <View style={{flexDirection: 'row', alignItems: "center", paddingRight: 2, marginBottom: 10, justifyContent: "space-between"}} >
                 <AppLogo/>
                 <Row style={{gap: 16}} >
-                    <UpdateDatabaseButton iconColor={Colors.white} type='client' />
-                    <Button iconName='search-outline' onPress={searchPress} iconSize={28} iconColor={Colors.white} />
-                    <OpenRandomMangaButton color={Colors.white} size={28} backgroundColor='' />
-                    <Button iconName='options-outline' onPress={toggleMenu} iconSize={28} iconColor={Colors.white} />
+                    <UpdateDatabaseButton iconColor={Colors.ononokiBlue} type='client' />
+                    <Button iconName='search' onPress={searchPress} iconSize={28} iconColor={Colors.ononokiBlue} />
+                    <OpenRandomMangaButton color={Colors.ononokiBlue} size={28} backgroundColor='' />
+                    <Button iconName='options' onPress={toggleMenu} iconSize={28} iconColor={Colors.ononokiBlue} />
                 </Row>
             </View>
 
             {/* Main content */}
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
-                <View style={{gap: 20}} >
+                <View style={{gap: 10}} >
                     <GenreGrid/>
                     <MangaCollectionsHorizontalGrid/>
+                    <View style={{height: 10}} />
                     <LatestUpdatesGrid/>
                     <MostViewGrid/>
                     <RandomMangaGrid/>

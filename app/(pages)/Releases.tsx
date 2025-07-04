@@ -14,27 +14,6 @@ import { ActivityIndicator, FlatList, Linking, Pressable, SafeAreaView, StyleShe
 import Toast from 'react-native-toast-message'
 
 
-const ReleaseItem = ({release}: {release: AppRelease}) => {
-
-    const openUrl = async () => {
-        try {
-            await Linking.openURL(release.url)
-        } catch (error) {
-          Toast.show({text1: "Could not open link", type: 'error'})
-        }
-    };
-
-    return (
-        <Pressable onPress={openUrl} style={styles.item}>
-            <Row style={{justifyContent: "space-between"}} >
-                <Text style={[AppStyle.textHeader, {color: Colors.releasesColor}]} >{release.version}</Text>
-                <Ionicons name='download-outline' size={28} color={Colors.releasesColor} />
-            </Row>            
-            {release.descr && <Text style={AppStyle.textRegular}>{release.descr}</Text>}            
-        </Pressable>
-    )
-}
-
 const Releases = () => {
 
     const db = useSQLiteContext()
@@ -56,6 +35,26 @@ const Releases = () => {
         [db, allReleases]
     )
 
+    const openUrl = async (url: string) => {
+        try {
+            await Linking.openURL(url)
+        } catch (error) {
+          Toast.show({text1: "Could not open link", type: 'error'})
+        }
+    };
+
+    const renderItem = ({item}: {item: AppRelease}) => {
+        return (
+            <Pressable onPress={() => openUrl(item.url)} style={styles.item}>
+                <Row style={{justifyContent: "space-between"}} >
+                    <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]} >{item.version}</Text>
+                    <Ionicons name='download-outline' size={28} color={Colors.backgroundColor} />
+                </Row>            
+                {item.descr && <Text style={AppStyle.textRegular}>{item.descr}</Text>}            
+            </Pressable>
+        )
+    }
+
     if (loading) {
         <SafeAreaView style={AppStyle.safeArea} >
             <TopBar title='Releases' titleColor={Colors.releasesColor} >
@@ -76,7 +75,7 @@ const Releases = () => {
                 data={allReleases}
                 keyExtractor={(item) => item.release_id.toString()}
                 showsVerticalScrollIndicator={false}
-                renderItem={({item}) => <ReleaseItem release={item}/>}
+                renderItem={renderItem}
             />
         </SafeAreaView>
     )
@@ -87,10 +86,9 @@ export default Releases
 const styles = StyleSheet.create({
     item: {
         width: '100%', 
-        padding: 10, 
-        paddingVertical: 12, 
+        padding: 10,        
         borderRadius: 4, 
-        backgroundColor: Colors.gray, 
+        backgroundColor: Colors.releasesColor, 
         marginBottom: 20
     }
 })

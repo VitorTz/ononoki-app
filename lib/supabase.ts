@@ -134,16 +134,19 @@ export async function spUpdateMangaReadingStatus(
 }
 
 
-export async function spReportBug(title: string, descr: string | null, bug_type: string): Promise<boolean> {
-    const { error } = await supabase
+export async function spReportBug(title: string, descr: string | null, bug_type: string): Promise<number | null> {
+    const { data, error } = await supabase
         .from("bug_reports")
         .insert([{title, descr, bug_type}])
+        .select("bug_id")
+        .single()
     
     if (error) {
         console.log("error spReportBug", error)
-        return false
+        return null
     }
-    return true
+    
+    return data.bug_id
 }
 
 

@@ -46,8 +46,8 @@ const MangaCollections = () => {
 
     return (
         <SafeAreaView style={AppStyle.safeArea}>
-            <TopBar title='Collections' >
-                <ReturnButton/>        
+            <TopBar title='Collections' titleColor={Colors.ononokiBlue} >
+                <ReturnButton color={Colors.ononokiBlue} />
             </TopBar>
             <FlashList
                 data={collections}

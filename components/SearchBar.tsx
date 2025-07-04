@@ -26,7 +26,7 @@ const SearchBar = ({ onChangeValue, style, color = 'white' }: SearchBarProps) =>
                 ref={inputRef}
                 placeholder='search'
                 placeholderTextColor={color}
-                style={styles.input}
+                style={[styles.input, {color}]}
                 onChangeText={onChangeValue}
             />
             <Pressable 

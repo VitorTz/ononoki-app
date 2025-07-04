@@ -80,16 +80,12 @@ const UsersPage = () => {
     }
 
     const renderFooter = () => {
-        if (loading) {
-            return (                
-                <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
-                    <ActivityIndicator size={32} color={Colors.peopleColor} />
-                </View> 
-            )
-        }
-        return (
-            <></>
-        )
+        return loading ?        
+            <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
+                <ActivityIndicator size={32} color={Colors.peopleColor} />
+            </View> 
+            :        
+            <View style={{height: 80}} />
     }
 
     const handleSearch = async (value: string) => {

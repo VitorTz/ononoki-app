@@ -1,8 +1,11 @@
+import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
 import { hp } from '@/helpers/util';
-import { spReportBug } from '@/lib/supabase';
+import { spReportBug, supabase } from '@/lib/supabase';
 import { AppStyle } from '@/styles/AppStyle';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -11,6 +14,7 @@ import {
     FlatList,
     Keyboard,
     KeyboardAvoidingView,
+    PermissionsAndroid,
     Platform,
     Pressable,
     ScrollView,
@@ -18,19 +22,23 @@ import {
     TextInput,
     View
 } from 'react-native';
+import RNFS from 'react-native-fs';
+import { launchImageLibrary } from 'react-native-image-picker';
+import * as mime from 'react-native-mime-types';
 import Toast from 'react-native-toast-message';
 import * as yup from 'yup';
 
 
 
-type BugType = "ImagesOutOfOrder" | "MissingImages" | "Broken" | "Other" 
+type BugType = "ImagesOutOfOrder" | "MissingImages" | "Broken" | "Other" | "Sugestion"
 
 
 const BUT_TYPE_LIST: BugType[] = [
     "Other",
     "Broken",
     "ImagesOutOfOrder",
-    "MissingImages"
+    "MissingImages",
+    "Sugestion"
 ]
 
 
@@ -42,10 +50,10 @@ const schema = yup.object().shape({
         .required('Title is required'),
     descr: yup
         .string()
-        .max(1024),
+        .max(2048, 'Max 2048 characters'),
     bugType: yup
         .string()
-        .max(32)
+        .max(64, 'Max 64 characters')
 });
 
 
@@ -95,6 +103,86 @@ const BugTypeSelector = ({value, onChange}: {value: BugType, onChange: (b: BugTy
 const BugReportForm = ({title}: {title: string | undefined | null}) => {
         
     const [isLoading, setLoading] = useState(false)
+    const [photos, setPhotos] = useState<string[]>([])
+    const maxImages = 5
+
+    const requestPermissions = async () => {
+        if (Platform.OS !== 'android') return true;
+        try {        
+            const storageGranted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                {
+                    title: "Storage Permission",
+                    message: "Ononoki needs access to your photos",
+                    buttonNeutral: "Ask Me Later",
+                    buttonNegative: "Cancel",
+                    buttonPositive: "OK"
+                }
+            );
+    
+            return storageGranted === PermissionsAndroid.RESULTS.GRANTED
+        } catch (err) {
+            console.warn(err);
+            return false;
+        }
+    };
+
+    const decode = (base64: any) => {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    };
+
+    const uploadToSupabase = async (uri: string, bug_id: string) => {
+        try {
+            const mimeType = mime.lookup(uri) || 'image/jpeg';   
+            const fileData = await RNFS.readFile(uri, 'base64');
+            const filePath = `${bug_id}/${Date.now()}.jpg`;
+            const { error } = await supabase
+                .storage
+                .from('bugs-screenshoots')
+                .upload(filePath, decode(fileData), {
+                    contentType: mimeType,
+                    upsert: false
+                });
+    
+            if (error) throw error;
+        } catch (error: any) {
+            console.error('error uploadToSupabase', error);
+        }
+    };
+
+    const handleResponse = async (response: any) => {
+        if (response.didCancel) {
+            Toast.show({text1: 'Cancelled', text2: 'Operation was cancelled', type: 'info'})      
+        } else if (response.errorCode) {
+            Toast.show({text1: 'Error', text2: response.errorMessage, type: 'error'})      
+        } else if (response.assets && response.assets.length > 0) {
+            const { uri } = response.assets[0];
+            setPhotos(prev => [...prev, ...[uri]])
+        }
+    };
+
+    const handlePickPhoto = async () => {
+        if (photos.length >= maxImages) {
+            Toast.show({text1: "Wait", text2: `Max ${maxImages} images`})
+            return
+        }
+
+        Keyboard.dismiss()
+        await requestPermissions();
+    
+        launchImageLibrary({
+                mediaType: 'photo',
+                includeBase64: false,        
+            }, (response: any) => {
+                handleResponse(response);
+            }
+        );
+    };
     
     const {
         control,
@@ -111,81 +199,134 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
     
     const onSubmit = async (form_data: FormData) => {
         setLoading(true)
-            await spReportBug(
+            Keyboard.dismiss()
+            
+            // Create bug
+            const bug_id: number | null = await spReportBug(
                 form_data.title, 
                 form_data.descr.trim() === '' ? null : form_data.descr.trim(), 
                 form_data.bugType
             )
-            Keyboard.dismiss()
+
+            console.log("bug", bug_id)
+
+            if (bug_id === null) {
+                Toast.show({text1: "Error", type: "error"})
+                router.back()
+                return
+            }
+            
+            // Upload bug images
+            if (photos.length > 0) {
+                const bug_id_str = bug_id.toString()
+                Toast.show({text1: "Uploading images...", type: "info"})
+                for (let i = 0; i < photos.length; i++) {
+                    await uploadToSupabase(photos[i], bug_id_str)
+                }
+            }            
             Toast.show({text1: "Thanks!", type: "success"})
             router.back()
         setLoading(false)
     };
 
-  return (
-    <KeyboardAvoidingView style={{flex: 1, gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps='always' >
-            
-            {/* Title */}
-            <Text style={AppStyle.inputHeaderText}>Title</Text>
-            <Controller
-                control={control}
-                name="title"
-                render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                    style={AppStyle.input}
-                    autoCapitalize="sentences"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}/>
-                )}
-            />
-            {errors.title && (<Text style={AppStyle.error}>{errors.title.message}</Text>)}
+    const renderImage = ({item} : {item: string}) => {
+        
+        const onPress = () => {
+            setPhotos(prev => prev.filter(i => i != item))
+        }
 
-            {/* BugType */}
-            <Controller
-                name="bugType"
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
-                    <BugTypeSelector  value={value} onChange={onChange} />
-                )}
-            />
-            {errors.bugType && (<Text style={AppStyle.error}>{errors.bugType.message}</Text>)}
-            
-            {/* Description */}
-            <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "center", alignSelf: 'flex-start'}} >
-                <Text style={AppStyle.inputHeaderText}>Description</Text>
-                <Text style={[AppStyle.textRegular, {fontSize: 12, color: Colors.neonRed}]}>optional</Text>
+        return (
+            <View style={{marginRight: 10}} >
+                <Image source={{uri: item}} style={{width: 128, height: 256, borderRadius: 4}} contentFit='cover' />
+                <Pressable onPress={onPress} style={{position: "absolute", right: 6, top: 6, padding: 6, backgroundColor: Colors.gray, borderRadius: 4}} hitSlop={AppConstants.hitSlopLarge} >
+                    <Ionicons name='trash-bin' size={20} color={Colors.BugReportColor} />
+                </Pressable>
             </View>
-            <Controller
-                name="descr"
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                    style={[AppStyle.input, {height: hp(25), paddingVertical: 10, textAlignVertical: 'top'}]}                    
-                    multiline={true}
-                    autoCapitalize="sentences"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}/>
-                )}
-            />
-            {errors.descr && (<Text style={AppStyle.error}>{errors.descr.message}</Text>)}            
-    
-            {/* Report Button */}
-            <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.BugReportColor}]} >
-                {
-                    isLoading ? 
-                    <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
-                    <Text style={AppStyle.formButtonText} >Report</Text>
-                }
-            </Pressable>
+        )        
+    }
 
-            <View style={{width: '100%', height: 40}} />
-            
-        </ScrollView>
-    </KeyboardAvoidingView>
-  )
+    return (
+        <KeyboardAvoidingView style={{flex: 1, gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
+            <ScrollView style={{flex: 1}} keyboardShouldPersistTaps='always' >
+                
+                {/* Title */}
+                <Text style={AppStyle.inputHeaderText}>Title</Text>
+                <Controller
+                    control={control}
+                    name="title"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                        style={AppStyle.input}
+                        autoCapitalize="sentences"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}/>
+                    )}
+                />
+                {errors.title && (<Text style={AppStyle.error}>{errors.title.message}</Text>)}
+
+                {/* BugType */}
+                <Controller
+                    name="bugType"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <BugTypeSelector  value={value} onChange={onChange} />
+                    )}
+                />
+                {errors.bugType && (<Text style={AppStyle.error}>{errors.bugType.message}</Text>)}
+                
+                {/* Description */}
+                <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "center", alignSelf: 'flex-start'}} >
+                    <Text style={AppStyle.inputHeaderText}>Description</Text>
+                    <Text style={[AppStyle.textRegular, {fontSize: 12, color: Colors.neonRed}]}>optional</Text>
+                </View>
+                <Controller
+                    name="descr"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                        style={[AppStyle.input, {height: hp(25), paddingVertical: 10, textAlignVertical: 'top'}]}                    
+                        multiline={true}
+                        autoCapitalize="sentences"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}/>
+                    )}
+                />
+                {errors.descr && (<Text style={AppStyle.error}>{errors.descr.message}</Text>)}            
+
+                {/* Bug Images */}
+                <Pressable onPress={handlePickPhoto} style={[AppStyle.formButton, {backgroundColor: Colors.BugReportColor}]} >                
+                    <Text style={AppStyle.formButtonText} >Images (optional)</Text>
+                </Pressable>
+        
+                {/* Report Button */}
+                <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.BugReportColor}]} >
+                    {
+                        isLoading ? 
+                        <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
+                        <Text style={AppStyle.formButtonText} >Report</Text>
+                    }
+                </Pressable>
+
+                {
+                    photos.length > 0 &&
+                    <View style={{width: '100%', marginTop: 20, gap: 20}} >
+                        <FlatList
+                            data={photos}
+                            keyExtractor={(item) => item}
+                            horizontal={true}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={renderImage}
+                        />
+                    </View>
+                }
+
+                <View style={{height: 80}} />
+                
+            </ScrollView>
+        </KeyboardAvoidingView>
+    )
 }
 
 export default BugReportForm

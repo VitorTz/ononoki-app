@@ -175,7 +175,7 @@ const SignUpForm = () => {
                     )}
                 />
                 <Pressable onPress={() => setShowPassword(prev => !prev)} style={{position: 'absolute', height: '100%', alignItems: "center", justifyContent: "center", right: 10}} >
-                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color={Colors.white} />
+                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color={Colors.accountColor} />
                 </Pressable>
             </View>
             {errors.password && (<Text style={AppStyle.error}>{errors.password.message}</Text>)}
@@ -200,7 +200,7 @@ const SignUpForm = () => {
             {/* Bio */}
             <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
                 <Text style={AppStyle.inputHeaderText}>Bio</Text>
-                <Text style={[AppStyle.textRegular, {color: Colors.orange, marginBottom: 10}]}>optional</Text>
+                <Text style={[AppStyle.textRegular, {color: Colors.accountColor, marginBottom: 10, fontSize: 12}]}>optional</Text>
             </View>
             <Controller
                 control={control}
@@ -219,7 +219,7 @@ const SignUpForm = () => {
             {errors.bio && (<Text style={AppStyle.error}>{errors.bio.message}</Text>)}
     
             {/* Sign Up Button */}
-            <Pressable onPress={handleSubmit(onSubmit)} style={AppStyle.formButton} >
+            <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor}]} >
                 {
                     isLoading ? 
                     <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
@@ -231,7 +231,7 @@ const SignUpForm = () => {
             <View style={{flexDirection: "row", marginTop: 20, gap: 4}} >
                 <Text style={{color: Colors.white, fontSize: 14}} >Already Have an Account?</Text> 
                 <Pressable onPress={() => router.replace("/(auth)/SignIn")}  hitSlop={{left: 10, top: 10, bottom: 10, right: 10}} >
-                    <Text style={{textDecorationLine: "underline", fontWeight: "bold", color: Colors.white, fontSize: 14}} >
+                    <Text style={{textDecorationLine: "underline", fontWeight: "bold", color: Colors.accountColor, fontSize: 14}} >
                         Sign In
                     </Text> 
                 </Pressable>

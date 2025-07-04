@@ -9,10 +9,8 @@
 2. Start the app
 
    ```bash
-   npx expo start
+   npx expo start or npx expo run:android
    ```
-
-In the output, you'll find options to open the app in a
 
 # APK
 - eas build -p android --profile preview

@@ -153,7 +153,7 @@ const ChangeProfileInfoForm = () => {
         {/* Bio */}
         <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
             <Text style={AppStyle.inputHeaderText}>Bio</Text>
-            <Text style={[AppStyle.textRegular, {color: Colors.orange, marginBottom: 10}]}>optional</Text>
+            <Text style={[AppStyle.textRegular, {color: Colors.accountColor, marginBottom: 10, fontSize: 12}]}>optional</Text>
         </View>
         <Controller
             control={control}

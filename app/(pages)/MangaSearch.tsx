@@ -2,6 +2,7 @@ import ReturnButton from '@/components/buttons/ReturnButton'
 import MangaGrid from '@/components/grid/MangaGrid'
 import SearchBar from '@/components/SearchBar'
 import TopBar from '@/components/TopBar'
+import { Colors } from '@/constants/Colors'
 import { Manga } from '@/helpers/types'
 import { spSearchManga } from '@/lib/supabase'
 import { AppStyle } from '@/styles/AppStyle'
@@ -68,11 +69,11 @@ const SearchManhwa = () => {
 
   return (
     <SafeAreaView style={AppStyle.safeArea} >
-      <TopBar title='Search' > 
-        <ReturnButton/>
+      <TopBar title='Search' titleColor={Colors.ononokiBlue} > 
+        <ReturnButton color={Colors.ononokiBlue} />
       </TopBar>
       <View style={{flex: 1, gap: 10}} >
-        <SearchBar onChangeValue={debounceSearch} />
+        <SearchBar onChangeValue={debounceSearch} color={Colors.ononokiBlue} />
         <MangaGrid
           mangas={manhwas}
           loading={loading}

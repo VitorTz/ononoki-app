@@ -95,8 +95,7 @@ const App = () => {
                     return
                 }
                 
-                await dbGetAppVersion(db)
-                    .then(value => setLocalVersion(value))
+                await dbGetAppVersion(db).then(value => setLocalVersion(value))
 
                 await initSession()
                 
@@ -122,13 +121,13 @@ const App = () => {
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
-            <View style={{flexDirection: 'row', alignItems: "center", paddingRight: 2, marginBottom: 10, justifyContent: "space-between"}} >
+            <View style={{flexDirection: 'row', alignItems: "center", paddingRight: 2, marginTop: 10, marginBottom: 10, justifyContent: "space-between"}} >
                 <AppLogo/>
                 <Row style={{gap: 16}} >
-                    <Ionicons name='sync-outline' size={28} color={Colors.white} />
-                    <Ionicons name='search-outline' size={28} color={Colors.white} />
-                    <Ionicons name='dice-outline' size={28} color={Colors.white} />
-                    <Ionicons name='options-outline' size={28} color={Colors.white} />
+                    <Ionicons name='sync' size={28} color={Colors.ononokiBlue} />
+                    <Ionicons name='search' size={28} color={Colors.ononokiBlue} />
+                    <Ionicons name='dice' size={28} color={Colors.ononokiBlue} />
+                    <Ionicons name='options' size={28} color={Colors.ononokiBlue} />
                 </Row>
             </View>
             <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >

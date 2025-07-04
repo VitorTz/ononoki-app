@@ -8,15 +8,17 @@ import React, { useEffect, useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
 
+type GenreType = Genre | 'Header'
+
 const GenreGrid = () => {
 
     const db = useSQLiteContext()
-    const [genres, setGenres] = useState<Genre[]>([])
+    const [genres, setGenres] = useState<GenreType[]>([])
     
     useEffect(
         () => {
             async function init() {
-                await dbReadGenres(db).then(values => setGenres(values))
+                await dbReadGenres(db).then(values => setGenres([...['Header' as any], ...values]))
             }
             init()
         },
@@ -33,6 +35,25 @@ const GenreGrid = () => {
         })
     }
 
+    const viewAllGenres = () => {
+
+    }
+
+    const renderItem = ({item}: {item: GenreType}) => {
+        if (item === "Header") {
+            return (
+                <Pressable onPress={viewAllGenres} style={styles.button} >
+                    <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>All Genres</Text>
+                </Pressable>
+            )
+        }
+        return (
+            <Pressable onPress={() => onPress(item)} style={styles.button} >
+                <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>{item.genre}</Text>
+            </Pressable>
+        )
+    }
+
     return (
         <View style={styles.container} >
             <FlatList
@@ -40,11 +61,7 @@ const GenreGrid = () => {
                 keyExtractor={(item, index) => index.toString()}
                 showsHorizontalScrollIndicator={false}
                 horizontal={true}
-                renderItem={({item, index}) => 
-                    <Pressable onPress={() => onPress(item)} style={styles.button} >
-                        <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>{item.genre}</Text>
-                    </Pressable>
-                }
+                renderItem={renderItem}
             />
         </View>
     )
