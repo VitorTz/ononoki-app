@@ -96,7 +96,7 @@ const ChangeProfileImageForm = () => {
           if (error) throw error;
           
           const publicUrl = supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl
-          const profileUpdateError = await spSetUserProfileImageUrl(user!.user_id, publicUrl, width, height);
+          const profileUpdateError = await spSetUserProfileImageUrl(user!.user_id!, publicUrl, width, height);
           if (profileUpdateError) {
             Toast.show({text1: "Error", text2: profileUpdateError.message, type: "error"})
           } else {

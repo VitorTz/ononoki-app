@@ -32,6 +32,7 @@ const UsersPage = () => {
     const hasResults = useRef(true)
     const page = useRef(0)
 
+    console.log(user)
     useEffect(
         () => {
             const init = async () => {
@@ -135,7 +136,7 @@ const UsersPage = () => {
             <FlashList
                 keyboardShouldPersistTaps={'always'}
                 data={users}                
-                keyExtractor={(item) => item.user_id.toString()}
+                keyExtractor={(item) => item.public_user_id.toString()}
                 renderItem={renderItem}
                 estimatedItemSize={400}
                 drawDistance={hp(100)}

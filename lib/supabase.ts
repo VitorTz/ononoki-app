@@ -23,6 +23,7 @@ export async function spGetSession(): Promise<Session | null> {
     return session
 }
 
+
 export async function spUpdateUserLastLogin(user_id: string) {
     const { error } = await supabase
         .from("users")
@@ -42,7 +43,7 @@ export async function spFetchUser(
 
     const { data, error } = await supabase
         .from("users")
-        .select("user_id, username, bio, profile_image_url, profile_image_width, profile_image_height")
+        .select("user_id, public_user_id, username, bio, profile_image_url, profile_image_width, profile_image_height")
         .eq("user_id", user_id)
         .single()
 
