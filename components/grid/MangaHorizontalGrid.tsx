@@ -14,7 +14,7 @@ interface ManhwaHorizontalGridProps {
 
 const MangaHorizontalGrid = ({mangas}: ManhwaHorizontalGridProps) => {
     return (
-        <View style={{alignItems: 'flex-start', height: AppConstants.ManhwaCoverDimension.height + 180, width: '100%'}}>
+        <View style={{alignItems: 'flex-start', height: AppConstants.MangaCoverDimension.height + 180, width: '100%'}}>
             <FlashList
                 data={mangas}
                 horizontal={true}

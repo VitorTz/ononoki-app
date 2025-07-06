@@ -46,17 +46,8 @@ const ChapterPage = () => {
   }
 
   Toast.show({text1: "Error", text2: "Invalid chapter orientation", type: "error"})
-  router.back()  
-
-  // return (
-  //   <SafeAreaView style={[AppStyle.safeArea, styles.container]} >
-  //     {
-  //       readMode === 'List' ? 
-  //       <ChapterReaderVertical mangaTitle={mangaTitle} /> :
-  //       <ChapterReaderHorizontal mangaTitle={mangaTitle} />
-  //     }
-  //   </SafeAreaView>
-  // )
+  router.back()
+  
 }
 
 export default ChapterPage

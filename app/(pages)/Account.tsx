@@ -33,7 +33,7 @@ const Account = () => {
         <Text style={AppStyle.textRegular}>You are not logged!</Text>
         <Row style={{gap: 10}} >
           <Pressable onPress={handleSignIn} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor, flex: 1}]} >
-            <Text style={AppStyle.formButtonText} >Sign</Text>
+            <Text style={AppStyle.formButtonText} >SignIn</Text>
           </Pressable>
           <Pressable onPress={handleSignUp} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor, flex: 1}]} >
             <Text style={AppStyle.formButtonText} >SignUp</Text>

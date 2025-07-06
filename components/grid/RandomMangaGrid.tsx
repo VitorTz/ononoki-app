@@ -73,7 +73,7 @@ export default RandomMangaGrid
 const style = StyleSheet.create({
     gridContainer: {
         alignItems: 'flex-start', 
-        height: AppConstants.ManhwaCoverDimension.height + 180, 
+        height: AppConstants.MangaCoverDimension.height + 180, 
         width: '100%'
     }
 })

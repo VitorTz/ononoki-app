@@ -17,7 +17,7 @@ import React, { useRef } from 'react'
 import { Animated, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
 
 
-const MENU_WIDTH = wp(70)
+const MENU_WIDTH = 250
 const ANIMATION_TIME = 300
 const SCREEN_WIDTH = wp(100)
 const SCREEN_HEIGHT = hp(100)
@@ -86,8 +86,7 @@ const Home = () => {
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
                 <View style={{gap: 10}} >
                     <GenreGrid/>
-                    <MangaCollectionsHorizontalGrid/>
-                    <View style={{height: 10}} />
+                    <MangaCollectionsHorizontalGrid/>                
                     <LatestUpdatesGrid/>
                     <MostViewGrid/>
                     <RandomMangaGrid/>

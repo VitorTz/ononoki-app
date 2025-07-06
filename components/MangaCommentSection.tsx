@@ -24,11 +24,13 @@ interface CommentComponentProps {
 const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
 
     const { session } = useAuthState()
-
     const [numLikes, setNumLikes] = useState(comment.comment_total_likes)
     const [loading, setLoading] = useState(false)
     const [userVote, setUserVote] = useState<boolean | null>(comment.user_vote_state)
     const userIsOwner = session ? session.user.id == comment.author_user_id : false
+    const upColor = userVote == true ? Colors.orange : Colors.white
+    const downColor = userVote == false ? Colors.orange : Colors.white
+    
     
     const vote = async (type: 'Up' | "Down") => {
         if (!session) {
@@ -54,17 +56,14 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
         }
 
         setLoading(false)
-    }
-
-    const upColor = userVote == true ? Colors.orange : Colors.white
-    const downColor = userVote == false ? Colors.orange : Colors.white
+    }    
 
     return (
-        <View style={{width: '100%', gap: 20, flexDirection: 'row', alignItems: "center", justifyContent: "flex-start"}} >            
+        <View style={styles.commentContainer} >
             <Column style={{height: '100%'}} >
                 <Image 
-                    source={comment.author_avatar_url} 
-                    style={{width: 96, height: 96, alignSelf: "flex-start", borderRadius: 4}} 
+                    source={comment.author_avatar_url}
+                    style={styles.commentImage} 
                     contentFit='cover' />
             </Column>
             <Column style={{gap: 10}} >
@@ -114,7 +113,7 @@ const CommentList = ({loading, comments, deleteComment}: CommentListProps) => {
     }
 
     return (
-        <View style={{width: '100%', gap: 30, alignItems: "center", justifyContent: "flex-start"}} >
+        <View style={styles.commentListContainer} >
             {
                 comments.map(item => <CommentComponent deleteComment={deleteComment} key={item.comment_id} comment={item} />)
             }
@@ -140,32 +139,43 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
         }
 
         setLoading(true)
-            const t = text.trim()
+            const commentText = text.trim()
 
-            if (t.length > 1024 || t.length < 3) {
-                Toast.show({text1: "Max 1024 characters and min 3 characters", type: "info", position: 'top'})
+            if (
+                commentText.length > AppConstants.COMMENT_MAX_LENGTH || 
+                commentText.length < AppConstants.COMMENT_MIN_LENGTH
+            ) {
+                Toast.show({
+                    text1: `Max ${AppConstants.COMMENT_MAX_LENGTH} and min ${AppConstants.COMMENT_MIN_LENGTH} characters`,
+                    type: "info", 
+                    position: 'top'
+                })
                 setLoading(false)
                 return
             }            
 
-            const comment_id: number | null = await spCreateComment(session.user.id, t, manga_id)
+            const comment_id: number | null = await spCreateComment(
+                session.user.id,
+                commentText, 
+                manga_id
+            )
 
             if (!comment_id) {
                 Toast.show({text1: "Could not upload comment!", type: "error", position: 'top'})
+                Keyboard.dismiss()
                 setLoading(false)
                 return
             }
 
-            setText('')
             Keyboard.dismiss()
-            Toast.show({text1: "Your comment has created!", type: "success"})
+            setText('')
             const c: Comment = {
                 user_vote_state: null,
                 author_username : user.username,
                 author_avatar_url: user.profile_image_url,
                 author_user_id: user.user_id,
                 comment_id,
-                comment_text: t,
+                comment_text: commentText,
                 comment_total_likes: 0,
                 manga_id,
                 parent_comment_id: null,
@@ -179,10 +189,10 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
         setText('')
     }
 
-    if (!user) {
+    if (!user || !session) {
         return (
             <View style={{width: '100%', gap: 20, alignItems: "center", justifyContent: "flex-start"}} >
-                <Text style={AppStyle.error}>You need to be logged to comment</Text>
+                <Text style={AppStyle.error}>Would you like to post a comment? Please login or sign up first!</Text>
             </View>    
         )
     }
@@ -197,7 +207,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
                 <TextInput
                     placeholder='Write a comment...'
                     placeholderTextColor={Colors.white}
-                    style={{padding: 10, width: '100%', borderRadius: 4, height: hp(20), backgroundColor: Colors.gray, color: Colors.white, fontFamily: "LeagueSpartan_400Regular", fontSize: 18}}
+                    style={styles.input}
                     multiline={true}
                     textAlignVertical='top'
                     value={text}
@@ -267,22 +277,21 @@ const LoadMoreCommentsComponent = ({
         setLoading(false)
     }
 
+    if (!(hasResults && numComments >= PAGE_LIMIT && !loadingFirstComments)) {
+        return <></>
+    }
+
+    if (loading) {
+        return (
+            <ActivityIndicator size={32} color={Colors.white} style={{alignSelf: "center"}} />
+        )
+    }
+
     return (
-        <>
-        {   
-            hasResults && numComments >= PAGE_LIMIT && !loadingFirstComments &&
-            <>
-                {
-                    loading ?
-                    <ActivityIndicator size={32} color={Colors.white} style={{alignSelf: "center"}} /> :
-                    <Pressable onPress={load} style={{backgroundColor: Colors.gray, padding: 10, borderRadius: 4, alignSelf: "center"}} >
-                        <Text style={AppStyle.textRegular}>Load more comments</Text>
-                    </Pressable>
-                }
-            </>
-        }
-        </>
-    )
+        <Pressable onPress={load} style={{backgroundColor: Colors.gray, padding: 10, borderRadius: 4, alignSelf: "center"}} >
+            <Text style={AppStyle.textRegular}>Load more comments</Text>
+        </Pressable>
+    )    
 }
 
 interface MangaCommentSectionProps {
@@ -299,8 +308,15 @@ const MangaCommenctSection = ({manga}: MangaCommentSectionProps) => {
     const init = async () => {
         setLoadComments(true)
         spGetComments(manga.manga_id, session ? session.user.id : null)
-            .then(v => setComments([...v]))
-            .then(v => setLoadComments(false))
+            .then(v => {
+                setComments([...v]); 
+                setLoadComments(false)
+            })
+            .catch(e => {
+                console.log("error MangaCommenctSection init", e)
+                setComments([])
+                setLoadComments(false)
+            })
     }
 
     useEffect(
@@ -314,7 +330,7 @@ const MangaCommenctSection = ({manga}: MangaCommentSectionProps) => {
         const success = await spDeleteComment(comment_id)
         if (success) {
             setComments(prev => [...prev.filter((comt, index, arr) => comt.comment_id != comment_id)])
-            Toast.show({text1: "Success", text2: "Your comment has deleted!", type: "success"})
+            Toast.show({text1: "Deleted!", type: "success"})
         }
     }
 
@@ -344,5 +360,34 @@ const styles = StyleSheet.create({
         height: 32, 
         alignSelf: "flex-start",
         borderRadius: 4
+    },
+    input: {
+        padding: 10, 
+        width: '100%', 
+        borderRadius: 4, 
+        height: hp(20), 
+        backgroundColor: Colors.gray, 
+        color: Colors.white, 
+        fontFamily: "LeagueSpartan_400Regular", 
+        fontSize: 18
+    },
+    commentContainer: {
+        width: '100%', 
+        gap: 20, 
+        flexDirection: 'row', 
+        alignItems: "center", 
+        justifyContent: "flex-start"
+    },
+    commentImage: {
+        width: 96, 
+        height: 96, 
+        alignSelf: "flex-start", 
+        borderRadius: 4
+    },
+    commentListContainer: {
+        width: '100%', 
+        gap: 30, 
+        alignItems: "center", 
+        justifyContent: "flex-start"
     }
 })

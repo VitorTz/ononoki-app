@@ -36,7 +36,7 @@ const GenreGrid = () => {
     }
 
     const viewAllGenres = () => {
-
+        router.navigate("/(pages)/AllGenres")
     }
 
     const renderItem = ({item}: {item: GenreType}) => {

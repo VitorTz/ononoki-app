@@ -11,7 +11,7 @@ const SignInPage = () => {
     
     return (
         <SafeAreaView style={AppStyle.safeArea} >
-            <TopBar title='SignIn' titleColor={Colors.accountColor} >
+            <TopBar title='SignUp' titleColor={Colors.accountColor} >
                 <HomeButton color={Colors.accountColor} />
             </TopBar>
             <SignUpForm/>

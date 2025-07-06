@@ -1,3 +1,4 @@
+import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
 import { hp } from '@/helpers/util';
 import { spCreateUser, supabase } from '@/lib/supabase';
@@ -27,8 +28,8 @@ import * as yup from 'yup';
 const schema = yup.object().shape({  
     name: yup
         .string()
-        .min(3, 'Username must be at least 3 characters')        
-        .max(30, 'Max 30 characters')
+        .min(AppConstants.USERNAME_MIN_LENGTH, `Username must be at least ${AppConstants.USERNAME_MIN_LENGTH} characters`)
+        .max(AppConstants.USERNAME_MAX_LENGTH, `Max ${AppConstants.USERNAME_MAX_LENGTH} characters`)
         .required('Username is required'),
     email: yup
         .string()
@@ -36,10 +37,13 @@ const schema = yup.object().shape({
         .required('Email is required'),
     bio: yup
         .string()
-        .max(2048, "Max 2048 characters"),
+        .max(AppConstants.BIO_MAX_LENGTH, `Max ${AppConstants.BIO_MAX_LENGTH} characters`),
+    malAccount: yup
+        .string()
+        .max(AppConstants.MAL_USERNAME_MAX_LENGTH, `Max ${AppConstants.MAL_USERNAME_MAX_LENGTH} characters`),
     password: yup
         .string()
-        .min(3, 'Password must be at least 3 characters')
+        .min(AppConstants.PASSWORD_MIN_LENGTH, `Password must be at least ${AppConstants.PASSWORD_MIN_LENGTH} characters`)
         .required('Password is required'),  
     confirmPassword: yup
         .string()
@@ -52,6 +56,7 @@ interface FormData {
     email: string
     password: string
     confirmPassword: string
+    malAccount: string
     bio: string
 }
 
@@ -71,6 +76,7 @@ const SignUpForm = () => {
         defaultValues: {            
             name: '',
             email: '',
+            malAccount: '',
             password: '',
             confirmPassword: '',
             bio: ''
@@ -79,43 +85,55 @@ const SignUpForm = () => {
     
     const onSubmit = async (form_data: FormData) => {
         Keyboard.dismiss()
-        setLoading(true)
-
-        const { user, session ,error } = await spCreateUser(
-            form_data.email.trim(),
-            form_data.password.trim(),
-            form_data.name.trim(),
-            form_data.bio.trim()
-        )
         
-        if (error) {
-            console.log(error, error.code)
-            switch (error.code) {
-                case "weak_password":
-                    Toast.show({
-                        text1: "Weak Password!",
-                        text2: "Must contain at least 1 uppercase, 1 lowercase, 1 digit and 1 symbol", 
-                        type: "error"                        
-                    })
-                    break
-                default:
-                    Toast.show({text1: "Error", text2: error.message, type: "error"})
-                    break
+        if (
+            form_data.malAccount.trim() != '' && 
+            form_data.malAccount.trim().length < AppConstants.MAL_USERNAME_MIN_LENGTH) {
+            Toast.show({
+                text1: "Hey",
+                text2: "MyAnimeList username must be at least 2 characters",
+                type: "info"
+            })
+            return
+        }
+        
+        setLoading(true)
+        const { user, session ,error } = await spCreateUser(
+                form_data.email.trim(),
+                form_data.password.trim(),
+                form_data.name.trim(),
+                form_data.bio.trim(),
+                form_data.malAccount.trim()
+            )
+            
+            if (error) {
+                console.log(error, error.code)
+                switch (error.code) {
+                    case "weak_password":
+                        Toast.show({
+                            text1: "Weak Password!",
+                            text2: "Must contain at least 1 uppercase, 1 lowercase, 1 digit and 1 symbol", 
+                            type: "error"                        
+                        })
+                        break
+                    default:
+                        Toast.show({text1: "Error", text2: error.message, type: "error"})
+                        break
+                }
+                setLoading(false)
+                return
             }
-            setLoading(false)
-            return
-        }
 
-        if (user && session) {
-            login(user!, session)
-            setLoading(false)
-            Toast.show({text1: "Success", type: "success"})
-            router.replace("/(pages)/Home")
-            return
-        } else {
-            logout()
-            await supabase.auth.signOut()
-        }
+            if (user && session) {
+                login(user!, session)
+                setLoading(false)
+                Toast.show({text1: "Success", type: "success"})
+                router.replace("/(pages)/Home")
+                return
+            } else {
+                logout()
+                await supabase.auth.signOut()
+            }
 
         setLoading(false)
     };
@@ -196,6 +214,25 @@ const SignUpForm = () => {
                 )}
             />
             {errors.confirmPassword && (<Text style={AppStyle.error}>{errors.confirmPassword.message}</Text>)}
+            
+            {/* Mal Account Name */}
+            <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
+                <Text style={[AppStyle.inputHeaderText, {fontSize: 18}]}>MyAnimeList Account Name</Text>
+                <Text style={[AppStyle.textRegular, {color: Colors.accountColor, marginBottom: 10, fontSize: 12}]}>optional</Text>
+            </View>
+            <Controller
+                control={control}
+                name="malAccount"
+                render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                    style={AppStyle.input}
+                    autoCapitalize='none'                    
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}/>
+                )}
+            />
+            {errors.malAccount && (<Text style={AppStyle.error}>{errors.malAccount.message}</Text>)}
 
             {/* Bio */}
             <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >

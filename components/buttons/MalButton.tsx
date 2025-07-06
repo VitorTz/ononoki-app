@@ -2,14 +2,14 @@ import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { AppStyle } from '@/styles/AppStyle'
 import React from 'react'
-import { Linking, Pressable, Text, ViewStyle } from 'react-native'
+import { Linking, Pressable, StyleSheet, Text, ViewStyle } from 'react-native'
 import Toast from 'react-native-toast-message'
 
 
 interface MALButtonProps {
     mal_url: string
     style?: ViewStyle
-    color?: string
+    color?: string    
 }
 
 const MALButton = ({mal_url, style, color = 'white'}: MALButtonProps) => {
@@ -26,7 +26,7 @@ const MALButton = ({mal_url, style, color = 'white'}: MALButtonProps) => {
         <Pressable 
             onPress={openUrl} 
             hitSlop={AppConstants.hitSlopLarge}
-            style={[style, {backgroundColor: Colors.backgroundColor, borderRadius: 4, width: 40, height: 40, alignItems: "center", justifyContent: "center"}]}
+            style={[styles.container, style]}
             >
                 <Text style={[AppStyle.textMangaTitle, {fontSize: 12, color}]} >MAL</Text>
         </Pressable>
@@ -34,3 +34,14 @@ const MALButton = ({mal_url, style, color = 'white'}: MALButtonProps) => {
 }
 
 export default MALButton
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: Colors.backgroundColor,
+        borderRadius: 4, 
+        width: 40, 
+        height: 40, 
+        alignItems: "center", 
+        justifyContent: "center"
+    }
+})

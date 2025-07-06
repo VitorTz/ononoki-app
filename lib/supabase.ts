@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthError, createClient, PostgrestError, Session } from '@supabase/supabase-js';
 import { AppRelease, Chapter, ChapterImage, Comment, DonateMethod, Manga, MangaCollection, OnonokiUser, ReadingSummary } from "../helpers/types";
 
+
 // RLS
 const supabaseUrl = "https://hfflwodueiqktdhmvfzd.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZmx3b2R1ZWlxa3RkaG12ZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2NDk5ODMsImV4cCI6MjA2MzIyNTk4M30.aQyHEIlQUAGvxI1anhz21h_cog2rNCO6m4gOaky9ebQ"
@@ -43,7 +44,7 @@ export async function spFetchUser(
 
     const { data, error } = await supabase
         .from("users")
-        .select("user_id, public_user_id, username, bio, profile_image_url, profile_image_width, profile_image_height")
+        .select("*")
         .eq("user_id", user_id)
         .single()
 
@@ -197,7 +198,8 @@ export async function spCreateUser(
     email: string,
     password: string, 
     username: string,
-    bio: string | null = null
+    bio: string | null = null,
+    malAccount: string | null
 ): Promise<{
     user: OnonokiUser | null, 
     session: Session | null,
@@ -206,7 +208,11 @@ export async function spCreateUser(
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { username, bio: bio != '' ? bio : null } }
+        options: { data: { 
+            username, 
+            bio: bio != '' ? bio : null ,
+            mal_url: malAccount != '' ? `${AppConstants.MAL_PROFILE_URL}${malAccount}` : null
+        } }
     })
 
     if (error) {
@@ -235,7 +241,7 @@ export async function spGetDonationMethods(): Promise<DonateMethod[]> {
 
 
 export async function spCreateComment(
-    user_id: string, 
+    user_id: string,
     comment: string,
     manga_id: number, 
     parent_comment_id: string | null = null
@@ -256,12 +262,56 @@ export async function spCreateComment(
 }
 
 
+export async function spCreateFriend(user_id: string, friend_id: string): Promise<PostgrestError | null> {
+    const { error } = await supabase
+        .from("friends")
+        .insert([{user_id, friend_id}])
+
+    if (error) {
+        console.log("error spCreateFriend", error)
+        return error
+    }
+
+    return null
+}
+
+export async function spDeleteFriend(user_id: string, friend_id: string): Promise<PostgrestError | null> {
+    const { error } = await supabase
+        .from("friends")
+        .delete()
+        .eq("user_id", user_id)
+        .eq("friend_id", friend_id)
+
+    if (error) {
+        console.log("error spDeleteFriend", error)
+        return error
+    }
+
+    return null
+}
+
+export async function spGetUserFriends(user_id: string): Promise<string[]> {
+    const { data, error } = await supabase
+        .from("friends")
+        .select("friend_id")
+        .eq("user_id", user_id)
+    
+    if (error) {
+        console.log("error spGetUserFriends", error)
+        return []
+    }
+
+    return data.map(i => i.friend_id)
+}
+
+
 export async function spGetComments(
     p_manga_id: number, 
     p_requesting_user_id: string | null = null,
     p_offset: number = 0,
     p_limit: number = 30
 ): Promise<Comment[]> {
+    console.log(p_manga_id, p_requesting_user_id)
     const { data, error } = await supabase
         .rpc(
             "get_manga_comments_with_user_votes", 
@@ -272,7 +322,7 @@ export async function spGetComments(
         console.log("error spGetComments", error)
         return []
     }
-
+    console.log(data)
     return data as Comment[]    
 
 }
@@ -370,6 +420,23 @@ export async function spChangeUsernameAndBio(
     return error
 }
 
+export async function spChangeUserInfos(
+    user_id: string,
+    username: string,
+    bio: string | null,
+    malAccount: string | null
+) {
+    const { error } = await supabase
+        .from("users")
+        .update({
+            username, 
+            bio, 
+            mal_url: malAccount && malAccount != '' ? `${AppConstants.MAL_PROFILE_URL}${malAccount}` : null
+        })
+        .eq("user_id", user_id)
+    return error
+}
+
 
 export async function spSetUserProfileImageUrl(
     user_id: string, 
@@ -436,7 +503,7 @@ export async function spFetchUsers(
     p_limit: number = 30
 ): Promise<OnonokiUser[]> {
     const { data, error } = await supabase
-        .rpc("get_users", {p_ignore_user, p_username, p_offset, p_limit})
+        .rpc("search_users", {p_ignore_user, p_username, p_offset, p_limit})
 
     if (error) {
         console.log("error spFetchUsers", error)
@@ -449,15 +516,16 @@ export async function spFetchUsers(
 
 export async function spFetchUserReadingStatusSummary(
     p_user_id: string
-): Promise<ReadingSummary[]> {
-    
+): Promise<ReadingSummary[]> {    
+
     const { data, error } = await supabase
-        .rpc("get_user_reading_status_summary", {p_user_id})
+        .rpc("get_reading_status_summary", {p_user_id})
 
     if (error) {
         console.log("error spFetchUserReadingStatusSummary", error)
         return AppConstants.READING_STATUS_ORDER.map(i => {return {status: i, total: 0}})
     }
-    
+
+    console.log(data)
     return data
 }

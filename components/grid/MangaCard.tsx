@@ -34,8 +34,8 @@ interface MangaCoverProps {
 
 const MangaCard = ({
     manga, 
-    width = AppConstants.ManhwaCoverDimension.width, 
-    height = AppConstants.ManhwaCoverDimension.height, 
+    width = AppConstants.MangaCoverDimension.width, 
+    height = AppConstants.MangaCoverDimension.height, 
     marginRight = 10,
     marginBottom = 0,
     styleProp = false,

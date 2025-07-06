@@ -18,7 +18,6 @@ import {
     View
 } from 'react-native'
 import CloseBtn from './buttons/CloseButton'
-import NewAppVersionButton from './buttons/NewAppVersionButton'
 
 
 
@@ -107,14 +106,6 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
         await supabase.auth.signOut().catch(e => console.log(e))
         await dbClearTable(db, 'reading_status')
         logout()
-        try {
-            while (router.canGoBack()) {
-                router.back();
-            }
-        } catch (e) {
-            console.log(e)
-        }
-        router.replace("/(pages)/Home")
     }
 
     const openMangaRequest = () => {
@@ -130,7 +121,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
             <View style={styles.container} >
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between", marginBottom: 10}} >
                     <Text style={[AppStyle.textHeader, {color: Colors.ononokiBlue, fontFamily: "LeagueSpartan_600SemiBold"}]}>Menu</Text>
-                    <CloseBtn onPress={closeMenu} style={{padding: 2}} color={Colors.ononokiBlue} />
+                    <CloseBtn onPress={closeMenu} color={Colors.ononokiBlue} />
                 </View>
             
                 {
@@ -216,10 +207,6 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     />
                 }
 
-                <View style={{alignSelf: "flex-start"}} >
-                    <NewAppVersionButton/>
-                </View>
-
             </View>            
         </ScrollView>
     )
@@ -230,7 +217,7 @@ export default LateralMenu
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        gap: 20,
+        gap: 16,
         paddingHorizontal: wp(4),
         paddingTop: hp(4),       
         marginTop: 6, 

@@ -1,7 +1,7 @@
 
 
 export const AppConstants = {
-    ManhwaCoverDimension: {
+    MangaCoverDimension: {
         width: 300,
         height: 420
     },
@@ -17,7 +17,6 @@ export const AppConstants = {
         top: 20,
         bottom: 20
     },
-    MANHWAS_PER_PAGE: 30,
     READING_STATUS: [
         'Completed',
         'Reading',
@@ -70,5 +69,14 @@ export const AppConstants = {
         ["On Hold", "#C9A31F"], 
         ["Plan to Read", "#747474"], 
         ["Re-Reading", "#F8BCCD"]
-    ])
+    ]),
+    MAL_PROFILE_URL: "https://myanimelist.net/profile/",
+    MAL_USERNAME_MIN_LENGTH: 2,
+    MAL_USERNAME_MAX_LENGTH: 16,
+    USERNAME_MIN_LENGTH: 3,
+    USERNAME_MAX_LENGTH: 64,
+    BIO_MAX_LENGTH: 4096,
+    PASSWORD_MIN_LENGTH: 8,
+    COMMENT_MIN_LENGTH: 2,
+    COMMENT_MAX_LENGTH: 1024
 }

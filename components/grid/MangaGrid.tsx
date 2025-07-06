@@ -37,7 +37,7 @@ const MangaGrid = ({
     shouldShowChapterDate = true,
     showChaptersPreview = true,
     listMode = 'FlashList',
-    estimatedItemSize = AppConstants.ManhwaCoverDimension.height + 180,
+    estimatedItemSize = AppConstants.MangaCoverDimension.height + 180,
     activityIndicatorColor = Colors.ononokiBlue
 }: MangaGridProps) => {    
 
@@ -47,8 +47,8 @@ const MangaGrid = ({
         paddingHorizontal,
         gap,
         numColumns,
-        AppConstants.ManhwaCoverDimension.width,
-        AppConstants.ManhwaCoverDimension.height
+        AppConstants.MangaCoverDimension.width,
+        AppConstants.MangaCoverDimension.height
     )
 
     useEffect(

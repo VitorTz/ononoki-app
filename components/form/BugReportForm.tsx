@@ -247,7 +247,7 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
 
     return (
         <KeyboardAvoidingView style={{flex: 1, gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-            <ScrollView style={{flex: 1}} keyboardShouldPersistTaps='always' >
+            <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='always' >
                 
                 {/* Title */}
                 <Text style={AppStyle.inputHeaderText}>Title</Text>
@@ -295,11 +295,6 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
                 />
                 {errors.descr && (<Text style={AppStyle.error}>{errors.descr.message}</Text>)}            
 
-                {/* Bug Images */}
-                <Pressable onPress={handlePickPhoto} style={[AppStyle.formButton, {backgroundColor: Colors.BugReportColor}]} >                
-                    <Text style={AppStyle.formButtonText} >Images (optional)</Text>
-                </Pressable>
-        
                 {/* Report Button */}
                 <Pressable onPress={handleSubmit(onSubmit)} style={[AppStyle.formButton, {backgroundColor: Colors.BugReportColor}]} >
                     {
@@ -309,6 +304,11 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
                     }
                 </Pressable>
 
+                {/* Bug Images */}
+                <Pressable onPress={handlePickPhoto} style={[AppStyle.formButton, {backgroundColor: Colors.BugReportColor}]} >                
+                    <Text style={AppStyle.formButtonText} >Images (optional)</Text>
+                </Pressable>
+        
                 {
                     photos.length > 0 &&
                     <View style={{width: '100%', marginTop: 20, gap: 20}} >

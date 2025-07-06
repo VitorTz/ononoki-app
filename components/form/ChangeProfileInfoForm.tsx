@@ -1,6 +1,7 @@
+import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
 import { hp } from '@/helpers/util';
-import { spChangeUsernameAndBio } from '@/lib/supabase';
+import { spChangeUserInfos } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
 import { AppStyle } from '@/styles/AppStyle';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -23,22 +24,26 @@ import * as yup from 'yup';
 const schema = yup.object().shape({  
     name: yup
         .string()
-        .min(3, 'Username must be at least 3 characters')        
-        .max(30, 'Max 30 characters')
+        .min(AppConstants.USERNAME_MIN_LENGTH, `Username must be at least ${AppConstants.USERNAME_MIN_LENGTH} characters`)        
+        .max(AppConstants.USERNAME_MAX_LENGTH, `Max ${AppConstants.USERNAME_MAX_LENGTH} characters`)
         .required('Username is required'),
     email: yup
         .string()
         .email('Please enter a valid email')
         .required('Email is required'),
+    malAccount: yup
+        .string()
+        .max(AppConstants.MAL_USERNAME_MAX_LENGTH, `Max ${AppConstants.MAL_USERNAME_MAX_LENGTH} characters`),
     bio: yup
         .string()
-        .max(2048, "Max 2048 characters")
+        .max(AppConstants.BIO_MAX_LENGTH, `Max ${AppConstants.BIO_MAX_LENGTH} characters`)
 });
 
 interface FormData {
     name: string
     email: string
     bio: string
+    malAccount: string
 }
 
 
@@ -46,9 +51,10 @@ const ChangeProfileInfoForm = () => {
 
     const [isLoading, setLoading] = useState(false)
     const { user, session, setUser } = useAuthState()
-
     const changingInfo = useRef(false)
-    
+
+    const currentMalAccount = user && user.mal_url ? user.mal_url.split(AppConstants.MAL_PROFILE_URL)[1]: ''    
+
     const {
         control,
         handleSubmit,
@@ -58,7 +64,8 @@ const ChangeProfileInfoForm = () => {
         defaultValues: {            
             name: user ? user.username : '',
             email: session ? session.user.email! : '',
-            bio: user && user.bio ? user.bio : ''
+            bio: user && user.bio ? user.bio : '',
+            malAccount: currentMalAccount
         },
     });
     
@@ -72,25 +79,45 @@ const ChangeProfileInfoForm = () => {
             return
         }
 
-        if (changingInfo.current) { return }        
+        if (
+            form_data.malAccount.trim() != '' && 
+            form_data.malAccount.trim().length < AppConstants.MAL_USERNAME_MIN_LENGTH
+        ) {
+            Toast.show({
+                text1: "Hey",
+                text2: "MyAnimeList username must be at least 2 characters",
+                type: "info"
+            })
+            return
+        }
+
+        if (changingInfo.current) { return }
+
         changingInfo.current = true
         Keyboard.dismiss()
 
         setLoading(true)
             const newBio = form_data.bio.trim() === '' ? null : form_data.bio.trim()            
             const newUsername = form_data.name.trim()
+            const newMalAccount = form_data.malAccount.trim()
 
-            if (newUsername != user.username || newBio != user.bio) {                
-                const nameChangeError: PostgrestError | null = await spChangeUsernameAndBio(
-                    user.user_id, 
+            if (
+                newUsername != user.username || 
+                newBio != user.bio || 
+                newMalAccount != currentMalAccount
+            ) {
+                const error: PostgrestError | null = await spChangeUserInfos(
+                    user.user_id!,
                     newUsername,
-                    newBio
+                    newBio,
+                    newMalAccount
                 );
-                if (nameChangeError) {
-                    console.log(nameChangeError)
+
+                if (error) {
+                    console.log("error ChangeProfileInfoForm", error)
                     Toast.show({
                         text1: "Error", 
-                        text2: nameChangeError.message,
+                        text2: error.message,
                         type: "error"
                     })
                 } else {
@@ -101,7 +128,8 @@ const ChangeProfileInfoForm = () => {
                             bio: newBio,
                             profile_image_url: user.profile_image_url,
                             profile_image_width: user.profile_image_width,
-                            profile_image_height: user.profile_image_height
+                            profile_image_height: user.profile_image_height,
+                            mal_url: newMalAccount != '' ? `${AppConstants.MAL_PROFILE_URL}${newMalAccount}` : null
                         }
                     )
                     Toast.show({text1: "Success", type: "success"})
@@ -149,6 +177,25 @@ const ChangeProfileInfoForm = () => {
             )}
         />
         {errors.email && (<Text style={AppStyle.error}>{errors.email.message}</Text>)}
+
+        {/* Mal Account Name */}
+        <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >
+            <Text style={[AppStyle.inputHeaderText, {fontSize: 18}]}>MyAnimeList Account Name</Text>
+            <Text style={[AppStyle.textRegular, {color: Colors.accountColor, marginBottom: 10, fontSize: 12}]}>optional</Text>
+        </View>
+        <Controller
+            control={control}
+            name="malAccount"
+            render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+                style={AppStyle.input}
+                autoCapitalize='none'                    
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}/>
+            )}
+        />
+        {errors.malAccount && (<Text style={AppStyle.error}>{errors.malAccount.message}</Text>)}
 
         {/* Bio */}
         <View style={{flexDirection: 'row', gap: 10, alignItems: "center", justifyContent: "flex-start"}} >

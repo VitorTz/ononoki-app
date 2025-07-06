@@ -70,7 +70,7 @@ const MangaByGenre = () => {
                 showChaptersPreview={false}                
                 onEndReached={onEndReached}/>            
         </SafeAreaView>
-  )
+    )
 }
 
 

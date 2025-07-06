@@ -6,9 +6,10 @@ import Column from '@/components/util/Column'
 import { Colors } from '@/constants/Colors'
 import { OnonokiUser } from '@/helpers/types'
 import { hp } from '@/helpers/util'
-import { spFetchUsers } from '@/lib/supabase'
+import { spCreateFriend, spDeleteFriend, spFetchUsers, spGetUserFriends } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { useProfileState } from '@/store/profileState'
+import { useUserFriendState } from '@/store/userFriendState'
 import { AppStyle } from '@/styles/AppStyle'
 import { FlashList } from '@shopify/flash-list'
 import { Image } from 'expo-image'
@@ -16,6 +17,7 @@ import { router } from 'expo-router'
 import { debounce } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import Toast from 'react-native-toast-message'
 
 
 const PAGE_LIMIT = 30
@@ -24,6 +26,7 @@ const UsersPage = () => {
 
     const { user } = useAuthState()
     const [users, setUsers] = useState<OnonokiUser[]>([])
+    const { friends, setFriends } = useUserFriendState()
     const { setProfile } = useProfileState()
     const [loading, setLoading] = useState(false)
     
@@ -32,18 +35,31 @@ const UsersPage = () => {
     const hasResults = useRef(true)
     const page = useRef(0)
 
-    console.log(user)
+    const fetchFriends = async () => {
+        if (friends.size != 0 || !user || !user.user_id) {
+            return
+        }
+        await spGetUserFriends(user.user_id)
+            .then(v => setFriends(new Set(v)))
+            .catch(e => console.log(e))        
+    }
+
+    const fetchUsers = async () => {
+        await spFetchUsers(user ? user.user_id! : null, null, 0, PAGE_LIMIT)
+            .then(values => {
+                hasResults.current = values.length == PAGE_LIMIT;
+                setUsers(values)
+            })
+            .catch(e => {console.log(e); setUsers([])})
+    }
+    
     useEffect(
         () => {
             const init = async () => {
                 if (isInitialized.current) { return }
                 setLoading(true)
-                await spFetchUsers(user ? user.user_id : null, null, 0, PAGE_LIMIT)
-                    .then(values => {
-                        hasResults.current = values.length == PAGE_LIMIT;
-                        setUsers(values)
-                    })
-                    .catch(e => {console.log(e); setUsers([])})
+                await fetchFriends()
+                await fetchUsers()
                 setLoading(false)
                 isInitialized.current = true
             }
@@ -61,11 +77,29 @@ const UsersPage = () => {
 
     }
 
-    const addFriend = () => {
-
+    const addOrRemoveFriend = async (friend: OnonokiUser) => {
+        if (!user || !user.user_id) {
+            Toast.show({text1: "You are not logged", type: "error"})
+            return
+        }
+        
+        const s = new Set(friends)
+        if (friends.has(friend.user_id)) {
+            await spDeleteFriend(user.user_id, friend.user_id)
+            s.delete(friend.user_id)
+        } else {
+            await spCreateFriend(user.user_id, friend.user_id)
+            s.add(friend.user_id)
+        }
+        setFriends(s)
     }
 
     const renderItem = ({item}: {item: OnonokiUser}) => {
+
+        const iconName = friends.has(item.user_id) ?
+            'person-remove' :
+            'person-add'
+        
         return (
             <Pressable style={styles.item} onPress={() => openProfile(item)} >
                 <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >
@@ -74,19 +108,25 @@ const UsersPage = () => {
                 </View>
                 <Column style={{gap: 20, alignItems: "center"}} >
                     <Button iconName='mail' onPress={mail} iconColor={Colors.peopleColor} />
-                    <Button iconName='person-add' onPress={addFriend} iconColor={Colors.peopleColor} />
+                    <Button iconName={iconName} onPress={() => addOrRemoveFriend(item)} iconColor={Colors.peopleColor} />
                 </Column>
             </Pressable>
         )
     }
 
     const renderFooter = () => {
-        return loading ?        
-            <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
-                <ActivityIndicator size={32} color={Colors.peopleColor} />
-            </View> 
-            :        
+
+        if (loading) {
+            return (
+                <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
+                    <ActivityIndicator size={32} color={Colors.peopleColor} />
+                </View>
+            )
+        }
+
+        return (
             <View style={{height: 80}} />
+        )        
     }
 
     const handleSearch = async (value: string) => {
@@ -94,7 +134,7 @@ const UsersPage = () => {
         page.current = 0
         setLoading(true)
           await spFetchUsers(
-            user ? user.user_id : null, 
+            user ? user.user_id! : null, 
             searchTerm.current === '' ? null : searchTerm.current, 
             page.current * PAGE_LIMIT,
             PAGE_LIMIT
@@ -115,7 +155,7 @@ const UsersPage = () => {
         page.current += 1
         setLoading(true)
         await spFetchUsers(
-            user ? user.user_id : null, 
+            user ? user.user_id! : null, 
             searchTerm.current === '' ? null : searchTerm.current,
             page.current * PAGE_LIMIT, 
             PAGE_LIMIT
@@ -125,7 +165,7 @@ const UsersPage = () => {
             setUsers(prev => [...prev, ...values])
           })
         setLoading(false)
-      }      
+    }
 
     return (
         <SafeAreaView style={AppStyle.safeArea} >
@@ -136,9 +176,9 @@ const UsersPage = () => {
             <FlashList
                 keyboardShouldPersistTaps={'always'}
                 data={users}                
-                keyExtractor={(item) => item.public_user_id.toString()}
+                keyExtractor={(item) => item.user_id.toString()}
                 renderItem={renderItem}
-                estimatedItemSize={400}
+                estimatedItemSize={200}
                 drawDistance={hp(100)}
                 onEndReached={onEndReached}
                 scrollEventThrottle={4}

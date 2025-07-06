@@ -21,7 +21,7 @@ const ProfileImageBig = ({image_url, width, height}: ProfileImageBigProps) => {
     return (
         <Image
             source={image_url} 
-            style={{width: w, height: h, borderRadius: 4}}
+            style={{width: w, height: h, borderRadius: 4, alignSelf: "center"}}
             contentFit='cover' 
         />
     )

@@ -1,8 +1,8 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import React from 'react'
-import { Pressable, ViewStyle } from 'react-native'
+import React, { useState } from 'react'
+import { ActivityIndicator, Pressable, ViewStyle } from 'react-native'
 
 
 interface ButtonProps {
@@ -16,8 +16,24 @@ interface ButtonProps {
 
 const Button = ({iconName, onPress, style, iconSize = 28, iconColor = Colors.white}: ButtonProps) => {
 
+  const [loading, setLoading] = useState(false)
+
+  const p = async () => {
+    setLoading(true)
+    await onPress()
+    setLoading(false)
+  }
+
+  if (loading) {
+    return (
+      <Pressable onPress={p} hitSlop={AppConstants.hitSlop} style={style} >
+        <ActivityIndicator size={iconSize} color={iconColor} />
+      </Pressable>
+    )
+  }
+
   return (
-    <Pressable onPress={onPress} hitSlop={AppConstants.hitSlop} style={style} >
+    <Pressable onPress={p} hitSlop={AppConstants.hitSlop} style={style} >
         <Ionicons name={iconName as any} size={iconSize} color={iconColor} />
     </Pressable>
   )

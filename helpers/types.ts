@@ -22,13 +22,11 @@ export type RatingRegister = {
     userRating: number | null
 }
 
-
 export type ChapterImage = {
     image_url: string
     width: number
     height: number
 }
-
 
 export type MangaGenre = {
     manga_id: number
@@ -49,7 +47,6 @@ export type MangaAuthor = {
     name: string
 }
 
-
 export type Genre = {
     genre: string
     genre_id: number
@@ -58,13 +55,12 @@ export type Genre = {
 export type OnonokiUser = {
     username: string
     user_id: string
-    public_user_id: string
     bio: string | null
     profile_image_url: string
     profile_image_width: number
     profile_image_height: number
+    mal_url: string | null
 }
-
 
 export type ChapterReadLog = {
   chapters: Set<number>,
@@ -75,13 +71,11 @@ export type ChapterReadLog = {
   color: string
 }
 
-
 export type DonateMethod = {
     method: string
     value: string
     action: string
 }
-
 
 export type AppRelease = {
     release_id: number
@@ -91,7 +85,6 @@ export type AppRelease = {
     created_at: string
 }
 
-
 export type Chapter = {
     chapter_id: number
     manga_id: number
@@ -100,14 +93,13 @@ export type Chapter = {
     created_at: string
 }
 
-
 export type Comment = {
     comment_id: number
     manga_id: number
     parent_comment_id: number | null
     comment_text: string
     created_at: string
-    author_user_id: string
+    author_user_id: string | undefined
     author_username: string
     author_avatar_url: string
     comment_total_likes: number
