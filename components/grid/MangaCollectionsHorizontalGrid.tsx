@@ -9,7 +9,6 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
 
 
-
 const MangaCollectionsHorizontalGrid = () => {
 
   const { collections, setCollections, setCurrentCollection } = useCollectionState()  
@@ -26,7 +25,6 @@ const MangaCollectionsHorizontalGrid = () => {
     },
     []
   )
-
 
   const onViewAllPress = () => {
     router.navigate("/MangaCollections")
@@ -55,13 +53,12 @@ const MangaCollectionsHorizontalGrid = () => {
         <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]} >{item.title}</Text>        
       </Pressable>
     )
-  }
-
-  const COLEC = [...['Header'], ...collections]
+  }  
 
   return (
-    <View style={{width: '100%', gap: 20}} >
-      <View style={{width: '100%'}}>
+    <View style={{width: '100%', gap: 20}} >      
+      {
+        collections.length > 0 &&
         <FlatList
           data={[...['Header'], ...collections].slice(0, 11) as any}
           keyExtractor={(item, index) => index.toString()}
@@ -69,9 +66,8 @@ const MangaCollectionsHorizontalGrid = () => {
           onEndReachedThreshold={2}
           showsHorizontalScrollIndicator={false}
           renderItem={renderItem}
-        />
-      </View>
-      
+        />      
+      }
     </View>
   )
 }

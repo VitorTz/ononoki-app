@@ -1,6 +1,7 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import ChangeProfileImageForm from '@/components/form/ChangeProfileImageForm'
 import ChangeProfileInfoForm from '@/components/form/ChangeProfileInfoForm'
+import ReadingSummaryComponent from '@/components/ReadingSummary'
 import TopBar from '@/components/TopBar'
 import Row from '@/components/util/Row'
 import { Colors } from '@/constants/Colors'
@@ -8,7 +9,7 @@ import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
 import React from 'react'
-import { KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from 'react-native'
+import { KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 
 
@@ -49,9 +50,12 @@ const Account = () => {
         <ReturnButton color={Colors.accountColor} />
       </TopBar>
       <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >
-          <ChangeProfileImageForm/>
-          <ChangeProfileInfoForm/>
+        <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={'always'} showsVerticalScrollIndicator={false} >          
+            <ChangeProfileImageForm/>
+            <ChangeProfileInfoForm/>
+            <View style={{height: 20}} />
+            <ReadingSummaryComponent user_id={session.user.id} is_app_user={true} />
+            <View style={{marginBottom: 160}} />          
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

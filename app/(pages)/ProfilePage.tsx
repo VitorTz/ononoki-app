@@ -1,9 +1,9 @@
 import AddFriendButton from '@/components/buttons/AddFriendButton'
 import Button from '@/components/buttons/Button'
+import HomeButton from '@/components/buttons/HomeButton'
 import ReturnButton from '@/components/buttons/ReturnButton'
 import ProfileImageBig from '@/components/ProfileImageBig'
 import ReadingSummaryComponent from '@/components/ReadingSummary'
-import TopBar from '@/components/TopBar'
 import Row from '@/components/util/Row'
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
@@ -17,7 +17,7 @@ import Toast from 'react-native-toast-message'
 
 
 const ProfilePage = () => {
-
+    
     const { user } = useAuthState()
     const { profile } = useProfileState()    
 
@@ -42,12 +42,14 @@ const ProfilePage = () => {
     }
 
     return (
-        <SafeAreaView style={AppStyle.safeArea} >
-            <TopBar title={`${profile!.username}'s Profile`} titleColor={Colors.peopleColor} >
+        <SafeAreaView style={AppStyle.safeArea} >            
+            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between", width: '100%', marginTop: 10, marginBottom: 10}} >
+                <HomeButton color={Colors.peopleColor} />
                 <ReturnButton color={Colors.peopleColor} />
-            </TopBar>
+            </View>
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={'always'} >
                 <View style={{flex: 1, gap: 20}} >
+                    <Text style={[AppStyle.textHeader, {fontFamily: 'LeagueSpartan_600SemiBold', color: Colors.peopleColor}]}>{profile.username}</Text>
                     <ProfileImageBig 
                         image_url={profile!.profile_image_url} 
                         width={profile!.profile_image_width} 
@@ -74,7 +76,7 @@ const ProfilePage = () => {
                     
                         <AddFriendButton 
                             user_id={user ? user.user_id : null} 
-                            friend_id={profile.user_id}
+                            friend={profile}
                             style={styles.button}
                         />
 

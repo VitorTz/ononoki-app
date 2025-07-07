@@ -4,6 +4,7 @@ import { Manga } from '@/helpers/types';
 import { dbGetMangaReadingStatus, dbUpdateMangaReadingStatus } from '@/lib/database';
 import { spUpdateMangaReadingStatus } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
@@ -72,7 +73,9 @@ const AddToLibray = ({
                 dropDownContainerStyle={{backgroundColor: Colors.gray}}
                 labelStyle={{color: textColor}}
                 textStyle={{fontFamily: "LeagueSpartan_400Regular", fontSize: 18, color: Colors.white}}
-                showArrowIcon={false}
+                showArrowIcon={true}
+                ArrowUpIconComponent={() => {return <Ionicons name='chevron-up' size={20} color={Colors.backgroundColor} />}}
+                ArrowDownIconComponent={() => {return <Ionicons name='chevron-down' size={20} color={Colors.backgroundColor} />}}
                 placeholder='Add To Library'
                 placeholderStyle={{color: textColor, fontSize: 18, fontFamily: "LeagueSpartan_400Regular"}}
                 value={value as any}

@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
-import { dbPopulateReadingStatusTable } from '@/lib/database';
+import { OnonokiUser } from '@/helpers/types';
+import { dbPopulateReadingStatusTable, dbPopulateUserFriendsTable } from '@/lib/database';
 import {
     spFetchUser,
     spGetSession,
@@ -46,7 +47,7 @@ interface FormData {
 const SignInForm = () => {
     
     const db = useSQLiteContext()
-    const { login } = useAuthState()  
+    const { login, logout } = useAuthState()  
     const [isLoading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     
@@ -67,44 +68,46 @@ const SignInForm = () => {
         
         setLoading(true)
 
-        const { error } = await supabase.auth.signInWithPassword({
-            email: form_data.email,
-            password: form_data.password
-        })
-
-        if (error) {
-            Toast.show({text1: "Error", type: 'error'})
-            setLoading(false)
-            return
-        }
-    
-        const session = await spGetSession()
-
-        if (!session) {
-            Toast.show({text1: "Server error", type: 'error'})
-            setLoading(false)
-            return
-        }
-
-        await spFetchUser(session.user.id)    
-            .then(user => {
-                if (!user) {
-                    console.log("error fetching user in sign in", session.user.id)
-                } else {
-                    login(user, session)
-                }
+            const { error } = await supabase.auth.signInWithPassword({
+                email: form_data.email,
+                password: form_data.password
             })
 
-        dbPopulateReadingStatusTable(db, session.user.id)
+            if (error) {
+                Toast.show({text1: "Error", type: 'error'})
+                setLoading(false)
+                return
+            }
+        
+            const session = await spGetSession()
+
+            if (!session) {
+                Toast.show({text1: "Server error", type: 'error'})
+                setLoading(false)
+                return
+            }        
+
+            const user: OnonokiUser | null = await spFetchUser(session.user.id)    
+
+            if (!user) {
+                Toast.show({text1: "Server error", type: 'error'})
+                setLoading(false)
+                logout()
+                return
+            } else {
+                await dbPopulateReadingStatusTable(db, session.user.id)
+                await dbPopulateUserFriendsTable(db, session.user.id)
+                login(user, session)
+                Toast.show({text1: "Login successful!", text2: `Welcome back, ${user.username}`, type: 'success'})
+            }
 
         setLoading(false)        
-        Toast.show({text1: "Success", type: 'success'})
         router.replace("/(pages)/Home")
     };
 
   return (
     <KeyboardAvoidingView style={{width: '100%', gap: 20}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-        <ScrollView style={{width: '100%'}} keyboardShouldPersistTaps='always' >
+        <ScrollView style={{width: '100%'}} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='always' >
 
             {/* Email */}
             <Text style={AppStyle.inputHeaderText}>Email</Text>

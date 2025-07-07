@@ -107,6 +107,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     const handleLogout = async () => {
         await supabase.auth.signOut().catch(e => console.log(e))
         await dbClearTable(db, 'reading_status')
+        await dbClearTable(db, 'friends')
         setFriends(new Set())
         logout()
     }

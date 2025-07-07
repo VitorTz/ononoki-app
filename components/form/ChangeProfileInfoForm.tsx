@@ -225,8 +225,7 @@ const ChangeProfileInfoForm = () => {
                 <ActivityIndicator size={32} color={Colors.backgroundColor} /> :
                 <Text style={AppStyle.formButtonText} >Save</Text>
             }
-        </Pressable>
-        <View style={{marginBottom: 160}} />
+        </Pressable>        
     </>
   )
 }

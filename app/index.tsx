@@ -1,7 +1,7 @@
 import AppLogo from '@/components/util/Logo';
 import Row from '@/components/util/Row';
 import { Colors } from '@/constants/Colors';
-import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbReadAppInfo, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
+import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbPopulateUserFriendsTable, dbReadAppInfo, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
 import { spFetchUser, spGetSession, supabase } from '@/lib/supabase';
 import { useAppVersionState } from '@/store/appReleaseState';
 import { useAuthState } from '@/store/authState';
@@ -65,6 +65,7 @@ const App = () => {
 
         if (!session) { 
             await dbClearTable(db, 'reading_status')
+            await dbClearTable(db, 'friends')
             logout()
             return 
         }
@@ -73,12 +74,13 @@ const App = () => {
         
         if (user) {
             login(user, session)
+            await dbPopulateReadingStatusTable(db, session.user.id)
+            await dbPopulateUserFriendsTable(db, session.user.id)
         } else {
             console.log("error fetching user", session.user.id)
+            Toast.show({text1: "We couldn’t authenticate your account", text2: "Re-enter your username and password", type: "error", visibilityTime: 3500})
             logout()
-        }
-        
-        await dbPopulateReadingStatusTable(db, session.user.id)
+        }        
     }
 
     useEffect(
@@ -86,6 +88,7 @@ const App = () => {
             async function init() {    
                 if (alreadyInited.current) { return }
                 alreadyInited.current = true
+                
                 Image.clearMemoryCache()
 
                 const state: NetInfoState = await NetInfo.fetch()

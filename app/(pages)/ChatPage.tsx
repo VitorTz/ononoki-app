@@ -1,3 +1,4 @@
+import HomeButton from '@/components/buttons/HomeButton'
 import OpenChatButton from '@/components/buttons/OpenChatButton'
 import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
@@ -11,13 +12,16 @@ import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 
 const ChatPage = () => {
 
-  const { user, session } = useAuthState()  
+  const { user } = useAuthState()  
 
   if (!user) {
     return (
       <SafeAreaView style={AppStyle.safeArea} >
           <TopBar title='Chats' titleColor={Colors.chatColor} >
+            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >
+              <HomeButton color={Colors.chatColor} />
               <ReturnButton color={Colors.chatColor} />
+            </View>
           </TopBar>
           <View style={{gap: 16}} >
             <Text style={[AppStyle.textRegular, {color: Colors.chatColor}]}>You are not logged!</Text>
@@ -37,7 +41,10 @@ const ChatPage = () => {
   return (
     <SafeAreaView style={AppStyle.safeArea} >
         <TopBar title='Chats' titleColor={Colors.chatColor} >
-            <ReturnButton color={Colors.chatColor} />
+            <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 20}} >
+              <HomeButton color={Colors.chatColor} />
+              <ReturnButton color={Colors.chatColor} />
+            </View>
         </TopBar>
         <View style={{position: 'absolute', bottom: 80, right: 20}} >
             <OpenChatButton/>

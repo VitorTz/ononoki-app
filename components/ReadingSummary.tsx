@@ -1,13 +1,16 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { ReadingSummary } from '@/helpers/types'
+import { dbGetUserReadingSummary } from '@/lib/database'
 import { spFetchUserReadingStatusSummary } from '@/lib/supabase'
 import { AppStyle } from '@/styles/AppStyle'
+import { useSQLiteContext } from 'expo-sqlite'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, DimensionValue, StyleSheet, Text, View } from 'react-native'
 
 interface ReadingSummaryProps {
     user_id: string
+    is_app_user?: boolean
 }
 
 
@@ -71,8 +74,9 @@ const ReadingSummaryBar = ({items}: {items: ReadingSummary[]}) => {
 }
 
 
-const ReadingSummaryComponent = ({user_id}: ReadingSummaryProps) => {
+const ReadingSummaryComponent = ({user_id, is_app_user}: ReadingSummaryProps) => {
 
+    const db = useSQLiteContext()
     const [readingSummary, setReadingSummary] = useState<ReadingSummary[]>([])
     const [loading, setLoading] = useState(false)
     
@@ -81,9 +85,15 @@ const ReadingSummaryComponent = ({user_id}: ReadingSummaryProps) => {
             const init = async () => {
                 if (readingSummary.length > 0) { return }
                 setLoading(true)
-                await spFetchUserReadingStatusSummary(user_id)
-                    .then(v => setReadingSummary(sortSummary(v)))
-                    .catch(e => {console.log(e); setReadingSummary([])})
+                    if (is_app_user) {
+                        await dbGetUserReadingSummary(db)
+                            .then(v => setReadingSummary(v as any))
+                            .catch(e => {console.log(e); setReadingSummary([])})
+                    } else {
+                        await spFetchUserReadingStatusSummary(user_id)
+                            .then(v => setReadingSummary(sortSummary(v)))
+                            .catch(e => {console.log(e); setReadingSummary([])})
+                    }                
                 setLoading(false)
             }
             init()

@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import React, { useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
 
@@ -32,8 +33,10 @@ const ReadingStatusPicker = ({
             textStyle={{fontFamily: "LeagueSpartan_400Regular", fontSize: 18}}
             placeholder='Reading Status'
             placeholderStyle={{color: Colors.white, fontSize: 18, fontFamily: "LeagueSpartan_400Regular"}}
+            ArrowUpIconComponent={() => {return <Ionicons name='chevron-up' size={20} color={Colors.backgroundColor} />}}
+            ArrowDownIconComponent={() => {return <Ionicons name='chevron-down' size={20} color={Colors.backgroundColor} />}}
             value={value as any}
-            showArrowIcon={false}
+            showArrowIcon={true}
             items={items}
             setOpen={setOpen}
             setValue={setValue}

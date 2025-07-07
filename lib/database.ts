@@ -1,7 +1,7 @@
 import { convertStringListToSet, secondsSince } from '@/helpers/util';
 import * as SQLite from 'expo-sqlite';
-import { AppRelease, Author, Chapter, ChapterReadLog, Genre, Manga, MangaAuthor, MangaGenre } from '../helpers/types';
-import { spFetchUserReadingStatus, spGetMangas, spGetReleases } from "./supabase";
+import { AppRelease, Author, Chapter, ChapterReadLog, Genre, Manga, MangaAuthor, MangaGenre, OnonokiUser } from '../helpers/types';
+import { spFetchUserReadingStatus, spGetFriends, spGetMangas, spGetReleases } from "./supabase";
 
 
 export async function dbMigrate(db: SQLite.SQLiteDatabase) {
@@ -72,12 +72,12 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
           FOREIGN KEY (manga_id) REFERENCES mangas(manga_id) ON DELETE CASCADE ON UPDATE CASCADE
       );
 
-      CREATE TABLE IF NOT EXISTS reading_status (        
+      CREATE TABLE IF NOT EXISTS reading_status (
           manga_id INTEGER NOT NULL PRIMARY KEY,
           status TEXT NOT NULL,
           updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT fk_reading_status_manga FOREIGN KEY (manga_id) REFERENCES mangas (manga_id) ON UPDATE CASCADE ON DELETE CASCADE
-      );    
+      );
 
       CREATE TABLE IF NOT EXISTS reading_history (
           manga_id    INTEGER NOT NULL,      
@@ -692,6 +692,19 @@ export async function dbReadMangaAuthors(
 }
 
 
+export async function dbGetUserReadingSummary(db: SQLite.SQLiteDatabase) {
+  const r = await db.getAllAsync(`
+      SELECT 
+          status AS status,
+          COUNT(*) AS total
+      FROM reading_status
+      GROUP BY status;
+  `)
+
+  return r ? r : []
+}
+
+
 export async function dbReadMangaById(
   db: SQLite.SQLiteDatabase,
   manga_id: number
@@ -845,6 +858,100 @@ export async function dbPopulateReadingStatusTable(
         VALUES ${placeholders};
     `, params
     ).catch(error => console.log("error dbPopulateReadingStatusTable", error));
+}
+
+
+export async function dbPopulateUserFriendsTable(db: SQLite.SQLiteDatabase, p_user_id: string) {
+  const friends: OnonokiUser[] = await spGetFriends(p_user_id)
+
+  if (friends.length === 0) { 
+    await dbClearTable(db, 'friends')
+    return 
+  }
+
+  const placeholders = friends.map(() => '(?,?,?, ?,?,?, ?)').join(',');  
+  const params = friends.flatMap(i => [
+      i.user_id,
+      i.username,
+      i.profile_image_url,
+      i.profile_image_width,
+      i.profile_image_height,
+      i.bio,
+      i.mal_url
+  ]);
+
+  await db.runAsync(
+    `
+        INSERT OR REPLACE INTO friends (
+            user_id, 
+            username,
+            profile_image_url,
+            profile_image_width,
+            profile_image_height,
+            bio,
+            mal_url
+        )
+        VALUES ${placeholders};
+    `, params
+  ).catch(error => console.log("error dbPopulateUserFriendsTable", error));
+}
+
+
+export async function dbUserHasFriend(db: SQLite.SQLiteDatabase, friend_id: string): Promise<boolean> {
+  const hasFriend = await db.getFirstAsync<{user_id: string}>(
+    "SELECT user_id FROM friends WHERE user_id = ?;",
+    [friend_id]
+  ).catch(e => {console.log("error dbUserHasFriend", e); return null})
+  
+  return hasFriend !== null
+}
+
+
+export async function dbGetUserFriends(
+  db: SQLite.SQLiteDatabase,
+  limit: number = 30,
+  offset: number = 0
+): Promise<OnonokiUser[]> {
+  const friends = await db
+    .getAllAsync<OnonokiUser>("SELECT * FROM friends ORDER BY username ASC LIMIT ? OFFSET ?;", [limit, offset])
+    .catch(e => console.log("error dbGetUserFriends", e))
+
+  return friends ? friends : []
+}
+
+
+export async function dbDeleteFriend(db: SQLite.SQLiteDatabase, friend_id: string) {
+  await db.runAsync(
+    "DELETE FROM friends WHERE user_id = ?;", 
+    [friend_id]
+  ).catch(e => console.log("error dbDeleteFriend", e))
+}
+
+
+export async function dbCreateFriend(db: SQLite.SQLiteDatabase, friend: OnonokiUser) {
+  await db.runAsync(
+    `
+      INSERT OR REPLACE INTO friends (
+        user_id,
+        username,
+        profile_image_url,
+        profile_image_width,
+        profile_image_height,
+        bio,
+        mal_url
+      )
+      VALUES (?,?,?, ?,?,?, ?);
+    `,
+    [
+      friend.user_id, 
+      friend.username, 
+      friend.profile_image_url, 
+      friend.profile_image_width, 
+      friend.profile_image_height, 
+      friend.bio, 
+      friend.mal_url
+    ]
+  ).catch(e => console.log("error dbCreateFriend", e))
 }
 
 

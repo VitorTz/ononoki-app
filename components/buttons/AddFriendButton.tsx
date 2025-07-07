@@ -1,24 +1,38 @@
 import { Colors } from '@/constants/Colors'
+import { OnonokiUser } from '@/helpers/types'
+import { dbCreateFriend, dbDeleteFriend, dbUserHasFriend } from '@/lib/database'
 import { spCreateFriend, spDeleteFriend } from '@/lib/supabase'
-import { useUserFriendState } from '@/store/userFriendState'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import React, { useState } from 'react'
+import { useSQLiteContext } from 'expo-sqlite'
+import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, ViewStyle } from 'react-native'
 import Toast from 'react-native-toast-message'
 
 
 interface AddFriendButton {
     user_id: string | null
-    friend_id: string
+    friend: OnonokiUser
     style: ViewStyle
 }
 
-const AddFriendButton = ({user_id, friend_id, style}: AddFriendButton) => {
+const AddFriendButton = ({user_id, friend, style}: AddFriendButton) => {
 
-    const { friends, setFriends } = useUserFriendState()
+    const db = useSQLiteContext()
     const [loading, setLoading] = useState(false)
+    const [isFriend, setIsFriend] = useState(false)
 
-    const iconName = friends.has(friend_id) ?
+    useEffect(
+        () => {
+            const init = async () => {
+                await dbUserHasFriend(db, friend.user_id)
+                    .then(v => setIsFriend(v))
+            }
+            init()
+        },
+        []
+    )
+
+    const iconName = isFriend ?
         'person-remove' :
         'person-add'
 
@@ -28,21 +42,15 @@ const AddFriendButton = ({user_id, friend_id, style}: AddFriendButton) => {
             return
         }
         setLoading(true)
-            const s = new Set(friends)
-            let error = null
-            if (friends.has(friend_id)) {
-                error = await spDeleteFriend(user_id, friend_id)
-                s.delete(friend_id)
+            if (isFriend) {
+                await spDeleteFriend(user_id, friend.user_id)
+                await dbDeleteFriend(db, friend.user_id)
+                setIsFriend(false)
             } else {
-                error = await spCreateFriend(user_id, friend_id)
-                s.add(friend_id)
+                await spCreateFriend(user_id, friend.user_id)
+                await dbCreateFriend(db, friend)
+                setIsFriend(true)
             }
-            if (error) {
-                Toast.show({text1: "Error", text2: error.message, type: "error"})
-            } else {
-                Toast.show({text1: "Success!", type: "success"})
-            }
-            setFriends(s)
         setLoading(false)
     }
 

@@ -11,10 +11,18 @@ interface ButtonProps {
     iconSize?: number
     iconColor?: string
     style?: ViewStyle
+    showLoading?: boolean
 }
 
 
-const Button = ({iconName, onPress, style, iconSize = 28, iconColor = Colors.white}: ButtonProps) => {
+const Button = ({
+  iconName, 
+  onPress, 
+  style, 
+  iconSize = 28, 
+  iconColor = Colors.white,
+  showLoading = true
+}: ButtonProps) => {
 
   const [loading, setLoading] = useState(false)
 
@@ -24,7 +32,7 @@ const Button = ({iconName, onPress, style, iconSize = 28, iconColor = Colors.whi
     setLoading(false)
   }
 
-  if (loading) {
+  if (loading && showLoading) {
     return (
       <Pressable onPress={p} hitSlop={AppConstants.hitSlop} style={style} >
         <ActivityIndicator size={iconSize} color={iconColor} />

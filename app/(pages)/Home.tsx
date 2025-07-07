@@ -76,9 +76,9 @@ const Home = () => {
                 <AppLogo/>
                 <Row style={{gap: 16}} >
                     <UpdateDatabaseButton iconColor={Colors.ononokiBlue} type='client' />
-                    <Button iconName='search' onPress={searchPress} iconSize={28} iconColor={Colors.ononokiBlue} />
+                    <Button iconName='search' onPress={searchPress} iconSize={28} iconColor={Colors.ononokiBlue} showLoading={false} />
                     <OpenRandomMangaButton color={Colors.ononokiBlue} size={28} backgroundColor='' />
-                    <Button iconName='options' onPress={toggleMenu} iconSize={28} iconColor={Colors.ononokiBlue} />
+                    <Button iconName='options' onPress={toggleMenu} iconSize={28} iconColor={Colors.ononokiBlue} showLoading={false} />
                 </Row>
             </View>
 

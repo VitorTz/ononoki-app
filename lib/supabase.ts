@@ -305,28 +305,16 @@ export async function spGetUserFriendsIds(user_id: string): Promise<string[]> {
 }
 
 
-export async function spGetFriends(user_id: string): Promise<OnonokiUser[]> {
+export async function spGetFriends(p_user_id: string): Promise<OnonokiUser[]> {
     const { data, error } = await supabase
-        .from("friends")
-        .select(`
-            friend:users!friends_friend_id_fkey(
-                user_id,
-                username,
-                profile_image_url,
-                profile_image_width,
-                profile_image_height,
-                bio,
-                mal_url                
-            )
-        `)
-        .eq("user_id", user_id)        
+        .rpc("get_user_friends", {p_user_id})
 
     if (error) {
         console.log("error spGetFriends", error)
         return []
     }
 
-    return data.map(i => i.friend as any)
+    return data as OnonokiUser[]
 }
 
 export async function spGetComments(
@@ -549,7 +537,6 @@ export async function spFetchUserReadingStatusSummary(
         console.log("error spFetchUserReadingStatusSummary", error)
         return AppConstants.READING_STATUS_ORDER.map(i => {return {status: i, total: 0}})
     }
-
-    console.log(data)
+    
     return data
 }

@@ -90,15 +90,17 @@ const SignUpForm = () => {
             form_data.malAccount.trim() != '' && 
             form_data.malAccount.trim().length < AppConstants.MAL_USERNAME_MIN_LENGTH) {
             Toast.show({
-                text1: "Hey",
-                text2: "MyAnimeList username must be at least 2 characters",
-                type: "info"
+                text1: "Invalid MyAnimeList Username",
+                text2: "Must be >= 2 or <= 16 characters",
+                type: "error",
+                visibilityTime: 4000
             })
             return
         }
         
         setLoading(true)
-        const { user, session ,error } = await spCreateUser(
+
+            const { user, session ,error } = await spCreateUser(
                 form_data.email.trim(),
                 form_data.password.trim(),
                 form_data.name.trim(),
@@ -125,9 +127,13 @@ const SignUpForm = () => {
             }
 
             if (user && session) {
-                login(user!, session)
+                login(user, session)
                 setLoading(false)
-                Toast.show({text1: "Success", type: "success"})
+                Toast.show({
+                    text1: `👋 Hello ${user.username}!`,
+                    text2: "Your account is ready!",
+                    type: "success"
+                })
                 router.replace("/(pages)/Home")
                 return
             } else {
