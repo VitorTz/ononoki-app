@@ -45,15 +45,15 @@ const BUT_TYPE_LIST: BugType[] = [
 const schema = yup.object().shape({  
     title: yup
         .string()
-        .min(3, 'Min 3 characters')
-        .max(256, 'Max 256 characters')
+        .min(AppConstants.BUG_REPORT_TITLE_MIN_LENGTH, `Min ${AppConstants.BUG_REPORT_TITLE_MIN_LENGTH} characters`)
+        .max(AppConstants.BUG_REPORT_TITLE_MAX_LENGTH, `Max ${AppConstants.BUG_REPORT_TITLE_MAX_LENGTH} characters`)
         .required('Title is required'),
     descr: yup
         .string()
-        .max(2048, 'Max 2048 characters'),
+        .max(AppConstants.BUG_REPORT_DESCR_MAX_LENGTH, `Max ${AppConstants.BUG_REPORT_DESCR_MAX_LENGTH} characters`),
     bugType: yup
         .string()
-        .max(64, 'Max 64 characters')
+        .max(AppConstants.BUG_REPORT_BUG_TYPE_MAX_LENGTH, `Max ${AppConstants.BUG_REPORT_BUG_TYPE_MAX_LENGTH} characters`)
 });
 
 
@@ -206,9 +206,7 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
                 form_data.title, 
                 form_data.descr.trim() === '' ? null : form_data.descr.trim(), 
                 form_data.bugType
-            )
-
-            console.log("bug", bug_id)
+            )            
 
             if (bug_id === null) {
                 Toast.show({text1: "Error", type: "error"})

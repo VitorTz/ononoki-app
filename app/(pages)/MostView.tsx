@@ -1,6 +1,7 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import MangaGrid from '@/components/grid/MangaGrid'
 import TopBar from '@/components/TopBar'
+import { Colors } from '@/constants/Colors'
 import { Manga } from '@/helpers/types'
 import { dbReadMangasOrderedByViews } from '@/lib/database'
 import { AppStyle } from '@/styles/AppStyle'
@@ -51,8 +52,8 @@ const MostView = () => {
 
   return (
     <SafeAreaView style={AppStyle.safeArea}>
-      <TopBar title='Most Views' >
-        <ReturnButton/>        
+      <TopBar title='Most Views' titleColor={Colors.ononokiBlue} >
+        <ReturnButton color={Colors.ononokiBlue} />
       </TopBar>
       <MangaGrid
         mangas={mangas}

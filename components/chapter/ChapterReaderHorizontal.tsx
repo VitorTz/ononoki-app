@@ -138,7 +138,7 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
           <ReturnButton backgroundColor={Colors.backgroundColor} />
         </TopBar>
 
-        <Row style={{justifyContent: "space-between"}} >
+        <Row style={{width: '100%', justifyContent: "space-between"}} >
           <ChangeChapter 
             loading={loading} 
             goToNextChapter={goToNextChapter} 

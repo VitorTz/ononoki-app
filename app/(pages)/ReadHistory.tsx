@@ -120,14 +120,26 @@ const ReadHistory = () => {
   const onEndReached = async () => {
     if (!hasResults.current || !isInitialized.current) { return }
     setLoading(true)
-    page.current += 1    
-    await dbGetUserReadHistory(db, page.current * PAGE_LIMIT, PAGE_LIMIT)
-      .then(values => {
-        hasResults.current = values.length > 0
-        setLogs(prev => [...prev, ...values])
-      })
-      .catch(e => {console.log(e); hasResults.current = false;})
+      page.current += 1    
+      await dbGetUserReadHistory(db, page.current * PAGE_LIMIT, PAGE_LIMIT)
+        .then(values => {
+          hasResults.current = values.length > 0
+          setLogs(prev => [...prev, ...values])
+        })
+        .catch(e => {console.log(e); hasResults.current = false;})
     setLoading(false)
+  }
+
+  const renderFooter = () => {
+    if (!(loading && hasResults.current)) {
+      return <></>
+    }
+
+    return (
+        <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
+          <ActivityIndicator size={32} color={Colors.white} />
+        </View> 
+    )
   }
 
   return (
@@ -144,15 +156,7 @@ const ReadHistory = () => {
         drawDistance={hp(100)}
         scrollEventThrottle={4}
         onEndReachedThreshold={1}
-        ListFooterComponent={
-          <>
-              {
-                  loading && hasResults.current &&
-                  <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
-                      <ActivityIndicator size={32} color={Colors.white} />
-                  </View> 
-              }
-          </>}
+        ListFooterComponent={renderFooter}
         />
     </SafeAreaView>
   )

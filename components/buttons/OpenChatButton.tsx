@@ -8,14 +8,14 @@ import { Pressable, StyleSheet } from 'react-native'
 const OpenChatButton = () => {
   
     const onPress = () => {
-        router.navigate("/(pages)/ChooseChatPage")       
+        router.navigate("/(pages)/ChooseChatPage")
     }
 
     return (
         <Pressable onPress={onPress} hitSlop={AppConstants.hitSlop} style={styles.container} >
             <Ionicons name='chatbox-ellipses' size={28} />
         </Pressable>
-  )
+    )
   
 }
 

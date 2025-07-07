@@ -4,7 +4,6 @@ import { hp, wp } from '@/helpers/util'
 import { dbClearTable } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
-import { useUserFriendState } from '@/store/userFriendState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
@@ -30,10 +29,11 @@ interface OptionProps {
     iconColor?: string
     title: string
     iconName: string
+    showLoading?: boolean
 }
 
 
-const Option = ({onPress, title, iconName, iconColor = Colors.white}: OptionProps) => {
+const Option = ({onPress, title, iconName, iconColor = Colors.white, showLoading = true}: OptionProps) => {
 
     const [loading, setLoading] = useState(false)
 
@@ -43,17 +43,26 @@ const Option = ({onPress, title, iconName, iconColor = Colors.white}: OptionProp
         setLoading(false)
     }
 
+    if (loading && showLoading) {
+        return (
+            <View
+                style={styles.link}
+                hitSlop={AppConstants.hitSlop} >
+                <View style={{padding: 5, backgroundColor: iconColor, borderRadius: 4}} >
+                    <ActivityIndicator size={ICON_SIZE} color={Colors.backgroundColor} />
+                </View>
+                <Text style={[[AppStyle.textRegular, {fontSize: 16}]]}>{title}</Text>
+            </View>
+        )    
+    }
+
     return (
         <Pressable 
             onPress={p} 
             style={styles.link} 
             hitSlop={AppConstants.hitSlop} >
             <View style={{padding: 5, backgroundColor: iconColor, borderRadius: 4}} >
-                {
-                    loading ?
-                        <ActivityIndicator size={ICON_SIZE} color={Colors.backgroundColor} /> :
-                        <Ionicons name={iconName as any} size={ICON_SIZE} color={Colors.backgroundColor} />
-                }
+                <Ionicons name={iconName as any} size={ICON_SIZE} color={Colors.backgroundColor} />
             </View>
             <Text style={[[AppStyle.textRegular, {fontSize: 16}]]}>{title}</Text>
         </Pressable>
@@ -70,7 +79,6 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     const db = useSQLiteContext()
     const router = useRouter()
     const { session, logout } = useAuthState()
-    const { setFriends } = useUserFriendState()
     
     const accountPage = () => {
         router.navigate("/(pages)/Account")
@@ -108,7 +116,6 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
         await supabase.auth.signOut().catch(e => console.log(e))
         await dbClearTable(db, 'reading_status')
         await dbClearTable(db, 'friends')
-        setFriends(new Set())
         logout()
     }
 
@@ -138,6 +145,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                         onPress={accountPage} 
                         title='Account' 
                         iconName='person-outline'
+                        showLoading={false}
                         iconColor={Colors.accountColor}
                     />
                         :
@@ -145,6 +153,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                         onPress={loginPage} 
                         title='SignIn/SignUp'
                         iconName='log-in'
+                        showLoading={false}
                         iconColor={Colors.accountColor}
                     />
                 }
@@ -153,6 +162,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={usersPage} 
                     title='Users' 
                     iconName='people-outline'
+                    showLoading={false}
                     iconColor={Colors.peopleColor}
                 />
 
@@ -160,6 +170,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={openChat} 
                     title='Chats' 
                     iconName='chatbubbles-outline'
+                    showLoading={false}
                     iconColor={Colors.chatColor}
                 />
 
@@ -167,13 +178,15 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={libraryPage} 
                     title='Library' 
                     iconName='library-outline'
+                    showLoading={false}
                     iconColor={Colors.libraryColor}
                 />
                 
                 <Option 
                     onPress={readingHistoryPage} 
                     title='Reading History' 
-                    iconName='calendar-number-outline'
+                    iconName='book-outline'
+                    showLoading={false}
                     iconColor={Colors.readingHistoryColor}
                 />
 
@@ -181,6 +194,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={openDonate} 
                     title='Donate' 
                     iconName='cash-outline'
+                    showLoading={false}
                     iconColor={Colors.donateColor}
                 />
 
@@ -188,6 +202,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={openMangaRequest} 
                     title='Request Manga'
                     iconName='megaphone-outline'
+                    showLoading={false}
                     iconColor={Colors.requestMangaColor}
                 />
 
@@ -195,6 +210,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={openReleases} 
                     title='Releases' 
                     iconName='git-branch-outline'
+                    showLoading={false}
                     iconColor={Colors.releasesColor}
                 />
 
@@ -202,6 +218,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={openBugReport} 
                     title='Bug Report' 
                     iconName='bug-outline'
+                    showLoading={false}
                     iconColor={Colors.BugReportColor}
                 />
 
@@ -209,6 +226,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     onPress={openDisclaimer} 
                     title='Disclaimer' 
                     iconName='newspaper-outline'
+                    showLoading={false}
                     iconColor={Colors.disclaimerColor}
                 />                
 

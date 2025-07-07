@@ -46,7 +46,7 @@ const Releases = () => {
     const renderItem = ({item}: {item: AppRelease}) => {
         return (
             <Pressable onPress={() => openUrl(item.url)} style={styles.item}>
-                <Row style={{justifyContent: "space-between"}} >
+                <Row style={{width: '100%', justifyContent: "space-between"}} >
                     <Text style={[AppStyle.textHeader, {color: Colors.backgroundColor}]} >{item.version}</Text>
                     <Ionicons name='download-outline' size={28} color={Colors.backgroundColor} />
                 </Row>            

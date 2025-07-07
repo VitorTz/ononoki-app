@@ -39,19 +39,23 @@ const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
       }})
   }
 
+  const renderItem = ({item}: {item: Genre}) => {
+    return (
+      <Pressable style={styles.item} onPress={() => openGenrePage(item)}>
+        <Text style={[AppStyle.textRegular, {color: Colors.white}]} >{item.genre}</Text>
+      </Pressable>
+    )
+  }
+
   return (
-    <View style={{width: '100%', flexWrap: 'wrap', flexDirection: 'row', gap: 10}} >
+    <View style={{width: '100%'}} >
       <FlatList 
         ref={flatListRef}
         data={genres}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.genre_id.toString()}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        renderItem={({item}) => 
-          <Pressable style={styles.item} onPress={() => openGenrePage(item)}>
-            <Text style={[AppStyle.textRegular, {color: Colors.white}]} >{item.genre}</Text>
-          </Pressable>
-        }
+        renderItem={renderItem}
       />
     </View>
   )

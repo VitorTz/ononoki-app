@@ -41,19 +41,25 @@ const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
     }})
   }
 
+  const renderItem = ({item}: {item: MangaAuthor}) => {
+    return (
+      <Pressable style={styles.item} onPress={() => openAuthorPage(item)}>
+        <Text style={[AppStyle.textRegular, {color: Colors.white}]} >
+          {item.role == "Author" ? "Story" : "Art"}: {item.name}
+        </Text>
+      </Pressable>
+    )
+  }
+
   return (
-    <Row style={{flexWrap: 'wrap', gap: 10}} >
+    <Row style={{width: '100%', flexWrap: 'wrap', gap: 10}} >
       <FlatList
         ref={flatListRef}
         data={authors}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.author_id.toString()}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        renderItem={({item}) => 
-          <Pressable style={styles.item} onPress={() => openAuthorPage(item)}>
-            <Text style={[AppStyle.textRegular, {color: Colors.white}]} >{item.role == "Author" ? "Story" : "Art"}: {item.name}</Text>
-          </Pressable>
-        }
+        renderItem={renderItem}
       />
     </Row>
   )

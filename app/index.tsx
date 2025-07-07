@@ -78,7 +78,12 @@ const App = () => {
             await dbPopulateUserFriendsTable(db, session.user.id)
         } else {
             console.log("error fetching user", session.user.id)
-            Toast.show({text1: "We couldn’t authenticate your account", text2: "Re-enter your username and password", type: "error", visibilityTime: 3500})
+            Toast.show({
+                text1: "We couldn’t authenticate your account", 
+                text2: "Re-enter your username and password", 
+                type: "error", 
+                visibilityTime: 3500
+            })
             logout()
         }        
     }
@@ -126,7 +131,7 @@ const App = () => {
         <SafeAreaView style={AppStyle.safeArea} >
             <View style={{flexDirection: 'row', alignItems: "center", paddingRight: 2, marginTop: 10, marginBottom: 10, justifyContent: "space-between"}} >
                 <AppLogo/>
-                <Row style={{gap: 16}} >
+                <Row style={{width: '100%', gap: 16}} >
                     <Ionicons name='sync' size={28} color={Colors.ononokiBlue} />
                     <Ionicons name='search' size={28} color={Colors.ononokiBlue} />
                     <Ionicons name='dice' size={28} color={Colors.ononokiBlue} />

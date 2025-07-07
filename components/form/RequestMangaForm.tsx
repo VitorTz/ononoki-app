@@ -1,3 +1,4 @@
+import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
 import { hp } from '@/helpers/util';
 import { spRequestManga } from '@/lib/supabase';
@@ -24,12 +25,12 @@ import * as yup from 'yup';
 const schema = yup.object().shape({  
     manga_title: yup
         .string()
-        .min(3, 'Min 3 characters')
-        .max(256, 'Max 256 characters')
+        .min(AppConstants.REQ_MANGA_TITLE_MIN_LENGTH, `Min ${AppConstants.REQ_MANGA_TITLE_MIN_LENGTH} characters`)
+        .max(AppConstants.REQ_MANGA_TITLE_MAX_LENGTH, `Max ${AppConstants.REQ_MANGA_TITLE_MAX_LENGTH} characters`)
         .required('Manga name is required'),
     descr: yup
         .string()
-        .max(1024)    
+        .max(AppConstants.REQ_MANGA_DESCR_MAX_LENGTH, `Max ${AppConstants.REQ_MANGA_DESCR_MAX_LENGTH} characters`)
 });
 
 

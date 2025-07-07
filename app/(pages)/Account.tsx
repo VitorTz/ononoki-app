@@ -9,7 +9,15 @@ import { useAuthState } from '@/store/authState'
 import { AppStyle } from '@/styles/AppStyle'
 import { router } from 'expo-router'
 import React from 'react'
-import { KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View
+} from 'react-native'
 
 
 
@@ -32,7 +40,7 @@ const Account = () => {
           <ReturnButton color={Colors.accountColor} />
         </TopBar>
         <Text style={AppStyle.textRegular}>You are not logged!</Text>
-        <Row style={{gap: 10}} >
+        <Row style={{width: '100%', gap: 10}} >
           <Pressable onPress={handleSignIn} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor, flex: 1}]} >
             <Text style={AppStyle.formButtonText} >SignIn</Text>
           </Pressable>
@@ -64,16 +72,3 @@ const Account = () => {
 }
 
 export default Account
-
-const style = StyleSheet.create({
-  brush: {
-    backgroundColor: Colors.accountColor, 
-    borderWidth: 2,
-    borderColor: Colors.backgroundColor,
-    padding: 10, 
-    borderRadius: 42,
-    position: 'absolute', 
-    right: 4,
-    bottom: 4
-  }
-})

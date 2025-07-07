@@ -74,7 +74,7 @@ const Home = () => {
             {/* Header */}
             <View style={{flexDirection: 'row', alignItems: "center", paddingRight: 2, marginBottom: 10, justifyContent: "space-between"}} >
                 <AppLogo/>
-                <Row style={{gap: 16}} >
+                <Row style={{width: '100%', gap: 16}} >
                     <UpdateDatabaseButton iconColor={Colors.ononokiBlue} type='client' />
                     <Button iconName='search' onPress={searchPress} iconSize={28} iconColor={Colors.ononokiBlue} showLoading={false} />
                     <OpenRandomMangaButton color={Colors.ononokiBlue} size={28} backgroundColor='' />

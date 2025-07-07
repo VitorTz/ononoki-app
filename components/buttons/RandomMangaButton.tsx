@@ -38,15 +38,19 @@ const OpenRandomMangaButton = ({
         setLoading(false)
     }
 
+    if (loading) {
+        return (
+            <View style={[styles.container, {backgroundColor}]} >
+                <ActivityIndicator size={size} color={color} />
+            </View>
+        )
+    }
+
     return (
         <View style={[styles.container, {backgroundColor}]}  >
-            {
-                loading ?
-                <ActivityIndicator size={size} color={color} /> :
-                <Pressable onPress={openRandomManhwa} hitSlop={AppConstants.hitSlop}>
-                    <Ionicons name='dice' size={size} color={color}/>
-                </Pressable>
-            }
+            <Pressable onPress={openRandomManhwa} hitSlop={AppConstants.hitSlop}>
+                <Ionicons name='dice' size={size} color={color}/>
+            </Pressable>
         </View>
     )
 }

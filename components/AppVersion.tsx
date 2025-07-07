@@ -2,21 +2,24 @@ import { Colors } from '@/constants/Colors'
 import { useAppVersionState } from '@/store/appReleaseState'
 import { AppStyle } from '@/styles/AppStyle'
 import React from 'react'
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 
 const AppVersion = () => {
 
     const { localVersion } = useAppVersionState()
 
+    if (!localVersion) {
+        return <></>
+    }
+
     return (
-        <>
-            {
-                localVersion && 
-                <Text 
-                    style={[AppStyle.textRegular, {marginBottom: 10, color: Colors.releasesColor}]} >Your app version: {localVersion}</Text>
-            }
-        </>
+        <View>
+            <Text style={[AppStyle.textRegular, {marginBottom: 10, color: Colors.releasesColor}]} >
+                Your app version: {localVersion}
+            </Text>
+        </View>        
     )
 }
+
 
 export default AppVersion

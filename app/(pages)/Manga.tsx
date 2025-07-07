@@ -82,7 +82,7 @@ const MangaPage = () => {
     return (
       <SafeAreaView style={[AppStyle.safeArea, styles.container]} >        
         <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
-          <ActivityIndicator size={'large'} color={Colors.white} />
+          <ActivityIndicator size={'large'} color={Colors.ononokiBlue} />
         </View>
       </SafeAreaView>
     )

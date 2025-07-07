@@ -1,6 +1,7 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import MangaGrid from '@/components/grid/MangaGrid'
 import TopBar from '@/components/TopBar'
+import { Colors } from '@/constants/Colors'
 import { Manga } from '@/helpers/types'
 import { dbReadMangasOrderedByUpdateAt } from '@/lib/database'
 import { AppStyle } from '@/styles/AppStyle'
@@ -52,8 +53,8 @@ const LatestUpdatesPage = () => {
 
   return (
     <SafeAreaView style={AppStyle.safeArea}>
-      <TopBar title='Latest Updates' >
-        <ReturnButton/>
+      <TopBar title='Latest Updates' titleColor={Colors.ononokiBlue} >
+        <ReturnButton color={Colors.ononokiBlue} />
       </TopBar>
       <MangaGrid
         mangas={mangas}

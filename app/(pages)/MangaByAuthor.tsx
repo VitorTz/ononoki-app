@@ -1,6 +1,7 @@
 import ReturnButton from '@/components/buttons/ReturnButton'
 import MangaGrid from '@/components/grid/MangaGrid'
 import TopBar from '@/components/TopBar'
+import { Colors } from '@/constants/Colors'
 import { Manga } from '@/helpers/types'
 import { dbReadMangasByAuthorId } from '@/lib/database'
 import { AppStyle } from '@/styles/AppStyle'
@@ -39,8 +40,8 @@ const MangaByAuthor = () => {
 
     return (
         <SafeAreaView style={AppStyle.safeArea}>
-            <TopBar title={`${author_role}: ${author_name}`}>
-                <ReturnButton/>
+            <TopBar title={`${author_role}: ${author_name}`} titleColor={Colors.ononokiBlue} >
+                <ReturnButton color={Colors.ononokiBlue} />
             </TopBar>
             <MangaGrid
                 mangas={mangas}

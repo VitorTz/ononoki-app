@@ -50,7 +50,7 @@ const MangaCollection = () => {
                     <View style={{gap: 20}} >
                         {
                             currentCollection.descr &&
-                            <Text style={[AppStyle.textRegular, {fontSize: hp(2.4)}]} >
+                            <Text style={[AppStyle.textRegular]} >
                                 {currentCollection.descr}
                             </Text>
                         }

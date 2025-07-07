@@ -48,15 +48,15 @@ const Disclaimer = () => {
     return (
         <SafeAreaView style={AppStyle.safeArea} >
             <TopBar title='Disclaimer' titleColor={Colors.disclaimerColor} >
-            <ReturnButton color={Colors.disclaimerColor} />
+                <ReturnButton color={Colors.disclaimerColor} />
             </TopBar>
             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
-            <View style={{width: '100%'}} >
-                {
-                    DATA.map((item, index) => <DisclaimerText key={index} title={item.title} message={item.message} />)
-                }            
-            </View>
-            <View style={{marginBottom: 50}} />
+                <View style={{width: '100%'}} >
+                    {
+                        DATA.map((item, index) => <DisclaimerText key={index} title={item.title} message={item.message} />)
+                    }            
+                </View>
+                <View style={{marginBottom: 50}} />
             </ScrollView>
         </SafeAreaView>
     )

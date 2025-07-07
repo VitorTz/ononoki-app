@@ -21,20 +21,19 @@ const CButton = ({iconName, iconColor, style, onPress, iconSize = 28}: CButtonPr
         setLoading(false)
     }
   
-    return (
-        <>
-            {
-                loading ?
-                <View style={[style, {alignItems: "center", justifyContent: "center"}]} >
-                    <ActivityIndicator size={iconSize} color={iconColor} />
-                </View> :
+    if (loading) {
+        return (
+            <View style={[style, {alignItems: "center", justifyContent: "center"}]} >
+                <ActivityIndicator size={iconSize} color={iconColor} />
+            </View>
+        )
+    }
 
-                <Pressable onPress={handlePress} style={[style, {alignItems: "center", justifyContent: "center"}]} >
-                    <Ionicons name={iconName as any} size={iconSize} color={iconColor} />
-                </Pressable>
-            }
-        </>
-    )
+    return (
+        <Pressable onPress={handlePress} style={[style, {alignItems: "center", justifyContent: "center"}]} >
+            <Ionicons name={iconName as any} size={iconSize} color={iconColor} />
+        </Pressable>
+    )    
 }
 
 export default CButton

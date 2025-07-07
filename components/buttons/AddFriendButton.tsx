@@ -5,7 +5,7 @@ import { spCreateFriend, spDeleteFriend } from '@/lib/supabase'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, ViewStyle } from 'react-native'
+import { ActivityIndicator, Pressable, View, ViewStyle } from 'react-native'
 import Toast from 'react-native-toast-message'
 
 
@@ -56,9 +56,9 @@ const AddFriendButton = ({user_id, friend, style}: AddFriendButton) => {
 
     if (loading) {
         return (
-            <Pressable onPress={onPress} style={style}>
+            <View style={style}>
                 <ActivityIndicator size={28} color={Colors.backgroundColor} />
-            </Pressable>
+            </View>
         )
     }
 

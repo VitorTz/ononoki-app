@@ -323,7 +323,7 @@ export async function spGetComments(
     p_offset: number = 0,
     p_limit: number = 30
 ): Promise<Comment[]> {
-    console.log(p_manga_id, p_requesting_user_id)
+    
     const { data, error } = await supabase
         .rpc(
             "get_manga_comments_with_user_votes", 
@@ -334,9 +334,8 @@ export async function spGetComments(
         console.log("error spGetComments", error)
         return []
     }
-    console.log(data)
-    return data as Comment[]    
 
+    return data as Comment[]
 }
 
 

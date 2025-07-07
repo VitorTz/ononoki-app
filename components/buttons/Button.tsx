@@ -2,7 +2,7 @@ import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import React, { useState } from 'react'
-import { ActivityIndicator, Pressable, ViewStyle } from 'react-native'
+import { ActivityIndicator, Pressable, View, ViewStyle } from 'react-native'
 
 
 interface ButtonProps {
@@ -34,9 +34,9 @@ const Button = ({
 
   if (loading && showLoading) {
     return (
-      <Pressable onPress={p} hitSlop={AppConstants.hitSlop} style={style} >
+      <View style={style} >
         <ActivityIndicator size={iconSize} color={iconColor} />
-      </Pressable>
+      </View>
     )
   }
 

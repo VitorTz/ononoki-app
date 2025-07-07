@@ -39,7 +39,6 @@ const FriendComponent = ({user_id, friend}: {user_id: string | null, friend: Ono
         () => {
             const init = async () => {
                 if (!user_id) { return }
-                console.log("init", friend.username)
                 await dbUserHasFriend(db, friend.user_id)
                     .then(v => setIsFriend(v))
                     .catch(e => {console.log(e); setIsFriend(false)})

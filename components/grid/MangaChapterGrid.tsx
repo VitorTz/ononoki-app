@@ -178,7 +178,7 @@ const MangaChapterGrid = ({
   
   return (    
         <View style={[styles.container, {gap: 10}]} >          
-            <Row style={{gap: 10}} >
+            <Row style={{width: '100%', gap: 10}} >
               <Pressable onPress={readFirst} style={[styles.button, {backgroundColor: manga!.color, }]}>
                 <Text style={[AppStyle.textRegular, {color: textColor}]}>Read First</Text>
               </Pressable>

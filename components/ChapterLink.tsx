@@ -12,6 +12,7 @@ import {
     StyleProp,
     StyleSheet,
     Text,
+    View,
     ViewStyle
 } from 'react-native'
 
@@ -41,29 +42,29 @@ const ChapterLink = ({
             const chapters: Chapter[] = await spFetchChapterList(manga.manga_id)
             setChapterState(chapters, chapter.chapter_num - 1)
             spUpdateMangaViews(manga.manga_id)
-        setLoading(false)
-        
+        setLoading(false)        
         router.navigate({
             pathname: "/(pages)/Chapter",
             params: {mangaTitle: manga.title}
         })
     }
 
+    if (loading) {
+        return (
+            <View style={[styles.chapterLink, style]} >
+                <ActivityIndicator size={20} color={Colors.white} />
+            </View>    
+        )
+    }
+
     return (
         <Pressable onPress={onPress} style={[styles.chapterLink, style]} >
+            <Text style={AppStyle.textRegular}>{prefix}{chapter.chapter_name}</Text>
             {
-                loading ? 
-                <ActivityIndicator size={20} color={Colors.white} /> :
-                <>
-                    <Text style={AppStyle.textRegular}>{prefix}{chapter.chapter_name}</Text>
-                    {
-                        shouldShowChapterDate && 
-                        <Text style={[
-                            AppStyle.textRegular, 
-                            {paddingRight: 20}
-                        ]}>{formatTimestamp(chapter.created_at)}</Text>
-                    }
-                </>
+                shouldShowChapterDate &&
+                <Text style={[AppStyle.textRegular, {paddingRight: 20}]}>
+                    {formatTimestamp(chapter.created_at)}
+                </Text>
             }
         </Pressable>
     )
