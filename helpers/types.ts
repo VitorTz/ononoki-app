@@ -119,5 +119,8 @@ export type ReadingSummary = {
 
 
 export type Conversation = {
-
+    conversation_id: number
+    user_id_a: string
+    user_id_b: string
+    last_message_at: string
 }
