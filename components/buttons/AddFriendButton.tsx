@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors'
-import { spCreateFriend } from '@/lib/supabase'
+import { spCreateFriend, spDeleteFriend } from '@/lib/supabase'
+import { useUserFriendState } from '@/store/userFriendState'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { PostgrestError } from '@supabase/supabase-js'
 import React, { useState } from 'react'
 import { ActivityIndicator, Pressable, ViewStyle } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -15,7 +15,12 @@ interface AddFriendButton {
 
 const AddFriendButton = ({user_id, friend_id, style}: AddFriendButton) => {
 
+    const { friends, setFriends } = useUserFriendState()
     const [loading, setLoading] = useState(false)
+
+    const iconName = friends.has(friend_id) ?
+        'person-remove' :
+        'person-add'
 
     const onPress = async () => {
         if (user_id === null) {
@@ -23,13 +28,21 @@ const AddFriendButton = ({user_id, friend_id, style}: AddFriendButton) => {
             return
         }
         setLoading(true)
-        const error: PostgrestError | null = await spCreateFriend(user_id, friend_id)
-        if (error) {
-            console.log(error)
-            Toast.show({text1: "Error", text2: error.message, type: "error"})
-        } else {
-            Toast.show({text1: "Success!", type: "success"})
-        }
+            const s = new Set(friends)
+            let error = null
+            if (friends.has(friend_id)) {
+                error = await spDeleteFriend(user_id, friend_id)
+                s.delete(friend_id)
+            } else {
+                error = await spCreateFriend(user_id, friend_id)
+                s.add(friend_id)
+            }
+            if (error) {
+                Toast.show({text1: "Error", text2: error.message, type: "error"})
+            } else {
+                Toast.show({text1: "Success!", type: "success"})
+            }
+            setFriends(s)
         setLoading(false)
     }
 
@@ -43,7 +56,7 @@ const AddFriendButton = ({user_id, friend_id, style}: AddFriendButton) => {
 
     return (
         <Pressable onPress={onPress} style={style}>
-            <Ionicons name='person-add' size={28} color={Colors.backgroundColor} />
+            <Ionicons name={iconName} size={28} color={Colors.backgroundColor} />
         </Pressable>
     )
 }

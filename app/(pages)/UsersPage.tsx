@@ -6,7 +6,7 @@ import Column from '@/components/util/Column'
 import { Colors } from '@/constants/Colors'
 import { OnonokiUser } from '@/helpers/types'
 import { hp } from '@/helpers/util'
-import { spCreateFriend, spDeleteFriend, spFetchUsers, spGetUserFriends } from '@/lib/supabase'
+import { spCreateFriend, spDeleteFriend, spFetchUsers, spGetUserFriendsIds } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import { useProfileState } from '@/store/profileState'
 import { useUserFriendState } from '@/store/userFriendState'
@@ -39,7 +39,7 @@ const UsersPage = () => {
         if (friends.size != 0 || !user || !user.user_id) {
             return
         }
-        await spGetUserFriends(user.user_id)
+        await spGetUserFriendsIds(user.user_id)
             .then(v => setFriends(new Set(v)))
             .catch(e => console.log(e))        
     }

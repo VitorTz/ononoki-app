@@ -4,6 +4,7 @@ import { hp, wp } from '@/helpers/util'
 import { dbClearTable } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
+import { useUserFriendState } from '@/store/userFriendState'
 import { AppStyle } from '@/styles/AppStyle'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
@@ -69,6 +70,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     const db = useSQLiteContext()
     const router = useRouter()
     const { session, logout } = useAuthState()
+    const { setFriends } = useUserFriendState()
     
     const accountPage = () => {
         router.navigate("/(pages)/Account")
@@ -105,6 +107,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     const handleLogout = async () => {
         await supabase.auth.signOut().catch(e => console.log(e))
         await dbClearTable(db, 'reading_status')
+        setFriends(new Set())
         logout()
     }
 
@@ -114,6 +117,10 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
 
     const openReleases = () => {
         router.navigate("/(pages)/Releases")
+    }
+
+    const openChat = () => {
+        router.navigate("/ChatPage")
     }
 
     return (
@@ -146,6 +153,13 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     title='Users' 
                     iconName='people-outline'
                     iconColor={Colors.peopleColor}
+                />
+
+                <Option 
+                    onPress={openChat} 
+                    title='Chats' 
+                    iconName='chatbubbles-outline'
+                    iconColor={Colors.chatColor}
                 />
 
                 <Option 

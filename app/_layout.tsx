@@ -47,6 +47,8 @@ const _layout = () => {
               <Stack.Screen name='index' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/Home' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/Manga' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/ChatPage' options={{headerShown: false}} />
+              <Stack.Screen name='(pages)/ChooseChatPage' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/AllGenres' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/MangaByGenre' options={{headerShown: false}} />
               <Stack.Screen name='(pages)/MangaByAuthor' options={{headerShown: false}} />

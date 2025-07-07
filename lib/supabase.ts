@@ -290,7 +290,7 @@ export async function spDeleteFriend(user_id: string, friend_id: string): Promis
     return null
 }
 
-export async function spGetUserFriends(user_id: string): Promise<string[]> {
+export async function spGetUserFriendsIds(user_id: string): Promise<string[]> {
     const { data, error } = await supabase
         .from("friends")
         .select("friend_id")
@@ -304,6 +304,30 @@ export async function spGetUserFriends(user_id: string): Promise<string[]> {
     return data.map(i => i.friend_id)
 }
 
+
+export async function spGetFriends(user_id: string): Promise<OnonokiUser[]> {
+    const { data, error } = await supabase
+        .from("friends")
+        .select(`
+            friend:users!friends_friend_id_fkey(
+                user_id,
+                username,
+                profile_image_url,
+                profile_image_width,
+                profile_image_height,
+                bio,
+                mal_url                
+            )
+        `)
+        .eq("user_id", user_id)        
+
+    if (error) {
+        console.log("error spGetFriends", error)
+        return []
+    }
+
+    return data.map(i => i.friend as any)
+}
 
 export async function spGetComments(
     p_manga_id: number, 

@@ -116,3 +116,8 @@ export type ReadingSummary = {
     status: string
     total: number
 }
+
+
+export type Conversation = {
+
+}

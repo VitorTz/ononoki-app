@@ -97,6 +97,16 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
         created_at TIMESTAMP NOT NULL
       );      
 
+      CREATE TABLE IF NOT EXISTS friends (
+        user_id TEXT NOT NULL PRIMARY KEY,
+        username TEXT NOT NULL,
+        profile_image_url TEXT NOT NULL,
+        profile_image_width INTEGER NOT NULL,
+        profile_image_height INTEGER NOT NULL,
+        bio TEXT,
+        mal_url TEXT
+      );
+
       CREATE INDEX IF NOT EXISTS idx_chapters_manga_id ON chapters(manga_id);
       CREATE INDEX IF NOT EXISTS idx_ma_manga_id ON manga_authors(manga_id);
       CREATE INDEX IF NOT EXISTS idx_mangas_status ON mangas(status);
@@ -105,6 +115,7 @@ export async function dbMigrate(db: SQLite.SQLiteDatabase) {
       CREATE INDEX IF NOT EXISTS idx_chapters_manga_num ON chapters(manga_id, chapter_num DESC);
       CREATE INDEX IF NOT EXISTS idx_reading_status_manga_id_status ON reading_status (manga_id, status);
       CREATE INDEX IF NOT EXISTS idx_reading_history_updated ON reading_history(manga_id, chapter_num, readed_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_friends ON friends(user_id);
 
       INSERT OR REPLACE INTO 
         app_info (name, value)

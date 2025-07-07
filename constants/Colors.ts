@@ -38,6 +38,7 @@ export const Colors = {
   donateColor: "#2ECC71",
   translationColor: "#4984A2",
   requestMangaColor: "#A76545",
+  chatColor: "#E14434",
   releasesColor: "#F24E4E"
   
 };
