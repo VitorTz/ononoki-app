@@ -1,33 +1,37 @@
 import ChapterReaderHorizontal from '@/components/chapter/ChapterReaderHorizontal';
 import ChapterReaderVertical from '@/components/chapter/ChapterReaderVertical';
+import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
 import { dbSetAppInfo } from '@/lib/database';
 import { useReadModeState } from '@/store/readModeState';
 import { AppStyle } from '@/styles/AppStyle';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import Toast from 'react-native-toast-message';
 
 
 const ChapterPage = () => {
     
   const db = useSQLiteContext()
-  const { readMode } = useReadModeState()
+  const { readMode, setMode } = useReadModeState()
   const params = useLocalSearchParams()  
   const mangaTitle: string = params.mangaTitle as any
 
   useEffect(
     () => {
-      if (!readMode) { return }
       async function init() {
+        if (!readMode || !AppConstants.VALID_READ_MODES.includes(readMode)) {
+          await dbSetAppInfo(db, 'read_mode', 'List')
+          setMode('List')
+          return 
+        }
         await dbSetAppInfo(db, 'read_mode', readMode)
       }
       init()
     },
-    [readMode]
-  )
+    [db, readMode]
+  )  
 
   if (readMode == "List") {
     return (
@@ -45,9 +49,7 @@ const ChapterPage = () => {
     )
   }
 
-  Toast.show({text1: "Error", text2: "Invalid chapter orientation", type: "error"})
-  router.back()
-  
+  return <></>
 }
 
 export default ChapterPage

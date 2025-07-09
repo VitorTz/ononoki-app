@@ -39,7 +39,7 @@ const Account = () => {
         <TopBar title='Account' titleColor={Colors.accountColor} >
           <ReturnButton color={Colors.accountColor} />
         </TopBar>
-        <Text style={AppStyle.textRegular}>You are not logged!</Text>
+        <Text style={AppStyle.textRegular}>You are not logged in</Text>
         <Row style={{width: '100%', gap: 10}} >
           <Pressable onPress={handleSignIn} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor, flex: 1}]} >
             <Text style={AppStyle.formButtonText} >Sign In</Text>

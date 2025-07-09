@@ -24,13 +24,13 @@ const ChatPage = () => {
             </View>
           </TopBar>
           <View style={{gap: 16}} >
-            <Text style={[AppStyle.textRegular, {color: Colors.chatColor}]}>You are not logged!</Text>
+            <Text style={[AppStyle.textRegular, {color: Colors.chatColor}]}>You are not logged in</Text>
             <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center", gap: 10}} >
               <Pressable style={styles.button} onPress={() => router.navigate("/SignIn")} >
-                <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>SignIn</Text>
+                <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>Sign In</Text>
               </Pressable>
               <Pressable style={styles.button} onPress={() => router.navigate("/SignUp")} >
-                <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>SignUp</Text>
+                <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>Sign Up</Text>
               </Pressable>
             </View>
           </View>

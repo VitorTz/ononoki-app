@@ -12,6 +12,7 @@ interface MangaGenreInfoProps {
   manga: Manga
 }
 
+
 const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
 
   const db = useSQLiteContext()
@@ -48,7 +49,7 @@ const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
   }
 
   return (
-    <View style={{width: '100%'}} >
+    <View style={styles.container} >
       <FlatList 
         ref={flatListRef}
         data={genres}
@@ -59,20 +60,22 @@ const MangaGenreInfo = ({manga}: MangaGenreInfoProps) => {
       />
     </View>
   )
-
 }
 
 export 
 default MangaGenreInfo;
 
 const styles = StyleSheet.create({
-    item: {
-        paddingHorizontal: 10,
-        paddingVertical: 12,
-        backgroundColor: Colors.gray,
-        marginRight: 8,
-        borderRadius: 4,
-        alignItems: "center",
-        justifyContent: "center"
-      }
+  container: {
+    width: '100%',
+  },
+  item: {
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    backgroundColor: Colors.gray,
+    marginRight: 8,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center"
+  }
 })

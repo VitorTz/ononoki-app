@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { OnonokiUser } from '@/helpers/types';
 import { dbPopulateReadingStatusTable, dbPopulateUserFriendsTable } from '@/lib/database';
 import {
@@ -73,7 +74,7 @@ const SignInForm = () => {
             })
 
             if (error) {
-                Toast.show({text1: "Error", type: 'error'})
+                Toast.show(ToastMessages.EN.GENERIC_ERROR)
                 setLoading(false)
                 return
             }
@@ -81,7 +82,7 @@ const SignInForm = () => {
             const session = await spGetSession()
 
             if (!session) {
-                Toast.show({text1: "Server error", type: 'error'})
+                Toast.show(ToastMessages.EN.GENERIC_SERVER_ERROR)
                 setLoading(false)
                 return
             }        
@@ -89,7 +90,7 @@ const SignInForm = () => {
             const user: OnonokiUser | null = await spFetchUser(session.user.id)    
 
             if (!user) {
-                Toast.show({text1: "Server error", type: 'error'})
+                Toast.show(ToastMessages.EN.GENERIC_SERVER_ERROR)
                 setLoading(false)
                 logout()
                 return

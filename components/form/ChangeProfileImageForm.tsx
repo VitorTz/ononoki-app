@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { spSetUserProfileImageUrl, supabase } from '@/lib/supabase'
 import { useAuthState } from '@/store/authState'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -42,7 +43,7 @@ const ChangeProfileImageForm = () => {
 
     const handleResponse = async (response: any) => {
       if (response.didCancel) {
-        Toast.show({text1: 'Cancelled', text2: 'Operation was cancelled', type: 'info'})      
+        Toast.show(ToastMessages.EN.OPERATION_CANCELLED)
       } else if (response.errorCode) {
         Toast.show({text1: 'Error', text2: response.errorMessage, type: 'error'})      
       } else if (response.assets && response.assets.length > 0) {
@@ -77,7 +78,7 @@ const ChangeProfileImageForm = () => {
   
     const uploadToSupabase = async (uri: string, width: number, height: number) => {    
       if (!user) {
-        Toast.show({text1: "Error", text2: "You are not logged!", type: "error"})
+        Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
         return
       }
   
@@ -104,7 +105,7 @@ const ChangeProfileImageForm = () => {
         } else {
           changeProfileImage(publicUrl, width, height)
           setLocalPhoto({image_url: uri, width, height})
-          Toast.show({text1: "Success", type: "success"})
+          Toast.show(ToastMessages.EN.GENERIC_SUCCESS)
         }
       } catch (error: any) {
         console.error('Erro no upload:', error);

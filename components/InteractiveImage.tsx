@@ -111,7 +111,6 @@ export default function InteractiveImage({
       }
     })
      
-
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {

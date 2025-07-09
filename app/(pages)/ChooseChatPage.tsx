@@ -25,7 +25,6 @@ const ChooseChat = () => {
 
   const init = async () => {
       if (!user || !user.user_id) { return }
-      console.log("init")
       setLoading(true)
         await dbGetUserFriends(db)
           .then(v => setFriends([...v]))

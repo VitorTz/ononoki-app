@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { Manga } from '@/helpers/types';
 import { dbGetMangaReadingStatus, dbUpdateMangaReadingStatus } from '@/lib/database';
 import { spUpdateMangaReadingStatus } from '@/lib/supabase';
@@ -57,7 +58,7 @@ const AddToLibray = ({
 
     const onChangeValue = async (value: string | null) => {        
         if (!session) {
-            Toast.show({text1: "Hey", text2: "You are not logged!", type: "info"})
+            Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
             return
         }
         if (!value || value === dbValue.current) { return }

@@ -9,6 +9,7 @@ import MangaAuthorInfo from '@/components/MangaAuthorInfo';
 import MangaCommenctSection from '@/components/MangaCommentSection';
 import MangaGenreInfo from '@/components/MangaGenreInfo';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { Manga } from '@/helpers/types';
 import { hp, wp } from '@/helpers/util';
 import { dbReadMangaById, dbUpdateMangaViews } from '@/lib/database';
@@ -59,13 +60,13 @@ const MangaPage = () => {
     () => {
       async function init() {
         if (!manga_id) { 
-          Toast.show({text1: "Error", text2: "invalid manga", type: "error"})
+          Toast.show(ToastMessages.EN.INVALID_MANGA)
           router.replace("/(pages)/Home")
           return
         }
         const m: Manga | null = await dbReadMangaById(db, manga_id).catch(e => null)
         if (m === null) {
-          Toast.show({text1: "Error", text2: "Invalid Manga", type: "error"})
+          Toast.show(ToastMessages.EN.INVALID_MANGA)
           router.replace("/(pages)/Home")
           return
         }

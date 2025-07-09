@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { hp } from '@/helpers/util';
 import { spReportBug, supabase } from '@/lib/supabase';
 import { AppStyle } from '@/styles/AppStyle';
@@ -157,7 +158,7 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
 
     const handleResponse = async (response: any) => {
         if (response.didCancel) {
-            Toast.show({text1: 'Cancelled', text2: 'Operation was cancelled', type: 'info'})      
+            Toast.show(ToastMessages.EN.OPERATION_CANCELLED)
         } else if (response.errorCode) {
             Toast.show({text1: 'Error', text2: response.errorMessage, type: 'error'})      
         } else if (response.assets && response.assets.length > 0) {
@@ -209,7 +210,7 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
             )            
 
             if (bug_id === null) {
-                Toast.show({text1: "Error", type: "error"})
+                Toast.show(ToastMessages.EN.GENERIC_ERROR)
                 router.back()
                 return
             }
@@ -222,7 +223,7 @@ const BugReportForm = ({title}: {title: string | undefined | null}) => {
                     await uploadToSupabase(photos[i], bug_id_str)
                 }
             }            
-            Toast.show({text1: "Thanks!", type: "success"})
+            Toast.show(ToastMessages.EN.THANKS)
             router.back()
         setLoading(false)
     };

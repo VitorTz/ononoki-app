@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { dbGetRandomMangaId } from '@/lib/database'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
@@ -30,7 +31,7 @@ const OpenRandomMangaButton = ({
         setLoading(true)
         const manga_id: number | null = await dbGetRandomMangaId(db)
         if (manga_id === null) {
-            Toast.show({text1: "No mangas!", text2: "Try update the database", type: "info"})
+            Toast.show(ToastMessages.EN.NO_MANGAS)
             setLoading(false)
             return
         }        

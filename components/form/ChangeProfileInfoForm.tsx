@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { hp } from '@/helpers/util';
 import { spChangeUserInfos } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
@@ -71,11 +72,7 @@ const ChangeProfileInfoForm = () => {
     
     const onSubmit = async (form_data: FormData) => {
         if (!user) {
-            Toast.show({
-                text1: "Sorry", 
-                text2: 'You are not logged!',
-                type: "error"
-            })
+            Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
             return
         }
 
@@ -132,7 +129,7 @@ const ChangeProfileInfoForm = () => {
                             mal_url: newMalAccount != '' ? `${AppConstants.MAL_PROFILE_URL}${newMalAccount}` : null
                         }
                     )
-                    Toast.show({text1: "Success", type: "success"})
+                    Toast.show(ToastMessages.EN.GENERIC_SUCCESS)
                 }
             }
 

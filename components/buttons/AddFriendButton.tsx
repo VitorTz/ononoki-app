@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { OnonokiUser } from '@/helpers/types'
 import { dbCreateFriend, dbDeleteFriend, dbUserHasFriend } from '@/lib/database'
 import { spCreateFriend, spDeleteFriend } from '@/lib/supabase'
@@ -38,7 +39,7 @@ const AddFriendButton = ({user_id, friend, style}: AddFriendButton) => {
 
     const onPress = async () => {
         if (user_id === null) {
-            Toast.show({text1: "You are not logged!", type: "info"})
+            Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
             return
         }
         setLoading(true)

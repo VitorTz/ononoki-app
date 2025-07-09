@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { hp } from '@/helpers/util';
 import { spRequestManga } from '@/lib/supabase';
 import { AppStyle } from '@/styles/AppStyle';
@@ -61,7 +62,7 @@ const RequestMangaForm = () => {
             const m = form_data.descr.trim() == '' ? null : form_data.descr.trim()
             await spRequestManga(form_data.manga_title, m)
             Keyboard.dismiss()
-            Toast.show({text1: "Thanks!", type: 'success'})
+            Toast.show(ToastMessages.EN.THANKS)
             router.back()
         setLoading(false)
     };

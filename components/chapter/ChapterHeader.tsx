@@ -38,12 +38,12 @@ const ChapterHeader = ({
   }  
 
   return (
-    <View style={{width: '100%', paddingHorizontal: wp(5), paddingTop: 26, paddingBottom: 8}} >
+    <View style={styles.container} >
       <TopBar title={mangaTitle} numberOfLines={1} >
         <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
       </TopBar>
 
-      <Row style={{width: '100%', gap: 10, justifyContent: "space-between", marginBottom: 20}} >            
+      <Row style={styles.row} >
         <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} padding={0} />
         <ChangeChapter
             goToNextChapter={goToNextChapter}
@@ -58,4 +58,17 @@ const ChapterHeader = ({
 
 export default ChapterHeader
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    width: '100%', 
+    paddingHorizontal: wp(5), 
+    paddingTop: 26, 
+    paddingBottom: 8
+  },
+  row: {
+    width: '100%', 
+    gap: 10, 
+    justifyContent: "space-between", 
+    marginBottom: 20
+  }
+})

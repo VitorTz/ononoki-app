@@ -70,6 +70,7 @@ export const AppConstants = {
         ["Plan to Read", "#747474"], 
         ["Re-Reading", "#F8BCCD"]
     ]),
+    VALID_READ_MODES: ['List', 'Page'],
     MAL_PROFILE_URL: "https://myanimelist.net/profile/",
     MAL_USERNAME_MIN_LENGTH: 2,
     MAL_USERNAME_MAX_LENGTH: 16,
@@ -85,5 +86,5 @@ export const AppConstants = {
     BUG_REPORT_BUG_TYPE_MAX_LENGTH: 64,
     REQ_MANGA_TITLE_MIN_LENGTH: 3,
     REQ_MANGA_TITLE_MAX_LENGTH: 1024,
-    REQ_MANGA_DESCR_MAX_LENGTH: 512
+    REQ_MANGA_DESCR_MAX_LENGTH: 512    
 }

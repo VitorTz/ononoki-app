@@ -3,6 +3,7 @@ import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
 import Row from '@/components/util/Row'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { AppRelease } from '@/helpers/types'
 import { dbGetAllReleases } from '@/lib/database'
 import { useAppVersionState } from '@/store/appReleaseState'
@@ -39,7 +40,7 @@ const Releases = () => {
         try {
             await Linking.openURL(url)
         } catch (error) {
-          Toast.show({text1: "Could not open link", type: 'error'})
+          Toast.show(ToastMessages.EN.UNABLE_TO_OPEN_BROWSER)
         }
     };
 

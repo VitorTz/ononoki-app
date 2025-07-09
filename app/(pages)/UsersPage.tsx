@@ -5,6 +5,7 @@ import SearchBar from '@/components/SearchBar'
 import TopBar from '@/components/TopBar'
 import Column from '@/components/util/Column'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { OnonokiUser } from '@/helpers/types'
 import { hp } from '@/helpers/util'
 import { dbCreateFriend, dbDeleteFriend, dbUserHasFriend } from '@/lib/database'
@@ -54,7 +55,7 @@ const FriendComponent = ({user_id, friend}: {user_id: string | null, friend: Ono
 
     const addOrRemoveFriend = async (friend: OnonokiUser) => {
         if (!user_id) {
-            Toast.show({text1: "You are not logged!", type: "error"})
+            Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
             return
         }
         const isFriend = await dbUserHasFriend(db, friend.user_id)
@@ -108,7 +109,7 @@ const UsersPage = () => {
                 hasResults.current = values.length == PAGE_LIMIT;
                 setUsers(values)
             })
-            .catch(e => {console.log("error UersPage.fetchUserse", e); setUsers([])})
+            .catch(e => {console.log("error UersPage.fetchUsers", e); setUsers([])})
     }
     
     useEffect(

@@ -7,6 +7,7 @@ import ReadingSummaryComponent from '@/components/ReadingSummary'
 import Row from '@/components/util/Row'
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { useAuthState } from '@/store/authState'
 import { useProfileState } from '@/store/profileState'
 import { AppStyle } from '@/styles/AppStyle'
@@ -30,13 +31,13 @@ const ProfilePage = () => {
             try {
                 await Linking.openURL(profile.mal_url)
             } catch (error) {
-              Toast.show({text1: "Unable to open the browser", type: "error"})
+              Toast.show(ToastMessages.EN.UNABLE_TO_OPEN_BROWSER)
             }
         }
     };
 
     if (!profile) {
-        Toast.show({text1: "Invalid Profile", type: "error"})
+        Toast.show(ToastMessages.EN.INVALID_PROFILE)
         router.back()
         return
     }

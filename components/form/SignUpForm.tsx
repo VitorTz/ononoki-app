@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { hp } from '@/helpers/util';
 import { spCreateUser, supabase } from '@/lib/supabase';
 import { useAuthState } from '@/store/authState';
@@ -112,11 +113,7 @@ const SignUpForm = () => {
                 console.log(error, error.code)
                 switch (error.code) {
                     case "weak_password":
-                        Toast.show({
-                            text1: "Weak Password!",
-                            text2: "Must contain at least 1 uppercase, 1 lowercase, 1 digit and 1 symbol", 
-                            type: "error"                        
-                        })
+                        Toast.show(ToastMessages.EN.WEAK_PASSWORD)
                         break
                     default:
                         Toast.show({text1: "Error", text2: error.message, type: "error"})

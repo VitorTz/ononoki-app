@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { hasInternetAvailable } from '@/helpers/util'
 import { dbCheckSecondsSinceLastRefresh, dbHasMangas, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database'
 import { router } from 'expo-router'
@@ -26,7 +27,7 @@ const UpdateDatabaseButton = ({
     const update = async () => {        
         const hasInternet = await hasInternetAvailable()
         if (!hasInternet) { 
-            Toast.show({text1: "Hey", text2: "You don’t have internet access", type: 'info'})
+            Toast.show(ToastMessages.EN.NO_INTERNET)
             return 
         }
 
@@ -46,16 +47,10 @@ const UpdateDatabaseButton = ({
                 visibilityTime: 3000
             })
         } else {
-            Toast.show({
-                text1: "Synchronizing local database...",
-                type: 'info'
-            })
+            Toast.show(ToastMessages.EN.SYNC_LOCAL_DATABASE)
             try {
                 await dbUpdateDatabase(db)
-                Toast.show({
-                    text1: "Sync completed",
-                    type: 'info'
-                })
+                Toast.show(ToastMessages.EN.SYNC_LOCAL_DATABASE_COMPLETED)
                 router.replace("/(pages)/Home")
                 return
             } catch (error) {

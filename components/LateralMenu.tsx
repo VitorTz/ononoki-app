@@ -18,6 +18,7 @@ import {
     View
 } from 'react-native'
 import CloseBtn from './buttons/CloseButton'
+import Row from './util/Row'
 
 
 
@@ -134,10 +135,10 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
     return (
         <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false} >
             <View style={styles.container} >
-                <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between", marginBottom: 10}} >
+                <Row style={{justifyContent: "space-between", marginBottom: 10}} >
                     <Text style={[AppStyle.textHeader, {color: Colors.ononokiBlue, fontFamily: "LeagueSpartan_600SemiBold"}]}>Menu</Text>
                     <CloseBtn onPress={closeMenu} color={Colors.ononokiBlue} />
-                </View>
+                </Row>
             
                 {
                     session ? 
@@ -148,7 +149,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                         showLoading={false}
                         iconColor={Colors.accountColor}
                     />
-                        :
+                    :
                     <Option 
                         onPress={loginPage} 
                         title='Sign In/Sign Up'

@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { Comment, Manga } from '@/helpers/types'
 import { hp } from '@/helpers/util'
 import { spCreateComment, spDeleteComment, spGetComments, spVoteComment } from '@/lib/supabase'
@@ -34,7 +35,7 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
     
     const vote = async (type: 'Up' | "Down") => {
         if (!session) {
-            Toast.show({text1: "You are not logged!", type: 'info'})
+            Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
             return
         }
 
@@ -52,7 +53,7 @@ const CommentComponent = ({comment, deleteComment}: CommentComponentProps) => {
             setNumLikes(newVoteCount)
             setUserVote(prev => prev === isUpVote ? null : isUpVote)
         } else {
-            Toast.show({text1: "Sorry, could not computate your vote", type: "error"})
+            Toast.show(ToastMessages.EN.FAIL_COMPUTE_VOTE)
         }
 
         setLoading(false)
@@ -134,7 +135,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
 
     const sendComment = async () => {
         if (!user || !session) {
-            Toast.show({text1: "Your must be logged!", type: "error", position: 'top'})
+            Toast.show(ToastMessages.EN.NOT_LOGGED_IN)
             return
         }
 
@@ -145,11 +146,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
                 commentText.length > AppConstants.COMMENT_MAX_LENGTH || 
                 commentText.length < AppConstants.COMMENT_MIN_LENGTH
             ) {
-                Toast.show({
-                    text1: `Max ${AppConstants.COMMENT_MAX_LENGTH} and min ${AppConstants.COMMENT_MIN_LENGTH} characters`,
-                    type: "info", 
-                    position: 'top'
-                })
+                Toast.show(ToastMessages.EN.INVALID_COMMENT_LENGTH as any)
                 setLoading(false)
                 return
             }            
@@ -161,7 +158,7 @@ const UserCommentBox = ({setComments, manga_id}: UserCommentBoxProps) => {
             )
 
             if (!comment_id) {
-                Toast.show({text1: "Could not upload comment!", type: "error", position: 'top'})
+                Toast.show(ToastMessages.EN.FAIL_UPLOAD_COMMENT as any)
                 Keyboard.dismiss()
                 setLoading(false)
                 return
@@ -272,7 +269,7 @@ const LoadMoreCommentsComponent = ({
             setHasResults(false)
         }
         if (c.length == 0) {
-            Toast.show({text1: "No more comments", type: "info"})
+            Toast.show(ToastMessages.EN.NO_MORE_COMMMENTS)
         }
         setLoading(false)
     }
@@ -330,7 +327,7 @@ const MangaCommenctSection = ({manga}: MangaCommentSectionProps) => {
         const success = await spDeleteComment(comment_id)
         if (success) {
             setComments(prev => [...prev.filter((comt, index, arr) => comt.comment_id != comment_id)])
-            Toast.show({text1: "Deleted!", type: "success"})
+            Toast.show(ToastMessages.EN.COMMENT_DELETED)
         }
     }
 

@@ -1,5 +1,6 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { AppStyle } from '@/styles/AppStyle'
 import React from 'react'
 import { Linking, Pressable, StyleSheet, Text, ViewStyle } from 'react-native'
@@ -18,7 +19,7 @@ const MALButton = ({mal_url, style, color = 'white'}: MALButtonProps) => {
         try {
             await Linking.openURL(mal_url)
         } catch (error) {
-            Toast.show({text1: "Could not open link", type: 'error'})
+            Toast.show(ToastMessages.EN.UNABLE_TO_OPEN_BROWSER)
         }
     };
 

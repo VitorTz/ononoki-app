@@ -2,6 +2,7 @@ import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
 import Column from '@/components/util/Column'
 import { Colors } from '@/constants/Colors'
+import { ToastMessages } from '@/constants/Messages'
 import { DonateMethod } from '@/helpers/types'
 import { spGetDonationMethods } from '@/lib/supabase'
 import { AppStyle } from '@/styles/AppStyle'
@@ -41,13 +42,13 @@ const Donate = () => {
     try {
         await Linking.openURL(url)
     } catch (error) {
-      Toast.show({text1: "Unable to open the browser", type: "error"})
+      Toast.show(ToastMessages.EN.UNABLE_TO_OPEN_BROWSER)
     }
   };
 
   const copyToClipboard = async (value: string) => {
     await Clipboard.setStringAsync(value);
-    Toast.show({text1: "Copied to clipboard!", type: "success"})
+    Toast.show(ToastMessages.EN.COPIED_TO_CLIPBOARD)
   }
 
 

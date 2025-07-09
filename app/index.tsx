@@ -1,6 +1,7 @@
 import AppLogo from '@/components/util/Logo';
 import Row from '@/components/util/Row';
 import { Colors } from '@/constants/Colors';
+import { ToastMessages } from '@/constants/Messages';
 import { dbClearTable, dbGetAppVersion, dbPopulateReadingStatusTable, dbPopulateUserFriendsTable, dbReadAppInfo, dbSetLastRefresh, dbShouldUpdate, dbUpdateDatabase } from '@/lib/database';
 import { spFetchUser, spGetSession, supabase } from '@/lib/supabase';
 import { useAppVersionState } from '@/store/appReleaseState';
@@ -78,12 +79,7 @@ const App = () => {
             await dbPopulateUserFriendsTable(db, session.user.id)
         } else {
             console.log("error fetching user", session.user.id)
-            Toast.show({
-                text1: "We couldn’t authenticate your account", 
-                text2: "Re-enter your username and password", 
-                type: "error", 
-                visibilityTime: 3500
-            })
+            Toast.show(ToastMessages.EN.FAIL_AUTH)
             logout()
         }        
     }
@@ -98,7 +94,7 @@ const App = () => {
 
                 const state: NetInfoState = await NetInfo.fetch()
                 if (!state.isConnected) {
-                    Toast.show({text1: 'Hey', text2: "You have no internet!", type: "info"})
+                    Toast.show(ToastMessages.EN.NO_INTERNET)
                     router.replace("/(pages)/Home")
                     return
                 }
@@ -114,10 +110,10 @@ const App = () => {
 
                 const shouldUpdate = await dbShouldUpdate(db, 'server')
                 if (shouldUpdate) {
-                    Toast.show({text1: "Synchronizing local database...", type: "info"})
+                    Toast.show(ToastMessages.EN.SYNC_LOCAL_DATABASE)
                     await dbSetLastRefresh(db, 'client')
                     await dbUpdateDatabase(db)
-                    Toast.show({text1: "Sync completed", type: "info"})
+                    Toast.show(ToastMessages.EN.SYNC_LOCAL_DATABASE_COMPLETED)
                 }
 
                 router.replace("/(pages)/Home")
