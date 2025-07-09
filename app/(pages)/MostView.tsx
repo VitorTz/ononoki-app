@@ -35,7 +35,6 @@ const MostView = () => {
     [db]
   )
   
-
   const onEndReached = async () => {
     if (!hasResults.current || !isInitialized.current) {
       return

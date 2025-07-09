@@ -1,6 +1,8 @@
+import { ChapterImage } from '@/helpers/types';
 import { wp } from '@/helpers/util';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -9,40 +11,38 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 
+
 interface InteractiveImageProps {
-  imageUri: string;
-  originalWidth: number;
-  originalHeight: number;
+  chapterImage: ChapterImage
   swapLeft: () => any;
   swapRight: () => any;
 }
 
 const MAX_WIDTH = wp(100)
+const MIN_SCALE = 1
+const MAX_SCALE = 2.5
+const DOUBLE_TAP_ZOOM = 1.8
+const HORIZONTAL_VELOCITY_THRESHOLD = 500
 
 
 export default function InteractiveImage({
-  imageUri,
-  originalWidth,
-  originalHeight,  
+  chapterImage,
   swapLeft,
   swapRight,
 }: InteractiveImageProps) {
   
-  const originalScale = MAX_WIDTH / originalWidth
-  const minScale = 1
-  const maxScale = 2.5
-
-  const scale = useSharedValue(1);  
-  const savedScale = useSharedValue(1)  
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const baseTranslateX = useSharedValue(0);
-  const baseTranslateY = useSharedValue(0);
+  const ORIGINAL_SCALE = MAX_WIDTH / chapterImage.width
+  const scale = useSharedValue(1.0)
+  const savedScale = useSharedValue(1.0)
+  const translateX = useSharedValue(0)
+  const translateY = useSharedValue(0)
+  const baseTranslateX = useSharedValue(0)
+  const baseTranslateY = useSharedValue(0)
 
   useEffect(
     () => {
       const init = () => {
-        scale.value = 1
+        scale.value = 1.0
         translateX.value = 0
         translateY.value = 0
         baseTranslateX.value = 0
@@ -50,7 +50,7 @@ export default function InteractiveImage({
       }
       init()
     },
-    [imageUri, originalWidth, originalHeight]
+    [chapterImage]
   )
 
   const pan = Gesture.Pan()
@@ -59,7 +59,7 @@ export default function InteractiveImage({
       'worklet';
     })
     .onUpdate((e) => {
-      if (scale.value != 1) {        
+      if (scale.value != 1.0) {        
         translateX.value = e.translationX
         translateY.value = e.translationY
       }
@@ -70,7 +70,7 @@ export default function InteractiveImage({
       baseTranslateY.value += translateY.value;
       translateX.value = 0;
       translateY.value = 0;
-      if (scale.value != 1 || Math.abs(e.velocityX) <= 500) { return }
+      if (scale.value != 1.0 || Math.abs(e.velocityX) <= HORIZONTAL_VELOCITY_THRESHOLD) { return }
       e.velocityX < 0 ? runOnJS(swapLeft)() : runOnJS(swapRight)()      
     })
     .minDistance(10)
@@ -82,14 +82,14 @@ export default function InteractiveImage({
     .numberOfTaps(2)
     .onEnd((e) => {
       'worklet';
-      if (scale.value != 1) {
-        scale.value = withTiming(1)
-        savedScale.value = 1
+      if (scale.value != 1.0) {
+        scale.value = withTiming(1.0)
+        savedScale.value = 1.0
         baseTranslateX.value = withTiming(0)
         baseTranslateY.value = withTiming(0)
       } else {
-        scale.value = withTiming(1.8)       
-        savedScale.value = 1.8
+        scale.value = withTiming(DOUBLE_TAP_ZOOM)
+        savedScale.value = DOUBLE_TAP_ZOOM
       }
   });  
 
@@ -97,13 +97,13 @@ export default function InteractiveImage({
     .onStart(() => {})
     .onUpdate((event) => {
       let nextScale = savedScale.value * event.scale      
-      if (nextScale < minScale) nextScale = minScale
-      if (nextScale > maxScale) nextScale = maxScale      
+      if (nextScale < MIN_SCALE) nextScale = MIN_SCALE
+      if (nextScale > MAX_SCALE) nextScale = MAX_SCALE
       scale.value = nextScale
     })
     .onEnd(() => {
       savedScale.value = scale.value
-      if (scale.value === minScale) {
+      if (scale.value === MIN_SCALE) {
         baseTranslateX.value = 0
         baseTranslateY.value = 0
         translateX.value = 0
@@ -118,7 +118,7 @@ export default function InteractiveImage({
       transform: [
         { translateX: baseTranslateX.value + translateX.value},
         { translateY: baseTranslateY.value + translateY.value},
-        { scale: originalScale * scale.value },
+        { scale: ORIGINAL_SCALE * scale.value },
       ],
     };
   });
@@ -130,13 +130,19 @@ export default function InteractiveImage({
 
   return (
     <GestureDetector gesture={composedGesture} >
-      <Animated.View style={[animatedStyle, {width: originalWidth, height: originalHeight}]} >
+      <Animated.View style={[animatedStyle, {width: chapterImage.width, height: chapterImage.height}]} >
         <Image 
-          source={imageUri} 
-          style={{width: '100%', height: '100%'}} 
+          source={chapterImage.image_url} 
+          style={styles.image}
           contentFit='contain'
         />
       </Animated.View>
     </GestureDetector>
   );
 }
+
+const styles = StyleSheet.create({
+  image: {
+    width: '100%', height: '100%'
+  }
+})

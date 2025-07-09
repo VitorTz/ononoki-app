@@ -81,7 +81,7 @@ const SignUpForm = () => {
             confirmPassword: '',
             bio: ''
         },
-    });
+    });    
     
     const onSubmit = async (form_data: FormData) => {
         Keyboard.dismiss()

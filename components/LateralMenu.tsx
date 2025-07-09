@@ -151,7 +151,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                         :
                     <Option 
                         onPress={loginPage} 
-                        title='SignIn/SignUp'
+                        title='Sign In/Sign Up'
                         iconName='log-in'
                         showLoading={false}
                         iconColor={Colors.accountColor}
@@ -234,7 +234,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     session &&
                     <Option 
                         onPress={handleLogout} 
-                        title='Logout' 
+                        title='Log out' 
                         iconName='log-out-outline'
                         iconColor={Colors.neonRed}
                     />

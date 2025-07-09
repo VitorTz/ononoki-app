@@ -2,7 +2,7 @@ import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
 import { Colors } from '@/constants/Colors'
 import { Chapter, ChapterReadLog } from '@/helpers/types'
-import { hp, isColorDark, wp } from '@/helpers/util'
+import { hp, wp } from '@/helpers/util'
 import { dbGetUserReadHistory } from '@/lib/database'
 import { spFetchChapterList } from '@/lib/supabase'
 import { useChapterState } from '@/store/chapterState'
@@ -57,6 +57,21 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
     })
   }
 
+  if (loading) {
+    return (
+      <View style={styles.itemContainer} >
+        <Pressable onPress={onImagePress} style={{width: '100%'}} >
+          <Image source={log.cover_image_url} contentFit='cover' style={styles.image}/>
+        </Pressable>
+        <View style={{gap: 10, width: '100%'}} >
+            <View style={{paddingVertical: 20, alignItems: "center", justifyContent: "center"}} >
+              <ActivityIndicator size={32} color={log.color} />
+            </View>
+        </View>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.itemContainer} >
       <Pressable onPress={onImagePress} style={{width: '100%'}} >
@@ -67,27 +82,20 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
           />
       </Pressable>
       <View style={{gap: 10, width: '100%'}} >
-        {
-          loading ?
-          <View style={{paddingVertical: 20, alignItems: "center", justifyContent: "center"}} >
-            <ActivityIndicator size={32} color={log.color} />
-          </View>
-          :
-          <View style={styles.itemGrid} >
-            {
-              Array.from(log.chapters).map(
-                (chapter_num, index) => 
-                  <HistoryChapterItem 
-                    key={index}
-                    textColor={isColorDark(log.color) ? Colors.white : Colors.backgroundColor} 
-                    backgroundColor={log.color}
-                    chapter_num={chapter_num} 
-                    onPress={() => onPress(chapter_num, log.manga_id)}
-                  />
-              )
-            }
-          </View>
-        }        
+        <View style={styles.itemGrid} >
+          {
+            Array.from(log.chapters).map(
+              (chapter_num, index) => 
+                <HistoryChapterItem 
+                  key={index}
+                  textColor={Colors.backgroundColor}
+                  backgroundColor={log.color}
+                  chapter_num={chapter_num} 
+                  onPress={() => onPress(chapter_num, log.manga_id)}
+                />
+            )
+          }
+        </View>
       </View>
     </View>
   )
@@ -136,7 +144,7 @@ const ReadHistory = () => {
     }
 
     return (
-        <View style={{width: '100%', paddingVertical: 22, alignItems: "center", justifyContent: "center"}} >
+        <View style={styles.footer} >
           <ActivityIndicator size={32} color={Colors.white} />
         </View> 
     )
@@ -194,5 +202,11 @@ const styles = StyleSheet.create({
     alignItems: "center", 
     justifyContent: "center", 
     paddingVertical: 8
+  },
+  footer: {
+    width: '100%', 
+    paddingVertical: 22, 
+    alignItems: "center", 
+    justifyContent: "center"
   }
 })

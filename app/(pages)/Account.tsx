@@ -42,10 +42,10 @@ const Account = () => {
         <Text style={AppStyle.textRegular}>You are not logged!</Text>
         <Row style={{width: '100%', gap: 10}} >
           <Pressable onPress={handleSignIn} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor, flex: 1}]} >
-            <Text style={AppStyle.formButtonText} >SignIn</Text>
+            <Text style={AppStyle.formButtonText} >Sign In</Text>
           </Pressable>
           <Pressable onPress={handleSignUp} style={[AppStyle.formButton, {backgroundColor: Colors.accountColor, flex: 1}]} >
-            <Text style={AppStyle.formButtonText} >SignUp</Text>
+            <Text style={AppStyle.formButtonText} >Sign Up</Text>
           </Pressable>
         </Row>
       </SafeAreaView>

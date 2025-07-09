@@ -1,62 +1,25 @@
-import { AppConstants } from '@/constants/AppConstants'
 import { Colors } from '@/constants/Colors'
 import { Chapter, ChapterImage } from '@/helpers/types'
 import { wp } from '@/helpers/util'
 import { dbUpsertReadingHistory } from '@/lib/database'
 import { spFetchChapterImages } from '@/lib/supabase'
 import { useChapterState } from '@/store/chapterState'
-import { AppStyle } from '@/styles/AppStyle'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { Image } from 'expo-image'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useEffect, useRef, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import InteractiveImage from '../InteractiveImage'
 import TopBar from '../TopBar'
 import ChangeChapterReadModeButton from '../buttons/ChangeChapterReadModeButton'
 import ReturnButton from '../buttons/ReturnButton'
 import Row from '../util/Row'
 import ChangeChapter from './ChangeChapter'
+import ChangeChapterPage from './ChangeChapterPage'
 
-interface ChangeChapterPageComponentProps {
-  currentPage: number
-  goToPreviousPage: () => any
-  goToNextPage: () => any
-  maxPage: number
-}
-
-
-const ChangeChapterPageComponent = ({
-  currentPage,
-  goToPreviousPage,
-  goToNextPage,
-  maxPage
-}: ChangeChapterPageComponentProps) => {
-
-  return (
-    <View style={{flexDirection: 'row', alignItems: "center", gap: 10, justifyContent: "flex-start"}} >
-      <Text style={[AppStyle.textRegular, {fontSize: 18}]}>Page</Text>
-      {
-        currentPage > 0 &&
-        <Pressable onPress={goToPreviousPage} style={{alignItems: "center", justifyContent: "center", marginTop: 2}} hitSlop={AppConstants.hitSlop} >
-          <Ionicons name='chevron-back' size={20} color={Colors.white} />
-        </Pressable>
-      }
-      <View style={{alignItems: "center", justifyContent: "center"}} >
-        <Text style={[AppStyle.textRegular, {fontSize: 18}]}>{currentPage + 1}</Text>
-      </View>
-      {
-        currentPage < maxPage &&
-        <Pressable onPress={goToNextPage} style={{alignItems: "center", justifyContent: "center", marginTop: 2}} hitSlop={AppConstants.hitSlop}>
-          <Ionicons name='chevron-forward' size={20} color={Colors.white} />
-        </Pressable>
-      }
-    </View> 
-  )
-}
 
 
 const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
+
   const db = useSQLiteContext()  
   const { chapters, currentChapterIndex, setCurrentChapterIndex } = useChapterState()
   const [images, setImages] = useState<ChapterImage[]>([])
@@ -132,37 +95,33 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
   }
 
   return (
-    <View style={{flex: 1}} >
-      <View style={{paddingHorizontal: wp(5), paddingTop: 26, paddingVertical: 8}} >
+    <View style={styles.container} >
+      <View style={styles.innerContainer} >
         <TopBar title={mangaTitle!} numberOfLines={1} >
-          <ReturnButton backgroundColor={Colors.backgroundColor} />
+          <ReturnButton backgroundColor={Colors.black} />
         </TopBar>
-
         <Row style={{width: '100%', justifyContent: "space-between"}} >
           <ChangeChapter 
             loading={loading} 
             goToNextChapter={goToNextChapter} 
             goToPreviousChapter={goToPreviousChapter}/>
 
-          <ChangeChapterPageComponent
+          <ChangeChapterPage
             currentPage={imageIndex.current}
-            goToNextPage={moveToPreviousImage}
-            goToPreviousPage={moveToNextImage}
+            goToNextPage={moveToNextImage}
+            goToPreviousPage={moveToPreviousImage}
             maxPage={images.length - 1}/>
           <ChangeChapterReadModeButton/>
         </Row>
-
       </View>
 
       {
         currentImage &&
-        <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} >
+        <View style={styles.imageContainer} >
           <InteractiveImage
             swapLeft={moveToPreviousImage}
             swapRight={moveToNextImage}
-            originalWidth={currentImage.width}
-            originalHeight={currentImage.height}
-            imageUri={currentImage.image_url}
+            chapterImage={currentImage}
           />          
         </View>
       }      
@@ -172,4 +131,20 @@ const ChapterReaderHorizontal = ({mangaTitle}: {mangaTitle: string}) => {
 
 export default ChapterReaderHorizontal
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.black
+  },
+  innerContainer: {
+    backgroundColor: Colors.black,
+    paddingHorizontal: wp(5), 
+    paddingTop: 26, 
+    paddingVertical: 8
+  },
+  imageContainer: {
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center"
+  }
+})

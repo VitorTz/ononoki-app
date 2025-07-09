@@ -68,9 +68,9 @@ const ProfilePage = () => {
                                 hitSlop={AppConstants.hitSlopLarge}
                                 style={styles.button}
                                 >
-                                    <View>
-                                        <Text style={[AppStyle.textHeader, {fontSize: 18, fontFamily: 'LeagueSpartan_700Bold', color: Colors.backgroundColor}]} >MAL</Text>
-                                    </View>
+                                <View>
+                                    <Text style={[AppStyle.textHeader, {fontSize: 18, fontFamily: 'LeagueSpartan_700Bold', color: Colors.backgroundColor}]} >MAL</Text>
+                                </View>
                             </Pressable>
                         }
                     
