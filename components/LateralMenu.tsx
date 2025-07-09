@@ -152,7 +152,7 @@ const LateralMenu = ({closeMenu}: LateralMenuProps) => {
                     :
                     <Option 
                         onPress={loginPage} 
-                        title='Sign In/Sign Up'
+                        title='Sign In/Register'
                         iconName='log-in'
                         showLoading={false}
                         iconColor={Colors.accountColor}
