@@ -16,6 +16,7 @@ interface AddFriendButton {
     style: ViewStyle
 }
 
+
 const AddFriendButton = ({user_id, friend, style}: AddFriendButton) => {
 
     const db = useSQLiteContext()
@@ -25,17 +26,14 @@ const AddFriendButton = ({user_id, friend, style}: AddFriendButton) => {
     useEffect(
         () => {
             const init = async () => {
-                await dbUserHasFriend(db, friend.user_id)
-                    .then(v => setIsFriend(v))
+                await dbUserHasFriend(db, friend.user_id).then(v => setIsFriend(v))
             }
             init()
         },
         []
     )
 
-    const iconName = isFriend ?
-        'person-remove' :
-        'person-add'
+    const iconName = isFriend ? 'person-remove' : 'person-add'
 
     const onPress = async () => {
         if (user_id === null) {

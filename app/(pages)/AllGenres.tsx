@@ -18,12 +18,8 @@ const AllGenres = () => {
     useEffect(
         () => {
             const init = async () => {
-                await dbReadGenres(db)
-                    .then(v => setGenres([...v]))
-                    .catch(e => {
-                        console.log(e)
-                        setGenres([])
-                    })
+                const g: Genre[] = await dbReadGenres(db)
+                setGenres([...g])
             }
             init()
         },

@@ -1,7 +1,7 @@
 import { AppConstants } from '@/constants/AppConstants'
 import { AppStyle } from '@/styles/AppStyle'
 import React from 'react'
-import { Pressable, StyleSheet, Text } from 'react-native'
+import { Pressable, Text } from 'react-native'
 
 interface ViewAllButtonProps {
     onPress: () => any
@@ -17,5 +17,3 @@ const ViewAllButton = ({onPress}: ViewAllButtonProps) => {
 }
 
 export default ViewAllButton
-
-const styles = StyleSheet.create({})

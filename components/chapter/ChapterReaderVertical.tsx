@@ -23,14 +23,18 @@ import ChapterHeader from './ChapterHeader'
 const MAX_WIDTH = wp(100)
 
 
-const ChapterImageComponent = ({image}: {image: ChapterImage}) => {
-    const width = Math.min(image.width, MAX_WIDTH)
-    const height = (width * image.height) / image.width
+const ChapterImageComponent = ({image}: {image: ChapterImage | "Box"}) => {
+  if (image === 'Box') {
+    return <View style={{width: '100%', height: 160}} />
+  }
+  const width = Math.min(image.width, MAX_WIDTH)
+  const height = (width * image.height) / image.width
 
-    return (
-      <Image style={{ width, height }} source={image.image_url} contentFit="cover"/>
-    )
+  return (
+    <Image style={{ width, height }} source={image.image_url} contentFit="cover"/>
+  )
 }
+
 
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList<ChapterImage>)
 
@@ -55,14 +59,12 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
       }
     }
 
-
     const goToPreviousChapter = () => {
       if (currentChapterIndex - 1 >= 0) {
         setCurrentChapterIndex(currentChapterIndex - 1)
         scrollToTop()
       }
     }
-
 
     useEffect(
       () => {
@@ -86,19 +88,12 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
       }
       load()
     }, [currentChapterIndex])
-
-    const previousY = useSharedValue(0)
-    const headerVisible = useSharedValue(true)
+    
+    const headerVisible = useSharedValue(true)    
 
     const scrollHandler = useAnimatedScrollHandler({
       onScroll: (event) => {
-        const currentY = event.contentOffset.y
-        if (currentY > previousY.value && currentY > 50) {
-          headerVisible.value = false
-        } else if (currentY < previousY.value) {
-          headerVisible.value = true
-        }
-        previousY.value = currentY
+        headerVisible.value = event.contentOffset.y <= 20
       }
     })
 
@@ -106,7 +101,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
       return {        
         transform: [
           {
-            translateY: withTiming(headerVisible.value ? 0 : -160, { duration: 600 })
+            translateY: withTiming(headerVisible.value ? 0 : -160, { duration: 400 })
           }
         ],
         zIndex: 10,
@@ -116,15 +111,9 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
       }
     })
 
-    const animatedFlashListStyle = useAnimatedStyle(() => {
-      return {
-        paddingTop: withTiming(headerVisible.value ? 160 : 0, { duration: 600 })
-      }
-    })
-
     return (
       <View style={styles.container} >
-        <Animated.View style={animatedHeaderStyle} >
+        <Animated.View style={animatedHeaderStyle}>
           <ChapterHeader
             mangaTitle={mangaTitle}
             currentChapter={currentChapter}
@@ -132,12 +121,11 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
             goToNextChapter={goToNextChapter}
             goToPreviousChapter={goToPreviousChapter}
           />
-        </Animated.View>
-        <Animated.View style={[{flex: 1}, animatedFlashListStyle]} >
+        </Animated.View>        
           <AnimatedFlashList
-            data={images}
+            data={[...['Box'], ...images] as any}
             ref={flashListRef}
-            keyExtractor={(item) => item.image_url}
+            keyExtractor={(item: ChapterImage | 'Box') => item === 'Box' ? 'Box' : item.image_url}
             renderItem={({item}) => <ChapterImageComponent image={item} />}
             estimatedItemSize={hp(50)}
             scrollEventThrottle={4}
@@ -155,9 +143,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
             }
             ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
           />
-        
-          <ChapterArrowUpButton onPress={scrollToTop} />
-        </Animated.View>
+          <ChapterArrowUpButton onPress={scrollToTop} />        
     </View>
     )
 }

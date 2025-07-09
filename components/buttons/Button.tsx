@@ -31,13 +31,15 @@ const Button = ({
     await onPress()
     setLoading(false)
   }
-
-  if (loading && showLoading) {
-    return (
-      <View style={style} >
-        <ActivityIndicator size={iconSize} color={iconColor} />
-      </View>
-    )
+  
+  if (loading) {
+    <View style={style} >
+        { 
+          showLoading ? 
+          <ActivityIndicator size={iconSize} color={iconColor} /> :
+          <Ionicons name={iconName as any} size={iconSize} color={iconColor} />
+        }
+    </View>
   }
 
   return (

@@ -10,7 +10,6 @@ import Toast from 'react-native-toast-message';
 
 
 const TOAST_CONFIG = {
-  
   success: ({ text1, text2 }: {text1: string, text2: string}) => (
     <View style={styles.toast}>
       <Text numberOfLines={1} style={[AppStyle.textRegular, {fontSize: 18}]}>{text1}</Text>
@@ -35,7 +34,6 @@ const TOAST_CONFIG = {
     </View>
   )
 };
-
 
 
 const _layout = () => {

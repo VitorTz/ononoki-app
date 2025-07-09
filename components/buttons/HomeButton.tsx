@@ -10,16 +10,17 @@ import { Pressable } from 'react-native'
 interface HomeButtonProps {
   size?: number
   color?: string
+  iconName?: string
 }
 
-const HomeButton = ({size = 28, color = Colors.white}: HomeButtonProps) => {
+const HomeButton = ({size = 28, color = Colors.white, iconName = 'home'}: HomeButtonProps) => {
 
   return (
     <Pressable 
       onPress={() => router.replace('/(pages)/Home')} 
       hitSlop={AppConstants.hitSlopLarge}
       style={AppStyle.buttonBackground} >
-        <Ionicons name='home' size={size} color={color} />
+        <Ionicons name={iconName as any} size={size} color={color} />
     </Pressable>
   )
 }

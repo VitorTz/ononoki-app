@@ -1,4 +1,3 @@
-import { Colors } from '@/constants/Colors'
 import { Chapter } from '@/helpers/types'
 import { wp } from '@/helpers/util'
 import { Image } from 'expo-image'
@@ -40,11 +39,11 @@ const ChapterHeader = ({
   return (
     <View style={styles.container} >
       <TopBar title={mangaTitle} numberOfLines={1} >
-        <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
+        <ReturnButton onPress={exitChapter} backgroundColor={'transparent'} />
       </TopBar>
 
       <Row style={styles.row} >
-        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} padding={0} />
+        <BugReportButton size={32} title={reportTitle} backgroundColor={'transparent'} padding={0} />
         <ChangeChapter
             goToNextChapter={goToNextChapter}
             goToPreviousChapter={goToPreviousChapter}

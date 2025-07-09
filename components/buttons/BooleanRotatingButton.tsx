@@ -8,9 +8,11 @@ interface BooleanRotatingButtonProps {
     onPress: () => any
     iconSize: number
     iconColor: string
+    iconName?: string
 }
 
-const BooleanRotatingButton = ({onPress, iconSize, iconColor}: BooleanRotatingButtonProps) => {
+
+const BooleanRotatingButton = ({onPress, iconSize, iconColor, iconName = 'sync'}: BooleanRotatingButtonProps) => {
     const [isRotating, setIsRotating] = useState(false)
     const rotateValue = new Animated.Value(0);
 
@@ -48,6 +50,18 @@ const BooleanRotatingButton = ({onPress, iconSize, iconColor}: BooleanRotatingBu
         setIsRotating(false)
     }
 
+    if (isRotating) {
+        return (
+            <Animated.View
+            style={[
+                styles.box,
+                { width: iconSize, height: iconSize, transform: [{ rotate: rotation }] },
+            ]}>
+                <Ionicons name={iconName as any} size={iconSize} color={iconColor}/>
+            </Animated.View>
+        );
+    }
+
     return (
         <Pressable onPress={handlePress} hitSlop={AppConstants.hitSlop}>
             <Animated.View
@@ -55,7 +69,7 @@ const BooleanRotatingButton = ({onPress, iconSize, iconColor}: BooleanRotatingBu
                 styles.box,
                 { width: iconSize, height: iconSize, transform: [{ rotate: rotation }] },
             ]}>
-                <Ionicons name='sync' size={iconSize} color={iconColor}/>
+                <Ionicons name={iconName as any} size={iconSize} color={iconColor}/>
             </Animated.View>
         </Pressable>        
     );
