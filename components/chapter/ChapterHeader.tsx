@@ -40,11 +40,11 @@ const ChapterHeader = ({
   return (
     <View style={{width: '100%', paddingHorizontal: wp(5), paddingTop: 26, paddingBottom: 8}} >
       <TopBar title={mangaTitle} numberOfLines={1} >
-        <ReturnButton onPress={exitChapter} backgroundColor={Colors.backgroundColor} />
+        <ReturnButton onPress={exitChapter} backgroundColor={Colors.black} />
       </TopBar>
 
       <Row style={{width: '100%', gap: 10, justifyContent: "space-between", marginBottom: 20}} >            
-        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.backgroundColor} padding={0} />
+        <BugReportButton size={32} title={reportTitle} backgroundColor={Colors.black} padding={0} />
         <ChangeChapter
             goToNextChapter={goToNextChapter}
             goToPreviousChapter={goToPreviousChapter}
