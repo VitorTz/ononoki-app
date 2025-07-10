@@ -25,7 +25,7 @@ const MAX_WIDTH = wp(100)
 const SCREEN_HEIGHT = hp(100)
 const SCREEN_WIDTH = MAX_WIDTH
 const HEADER_BOX_HEIGHT = 160
-const FOOTER_BOX_HEIGHT = 300
+const FOOTER_BOX_HEIGHT = 500
 
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList<ChapterImage>)
 
@@ -98,7 +98,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
     const scrollHandler = useAnimatedScrollHandler({
       onScroll: (event) => {
         headerVisible.value = event.contentOffset.y <= 50
-        footerVisible.value = event.contentOffset.y + SCREEN_HEIGHT >= flashListTotalHeight.value
+        footerVisible.value = event.contentOffset.y + SCREEN_HEIGHT >= flashListTotalHeight.value - 100
       }
     })
 
@@ -120,13 +120,13 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
       return {        
         transform: [
           {
-            translateY: withTiming(footerVisible.value ? -100 : FOOTER_BOX_HEIGHT, { duration: 400 })
+            translateY: withTiming(footerVisible.value ? -FOOTER_BOX_HEIGHT * 1.5: FOOTER_BOX_HEIGHT, { duration: 400 })
           }
         ],
         zIndex: 10,
         width: '100%',
         position: 'absolute',
-        bottom: -200,
+        bottom: -FOOTER_BOX_HEIGHT,
         left: 0
       }
     })
@@ -241,7 +241,6 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
               onScroll={scrollHandler}
               ListEmptyComponent={<ActivityIndicator size={32} color={Colors.white} />}
             />
-            <ChapterArrowUpButton onPress={scrollToTop} />
           </Animated.View>
           <Animated.View style={animatedFooterStyle} >
             <ChapterFooter
@@ -252,6 +251,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
               goToPreviousChapter={goToPreviousChapter}
             />
           </Animated.View>
+          <ChapterArrowUpButton onPress={scrollToTop} />
         </View>
       </GestureDetector>
     )
