@@ -70,12 +70,13 @@ export async function spGetMangas(): Promise<Manga[]> {
     const { data, error } = await supabase.from("mv_mangas").select("*")
     
     if (error) {
-        console.log("error spGetManhwas", error)
+        console.log("error spGetMangas", error)
         return []
     }
     
     return data
 }
+
 
 
 export async function spFetchUserReadingStatus(user_id: string): Promise<{manga_id: number, status: string}[]> {
@@ -539,3 +540,4 @@ export async function spFetchUserReadingStatusSummary(
     
     return data
 }
+

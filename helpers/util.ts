@@ -4,7 +4,6 @@ import { Dimensions } from "react-native";
 import { AppConstants } from '../constants/AppConstants';
 
 
-
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -14,12 +13,10 @@ const {
     height: deviceHeight
 } = Dimensions.get('window');
 
-
 export function wp(percentage: number) {
     const width = deviceWidth;
     return (percentage * width) / 100;
 }
-
 
 export function hp(percentage: number) {
     const height = deviceHeight;
@@ -33,7 +30,6 @@ export function toTitleCase(str: string) {
     );
 }
 
-
 export function getItemGridDimensions(
     horizontalPadding: number,
     gap: number,
@@ -46,13 +42,11 @@ export function getItemGridDimensions(
     return {width, height}
 }
 
-
 export function formatTimestamp(timestamp: string): string {    
     const date = new Date(timestamp);
     const options = { month: 'long', day: 'numeric', year: 'numeric' };    
     return date.toLocaleDateString('en-US', options as any);
 }
-
 
 export async function fetchJson(url: string): Promise<any> {
     return await fetch(url)
@@ -67,11 +61,9 @@ export async function fetchJson(url: string): Promise<any> {
       });
 }
 
-
 export function getRelativeHeight(width: number, originalWidth: number, originalHeight: number): number {
     return width * (originalHeight / originalWidth)
 }
-
 
 export function secondsSince(dateTimeString: string): number {
     const inputDate = new Date(dateTimeString);
@@ -80,12 +72,10 @@ export function secondsSince(dateTimeString: string): number {
     return Math.floor(diff / 1000)
 }
 
-
 export async function hasInternetAvailable(): Promise<boolean> {
     const state: NetInfoState = await NetInfo.fetch()
     return state.isConnected ? true : false
 }
-
 
 export function secondsToMinutesAndSecondsStr(seconds: number): string {    
     const m = Math.floor(seconds / 60);
@@ -94,7 +84,6 @@ export function secondsToMinutesAndSecondsStr(seconds: number): string {
     const ss = String(s).padStart(2, '0');
     return `${mm}:${ss}`;
 }
-
 
 export function convertStringListToSet(input: string): Set<number> {
     const parts = input.split(',').map(s => s.trim());
@@ -112,7 +101,6 @@ export function choice<T>(arr: T[]): T | undefined {
     return arr[randomIndex];
 }
 
-
 export function isColorDark(hex: string): boolean {
   const cleanHex = hex.replace(/^#/, '');
   
@@ -129,8 +117,6 @@ export function isColorDark(hex: string): boolean {
   return luminance < AppConstants.DARK_COLOR_THRESHOLD;
 }
 
-
-
 export async function saveJson(key: string, obj: any) {
   try {
     const jsonStr = JSON.stringify(obj, null, 2);
@@ -141,7 +127,6 @@ export async function saveJson(key: string, obj: any) {
   }
 }
 
-
 export async function readJson(key: string): Promise<any | null> {
   try {
     const jsonStr = await AsyncStorage.getItem(key);
@@ -151,7 +136,6 @@ export async function readJson(key: string): Promise<any | null> {
     return null
   }
 }
-
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
