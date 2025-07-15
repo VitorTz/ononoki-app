@@ -1,5 +1,7 @@
+import CButton from '@/components/buttons/CButton'
 import ReturnButton from '@/components/buttons/ReturnButton'
 import TopBar from '@/components/TopBar'
+import Row from '@/components/util/Row'
 import { Colors } from '@/constants/Colors'
 import { Chapter, ChapterReadLog } from '@/helpers/types'
 import { hp, wp } from '@/helpers/util'
@@ -15,7 +17,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 
 
-const PAGE_LIMIT = 20
+const PAGE_LIMIT = 16
+const ITEM_PAGE_LIMIT = 32
 
 
 interface HistoryChapterItemProps {
@@ -38,6 +41,8 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
   
   const { setChapterState } = useChapterState()
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(0)
+  const maxChapterPageNum = Math.floor(log.chapters.length / ITEM_PAGE_LIMIT)
 
   const onPress = async (chapter_num: number, manga_Id: number) => {
     setLoading(true)
@@ -72,6 +77,14 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
     )
   }
 
+  const moveToNextChapterPage = () => {
+    setPage(prev => prev > maxChapterPageNum - 1 ? 0 : prev + 1)
+  }
+
+  const moveToPreviousChapterPage = () => {
+    setPage(prev => prev === 0 ? prev = maxChapterPageNum : prev - 1)
+  }
+
   return (
     <View style={styles.itemContainer} >
       <Pressable onPress={onImagePress} style={{width: '100%'}} >
@@ -81,21 +94,41 @@ const HistoryItem = ({log}: {log: ChapterReadLog}) => {
           style={styles.image}
           />
       </Pressable>
-      <View style={{gap: 10, width: '100%'}} >
-        <View style={styles.itemGrid} >
-          {
-            Array.from(log.chapters).map(
-              (chapter_num, index) => 
-                <HistoryChapterItem 
-                  key={index}
-                  textColor={Colors.backgroundColor}
-                  backgroundColor={log.color}
-                  chapter_num={chapter_num} 
-                  onPress={() => onPress(chapter_num, log.manga_id)}
-                />
-            )
-          }
+      <Row style={{width: '100%', height: 52, gap: 10}} >
+        <View style={{flex: 1, height: 52, alignItems: "center", justifyContent: "center", backgroundColor: log.color, borderRadius: 4}} >
+          <Text style={[AppStyle.textRegular, {color: Colors.backgroundColor}]}>Total: {log.chapters.length}</Text>
         </View>
+        <Row style={{flex: 1, gap: 10}} >
+          <CButton 
+          style={{flex: 1, height: 52, borderRadius: 4, backgroundColor: log.color}} 
+          iconColor={Colors.backgroundColor}
+          iconName="chevron-back-outline"
+          onPress={moveToPreviousChapterPage}
+          />
+          <View style={{flex: 1, borderRadius: 4, height: 52, borderWidth: 1, borderColor: log.color, alignItems: "center", justifyContent: "center"}} >
+            <Text style={[AppStyle.textRegular, {color: log.color}]}>{page + 1}</Text>
+          </View>
+          <CButton 
+          style={{flex: 1, height: 52, borderRadius: 4, backgroundColor: log.color}} 
+          iconColor={Colors.backgroundColor}
+          iconName="chevron-forward-outline"
+          onPress={moveToNextChapterPage}
+          />
+        </Row>
+      </Row>
+      <View style={styles.itemGrid} >
+        {
+          log.chapters.slice(ITEM_PAGE_LIMIT * page, (page + 1) * ITEM_PAGE_LIMIT).map(
+            (chapter_num) => 
+              <HistoryChapterItem 
+                key={chapter_num}
+                textColor={Colors.backgroundColor}
+                backgroundColor={log.color}
+                chapter_num={chapter_num} 
+                onPress={() => onPress(chapter_num, log.manga_id)}
+              />
+          )
+        }
       </View>
     </View>
   )
@@ -140,7 +173,7 @@ const ReadHistory = () => {
 
   const renderFooter = () => {
     if (!(loading && hasResults.current)) {
-      return <></>
+      return <View style={{height: 62}} />
     }
 
     return (
@@ -158,14 +191,14 @@ const ReadHistory = () => {
       <FlashList
         data={logs} 
         estimatedItemSize={600}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.manga_id.toString()}
         renderItem={({item}) => <HistoryItem log={item}/>} 
         onEndReached={onEndReached}
         drawDistance={hp(100)}
         scrollEventThrottle={4}
         onEndReachedThreshold={1}
         ListFooterComponent={renderFooter}
-        />
+      />
     </SafeAreaView>
   )
 }
@@ -176,7 +209,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     width: '100%',
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     gap: 10,
     marginBottom: 40
   },
@@ -188,12 +221,11 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start"
   },
   itemGrid: {
-    gap: 10, 
-    alignSelf: "flex-start", 
+    gap: 10,
     flexDirection: 'row', 
     flexWrap: 'wrap', 
     alignItems: "center", 
-    justifyContent: "flex-start"
+    justifyContent: "center"
   },
   historyChapterItem: {
     width: 48, 

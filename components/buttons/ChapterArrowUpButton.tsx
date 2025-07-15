@@ -13,7 +13,7 @@ const ChapterArrowUpButton = ({onPress}: ChapterArrowUpButtonProps) => {
         onPress={onPress}
         hitSlop={AppConstants.hitSlopLarge}
         style={styles.arrowUp}>
-        <Ionicons name="arrow-up-outline" size={20} color="rgba(0,0,0,0.3)" />
+        <Ionicons name="arrow-up-outline" size={20} color="rgba(0,0,0,0.5)" />
     </Pressable>
   )
 }
@@ -23,7 +23,7 @@ export default ChapterArrowUpButton
 const styles = StyleSheet.create({
     arrowUp: {
       position: 'absolute',
-      bottom: 80,
+      bottom: 62,
       right: 12,
       padding: 6,
       borderRadius: 32,

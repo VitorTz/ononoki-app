@@ -97,7 +97,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
 
     const scrollHandler = useAnimatedScrollHandler({
       onScroll: (event) => {
-        headerVisible.value = event.contentOffset.y <= 50
+        headerVisible.value = event.contentOffset.y <= 10
         footerVisible.value = event.contentOffset.y + SCREEN_HEIGHT >= flashListTotalHeight.value - 100
       }
     })
@@ -105,9 +105,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
     const animatedHeaderStyle = useAnimatedStyle(() => {
       return {        
         transform: [
-          {
-            translateY: withTiming(headerVisible.value ? 0 : -HEADER_BOX_HEIGHT, { duration: 400 })
-          }
+          { translateY: withTiming(headerVisible.value ? 0 : -HEADER_BOX_HEIGHT, { duration: 400 }) }
         ],
         zIndex: 10,
         position: 'absolute',
@@ -119,9 +117,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
     const animatedFooterStyle = useAnimatedStyle(() => {
       return {        
         transform: [
-          {
-            translateY: withTiming(footerVisible.value ? -FOOTER_BOX_HEIGHT * 1.5: FOOTER_BOX_HEIGHT, { duration: 400 })
-          }
+          { translateY: withTiming(footerVisible.value ? -FOOTER_BOX_HEIGHT * 1.5: FOOTER_BOX_HEIGHT, { duration: 400 }) }
         ],
         zIndex: 10,
         width: '100%',
@@ -129,9 +125,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
         bottom: -FOOTER_BOX_HEIGHT,
         left: 0
       }
-    })
-
-    // IMAGES
+    })    
 
     const pinchGesture = Gesture.Pinch()
       .onUpdate((e) => {
@@ -196,7 +190,7 @@ const ChapterReaderVertical = ({ mangaTitle }: { mangaTitle: string }) => {
       const width = Math.min(item.width, MAX_WIDTH)
       const height = (width * item.height) / item.width
 
-      return (    
+      return (
         <Image 
           style={{ width, height }} 
           source={item.image_url} 
@@ -262,8 +256,8 @@ export default ChapterReaderVertical
 
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors.black
+  container: {
+    flex: 1,
+    backgroundColor: Colors.black
   }
 }) 

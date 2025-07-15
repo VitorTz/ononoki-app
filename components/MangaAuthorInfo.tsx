@@ -44,7 +44,7 @@ const MangaAuthorInfo = ({manga}: MangaAuthorInfoProps) => {
   const renderItem = ({item}: {item: MangaAuthor}) => {
     return (
       <Pressable style={styles.item} onPress={() => openAuthorPage(item)}>
-        <Text style={[AppStyle.textRegular, {color: Colors.white}]} >
+        <Text style={AppStyle.textRegular} >
           {item.role == "Author" ? "Story" : "Art"}: {item.name}
         </Text>
       </Pressable>

@@ -63,7 +63,7 @@ export type OnonokiUser = {
 }
 
 export type ChapterReadLog = {
-  chapters: Set<number>,
+  chapters: number[],
   cover_image_url: string,
   manga_id: number,
   title: string,

@@ -85,12 +85,13 @@ export function secondsToMinutesAndSecondsStr(seconds: number): string {
     return `${mm}:${ss}`;
 }
 
-export function convertStringListToSet(input: string): Set<number> {
+export function convertStringListToSet(input: string): number[] {
     const parts = input.split(',').map(s => s.trim());
-    const numbers = parts
+    return parts
         .map(s => parseInt(s, 10))
-        .filter(n => !Number.isNaN(n));
-    return new Set(numbers);
+        .filter(n => !Number.isNaN(n))
+        .reverse()
+    
 }
 
 export function choice<T>(arr: T[]): T | undefined {

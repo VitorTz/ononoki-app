@@ -50,7 +50,7 @@ const OpenRandomMangaButton = ({
     return (
         <View style={[styles.container, {backgroundColor}]}  >
             <Pressable onPress={openRandomManhwa} hitSlop={AppConstants.hitSlop}>
-                <Ionicons name='dice' size={size} color={color}/>
+                <Ionicons name='dice-outline' size={size} color={color}/>
             </Pressable>
         </View>
     )

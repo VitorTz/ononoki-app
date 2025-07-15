@@ -21,7 +21,7 @@ const RandomMangaGrid = () => {
     useEffect(
         () => {            
             async function init() {
-                await dbReadRandomManga(db, 30)
+                await dbReadRandomManga(db, 32)
                     .then(values => setManhwas(values))
             }
             init()
@@ -30,14 +30,14 @@ const RandomMangaGrid = () => {
     )
 
     const reload = async () => {
-        await dbReadRandomManga(db, 30)
+        await dbReadRandomManga(db, 32)
             .then(values => {
                 setManhwas(values);
                 flashListRef.current?.scrollToIndex({animated: true, index: 0})
         })
     }
 
-    const debounceReload = useCallback(debounce(reload, 2000), []);
+    const debounceReload = useCallback(debounce(reload, 800), []);
 
     const renderItem = ({item}: {item: Manga}) => {
         return (
@@ -48,19 +48,19 @@ const RandomMangaGrid = () => {
     return (
         <View style={{gap: 10}} >
             <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "space-between"}} >                
-                <Title title='Random' iconName='dice'/>
+                <Title title='Random' iconName='dice-outline'/>
                 <RotatingButton onPress={debounceReload} duration={800} />
             </View>
             <View style={style.gridContainer}>
                 <FlashList
-                    ref={flashListRef}
-                    data={mangas}
-                    horizontal={true}
-                    onEndReachedThreshold={2}
-                    estimatedItemSize={wp(80)}
-                    drawDistance={wp(100)}
-                    keyExtractor={(item: Manga) => item.manga_id.toString()}
-                    renderItem={renderItem}
+                ref={flashListRef}
+                data={mangas}
+                horizontal={true}
+                onEndReachedThreshold={2}
+                estimatedItemSize={wp(80)}
+                drawDistance={wp(100)}
+                keyExtractor={(item: Manga) => item.manga_id.toString()}
+                renderItem={renderItem}
                 />
             </View>
         </View>
